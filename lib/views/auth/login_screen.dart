@@ -71,28 +71,35 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         _isLoading = false;
       });
 
-      // Mostra mensagem de sucesso
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 10),
-              Text(
-                'Login realizado com sucesso!',
-                style: GoogleFonts.poppins(),
-              ),
-            ],
+      if (_emailController.text == 'admin@gmail.com' && _passwordController.text == '123456') {
+        // Mostra mensagem de sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 10),
+                Text(
+                  'Login realizado com sucesso!',
+                  style: GoogleFonts.poppins(),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+        );
 
-      // TODO: Navegar para home
+        // Navegar para home
+        Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Credenciais inválidas!')),
+        );
+      }
     }
   }
 
