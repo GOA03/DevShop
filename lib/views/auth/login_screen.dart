@@ -5,6 +5,7 @@ import '../../core/constants/strings.dart';
 import '../../core/utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
+import '../auth/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -360,11 +361,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
           TextButton(
             onPressed: () {
-              // TODO: Navegar para tela de cadastro
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Navegando para tela de cadastro...'),
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RegisterScreen()),
               );
             },
             child: Text(
