@@ -4,6 +4,7 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/strings.dart';
 import '../auth/login_screen.dart';
 import '../products/products_list_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -174,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
             );
           },
         ),
@@ -844,8 +845,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               );
               break;
             case 3:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Navegando para Perfil...')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
               );
               break;
           }
