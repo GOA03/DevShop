@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
-import '../../core/constants/strings.dart';
 import '../../core/utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../auth/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -74,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
       if (_emailController.text == 'admin@gmail.com' && _passwordController.text == '123456') {
         // Mostra mensagem de sucesso
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -97,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         // Navegar para home
         Navigator.of(context).pop();
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Credenciais inválidas!')),
         );
@@ -148,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withAlpha(76),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -251,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             children: [
               Expanded(
                 child: Divider(
-                  color: Colors.grey.withOpacity(0.3),
+                  color: Colors.grey.withAlpha(76),
                 ),
               ),
               Padding(
@@ -266,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
               Expanded(
                 child: Divider(
-                  color: Colors.grey.withOpacity(0.3),
+                  color: Colors.grey.withAlpha(76),
                 ),
               ),
             ],
@@ -326,12 +327,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha(51),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),

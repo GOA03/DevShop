@@ -13,7 +13,7 @@ class CustomTextField extends StatefulWidget {
   final void Function(String)? onChanged;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.label,
     required this.hint,
     required this.prefixIcon,
@@ -22,7 +22,7 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.keyboardType,
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -65,7 +65,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             decoration: InputDecoration(
               hintText: widget.hint,
               hintStyle: GoogleFonts.poppins(
-                color: AppColors.textSecondary.withOpacity(0.6),
+                color: AppColors.textSecondary.withAlpha(153),
                 fontSize: 14,
               ),
               prefixIcon: Icon(
@@ -88,9 +88,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     )
                   : null,
               filled: true,
-              fillColor: _isFocused 
-                  ? AppColors.primary.withOpacity(0.05) 
-                  : Colors.grey.withOpacity(0.05),
+              fillColor: _isFocused
+                  ? AppColors.primary.withAlpha(13)
+                  : Colors.grey.withAlpha(13),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide.none,
@@ -98,7 +98,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withAlpha(51),
                   width: 1,
                 ),
               ),

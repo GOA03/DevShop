@@ -3,9 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/strings.dart';
 import '../auth/login_screen.dart';
+import '../products/products_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -89,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withAlpha(51),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -129,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withAlpha(25),
                   ),
                 ),
               ),
@@ -141,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withAlpha(25),
                   ),
                 ),
               ),
@@ -154,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withAlpha(51),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.notifications_outlined, color: Colors.white),
@@ -165,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withAlpha(51),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.person_outline, color: Colors.white),
@@ -190,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(25),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -271,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                      color: banner['color1'].withOpacity(0.5),
+                      color: banner['color1'].withAlpha(127),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -285,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: Icon(
                         banner['icon'],
                         size: 150,
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withAlpha(25),
                       ),
                     ),
                     Padding(
@@ -306,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             banner['subtitle'],
                             style: GoogleFonts.poppins(
                               fontSize: 16,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withAlpha(230),
                             ),
                           ),
                           const SizedBox(height: 15),
@@ -349,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               decoration: BoxDecoration(
                 color: _currentPage == index
                     ? AppColors.primary
-                    : AppColors.textSecondary.withOpacity(0.3),
+                    : AppColors.textSecondary.withAlpha(76),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -415,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       width: 65,
                       height: 65,
                       decoration: BoxDecoration(
-                        color: (category['color'] as Color).withOpacity(0.1),
+                        color: (category['color'] as Color)..withAlpha(25),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(
@@ -487,9 +488,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
               ),
               TextButton(
-                                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Navegando para Produtos...')),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProductsListScreen()),
                   );
                 },
                 child: Text(
@@ -520,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withAlpha(20),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -579,7 +581,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black..withAlpha(25),
                                   blurRadius: 5,
                                 ),
                               ],
@@ -672,7 +674,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6B46C1).withOpacity(0.3),
+            color: const Color(0xFF6B46C1).withAlpha(76),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -690,7 +692,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withAlpha(51),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -714,7 +716,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Text(
                   'Na sua primeira compra',
                   style: GoogleFonts.poppins(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withAlpha(230),
                     fontSize: 14,
                   ),
                 ),
@@ -754,7 +756,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondary.withOpacity(0.3),
+            color: AppColors.secondary.withAlpha(76),
             blurRadius: 20,
             offset: const Offset(0, 5),
           ),
@@ -785,7 +787,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -836,8 +838,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               );
               break;
             case 2:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Navegando para Produtos...')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductsListScreen()),
               );
               break;
             case 3:

@@ -14,7 +14,7 @@ class CustomButton extends StatelessWidget {
   final double height;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
@@ -24,7 +24,7 @@ class CustomButton extends StatelessWidget {
     this.textColor,
     this.width,
     this.height = 56,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class CustomButton extends StatelessWidget {
         boxShadow: !isOutlined
             ? [
                 BoxShadow(
-                  color: buttonColor.withOpacity(0.3),
+                  color: buttonColor.withAlpha(76),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),

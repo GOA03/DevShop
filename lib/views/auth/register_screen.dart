@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
-import '../../core/constants/strings.dart';
 import '../../core/utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../auth/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -27,7 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
   
   // Animação para os campos do formulário
   late AnimationController _formAnimationController;
@@ -51,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
     ));
     
-    _slideAnimation = Tween<Offset>(
+    Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(
@@ -149,6 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       });
 
       // Mostra mensagem de sucesso
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -189,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withAlpha(13),
                   blurRadius: 10,
                 ),
               ],
@@ -241,7 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withAlpha(76),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -452,7 +451,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
               children: [
                 Expanded(
                   child: Divider(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.grey.withAlpha(76),
                   ),
                 ),
                 Padding(
@@ -467,7 +466,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                 ),
                 Expanded(
                   child: Divider(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.grey.withAlpha(76),
                   ),
                 ),
               ],
@@ -528,12 +527,12 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha(51),
             width: 1,
           ),
                     boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
