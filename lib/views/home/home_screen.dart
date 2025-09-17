@@ -5,6 +5,7 @@ import '../../core/constants/strings.dart';
 import '../auth/login_screen.dart';
 import '../products/products_list_screen.dart';
 import '../profile/profile_screen.dart';
+import '../cart/cart_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -765,8 +766,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       ),
       child: FloatingActionButton.extended(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Navegando para Carrinho...')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CartScreen()),
           );
         },
         backgroundColor: AppColors.secondary,
