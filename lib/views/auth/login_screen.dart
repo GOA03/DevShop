@@ -5,6 +5,7 @@ import '../../core/utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../auth/register_screen.dart';
+import '../home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -95,7 +96,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         );
 
         // Navegar para home
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
