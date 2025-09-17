@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
 import '../../models/product_model.dart';
 import '../../widgets/product_card.dart';
+import '../cart/cart_screen.dart';
 
 class ProductsListScreen extends StatefulWidget {
   const ProductsListScreen({super.key});
@@ -476,7 +477,10 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           label: 'Ver carrinho',
           textColor: Colors.white,
           onPressed: () {
-            // TODO: Navegar para carrinho
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CartScreen()),
+            );
           },
         ),
       ),

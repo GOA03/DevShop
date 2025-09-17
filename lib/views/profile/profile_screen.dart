@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
+import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -732,7 +733,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ),
                 ),
               );
-              // TODO: Navegar para login
+              _navigateToLogin();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade600,
@@ -747,6 +748,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
         ],
       ),
+    );
+  }
+
+  void _navigateToLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 }
