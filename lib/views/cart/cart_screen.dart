@@ -258,7 +258,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             Icon(
               Icons.shopping_cart_outlined,
               size: 120,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withAlpha(127),
             ),
             const SizedBox(height: 24),
             Text(
@@ -274,7 +274,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               'Adicione produtos para continuar',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textSecondary.withOpacity(0.7),
+                color: AppColors.textSecondary.withAlpha(178),
               ),
             ),
             const SizedBox(height: 32),
@@ -305,7 +305,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withAlpha(13),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -371,7 +371,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -443,7 +443,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           style: TextStyle(
                             fontSize: 14,
                             decoration: TextDecoration.lineThrough,
-                            color: AppColors.textSecondary.withOpacity(0.6),
+                            color: AppColors.textSecondary.withAlpha(153),
                           ),
                         ),
                       ],
@@ -533,7 +533,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         color: AppColors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

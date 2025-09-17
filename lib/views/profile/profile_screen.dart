@@ -109,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withAlpha(25),
                   ),
                 ),
               ),
@@ -121,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withAlpha(25),
                   ),
                 ),
               ),
@@ -141,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withAlpha(51),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.edit_outlined, color: Colors.white, size: 20),
@@ -176,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withAlpha(51),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withAlpha(25),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -251,7 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -269,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             Container(
               height: 40,
               width: 1,
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withAlpha(77),
             ),
             _buildStatItem(
               icon: Icons.favorite,
@@ -280,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             Container(
               height: 40,
               width: 1,
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withAlpha(76),
             ),
             _buildStatItem(
               icon: Icons.location_on,
@@ -306,7 +306,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withAlpha(25),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Icon(
@@ -386,7 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -444,7 +444,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ? null
               : Border(
                   bottom: BorderSide(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withAlpha(25),
                     width: 1,
                   ),
                 ),
@@ -455,7 +455,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withAlpha(25),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -507,7 +507,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: AppColors.textSecondary.withOpacity(0.5),
+                color: AppColors.textSecondary.withAlpha(178),
               ),
           ],
         ),
@@ -526,7 +526,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -594,7 +594,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ? null
             : Border(
                 bottom: BorderSide(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withAlpha(25),
                   width: 1,
                 ),
               ),
@@ -628,7 +628,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ),
                 );
               },
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
             ),
           if (trailing != null)
             Row(
@@ -644,7 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 14,
-                  color: AppColors.textSecondary.withOpacity(0.5),
+                  color: AppColors.textSecondary.withAlpha(178),
                 ),
               ],
             ),

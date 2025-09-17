@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/strings.dart';
-import '../auth/login_screen.dart';
 import '../products/products_list_screen.dart';
 import '../profile/profile_screen.dart';
 import '../cart/cart_screen.dart';
