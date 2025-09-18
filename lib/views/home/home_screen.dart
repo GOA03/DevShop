@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/strings.dart';
 import '../products/products_list_screen.dart';
@@ -18,6 +21,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   late Animation<double> _fadeAnimation;
   final PageController _pageController = PageController();
   int _currentPage = 0;
+
+  final ProductController productController = Get.put(ProductController());
 
   @override
   void initState() {
@@ -199,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ],
         ),
         child: TextField(
+          onChanged: productController.search,
           decoration: InputDecoration(
             hintText: 'Buscar produtos...',
             hintStyle: GoogleFonts.poppins(
@@ -206,13 +212,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               fontSize: 14,
             ),
             prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
-            suffixIcon: Container(
-              margin: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(25),
+            suffixIcon: IconButton(
+              onPressed: () => _showFilterBottomSheet(context),
+              icon: Container(
+                margin: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: const Icon(Icons.tune, color: Colors.white, size: 20),
               ),
-              child: const Icon(Icons.tune, color: Colors.white, size: 20),
             ),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -343,15 +352,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             banners.length,
-            (index) => AnimatedContainer(
+                (index) => AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
               width: _currentPage == index ? 25 : 8,
               height: 8,
               decoration: BoxDecoration(
-                color: _currentPage == index
-                    ? AppColors.primary
-                    : AppColors.textSecondary.withAlpha(76),
+                color: _currentPage == index ? AppColors.primary : AppColors.textSecondary.withAlpha(76),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -362,14 +369,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildCategories() {
-    final categories = [
-      {'icon': Icons.phone_android, 'name': 'Eletrônicos', 'color': Colors.blue},
-      {'icon': Icons.checkroom, 'name': 'Moda', 'color': Colors.pink},
-      {'icon': Icons.sports_soccer, 'name': 'Esportes', 'color': Colors.green},
-      {'icon': Icons.home, 'name': 'Casa', 'color': Colors.orange},
-      {'icon': Icons.directions_car, 'name': 'Auto', 'color': Colors.purple},
-      {'icon': Icons.book, 'name': 'Livros', 'color': Colors.teal},
-    ];
+    final Map<String, Map<String, dynamic>> categoryStyles = {
+      'Eletrônicos': {'icon': Icons.phone_android, 'color': Colors.blue},
+      'Calçados': {'icon': Icons.directions_walk, 'color': Colors.pink},
+      'Games': {'icon': Icons.sports_esports, 'color': Colors.green},
+      'Moda': {'icon': Icons.checkroom, 'color': Colors.purple},
+      'Esportes': {'icon': Icons.sports_soccer, 'color': Colors.orange},
+    };
+    const defaultStyle = {'icon': Icons.category, 'color': Colors.grey};
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,36 +413,55 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: categories.length,
+            itemCount: productController.availableCategories.length,
             itemBuilder: (context, index) {
-              final category = categories[index];
-              return Container(
-                margin: const EdgeInsets.only(right: 15),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 65,
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: (category['color'] as Color)..withAlpha(25),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(
-                        category['icon'] as IconData,
-                        color: category['color'] as Color,
-                        size: 30,
+              final categoryName = productController.availableCategories[index];
+              final style = categoryStyles[categoryName] ?? defaultStyle;
+
+              return Obx(
+                    () {
+                  final isSelected = productController.selectedCategories.contains(categoryName);
+                  return Container(
+                    margin: const EdgeInsets.only(right: 15),
+                    child: GestureDetector(
+                      onTap: () {
+                        productController.toggleCategory(categoryName);
+                      },
+                      child: Column(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 65,
+                            height: 65,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? (style['color'] as Color)
+                                  : (style['color'] as Color).withAlpha(25),
+                              borderRadius: BorderRadius.circular(20),
+                              border: isSelected
+                                  ? Border.all(color: style['color'] as Color, width: 2)
+                                  : null,
+                            ),
+                            child: Icon(
+                              style['icon'] as IconData,
+                              color: isSelected ? Colors.white : (style['color'] as Color),
+                              size: 30,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            categoryName,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      category['name'] as String,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           ),
@@ -445,33 +471,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildFeaturedProducts() {
-    final products = [
-      {
-        'name': 'iPhone 15 Pro',
-        'price': 'R\$ 7.999',
-        'oldPrice': 'R\$ 9.999',
-        'discount': '-20%',
-        'rating': 4.8,
-        'image': '📱',
-      },
-      {
-        'name': 'Nike Air Max',
-        'price': 'R\$ 499',
-        'oldPrice': 'R\$ 699',
-        'discount': '-30%',
-        'rating': 4.6,
-        'image': '👟',
-      },
-      {
-        'name': 'MacBook Pro',
-        'price': 'R\$ 12.999',
-        'oldPrice': 'R\$ 14.999',
-        'discount': '-15%',
-        'rating': 4.9,
-        'image': '💻',
-      },
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -509,153 +508,153 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         const SizedBox(height: 15),
         SizedBox(
           height: 280,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              final product = products[index];
-              return Container(
-                width: 180,
-                margin: const EdgeInsets.only(right: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(20),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Produto com badge de desconto
-                    Stack(
-                      children: [
-                        Container(
-                          height: 140,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
+          // Obx observa a lista de produtos do controller e reconstrói a lista na tela sempre que ela for alterada.
+          child: Obx(
+                () => ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: productController.filteredProducts.length,
+              itemBuilder: (context, index) {
+                final product = productController.filteredProducts[index];
+                return Container(
+                  width: 180,
+                  margin: const EdgeInsets.only(right: 15),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(20),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          ClipRRect( // Adicionado para cortar a imagem com as bordas arredondadas
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(20),
                             ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              product['image'] as String,
-                              style: const TextStyle(fontSize: 60),
+                            child: Image.network(
+                              product.imageUrl,
+                              height: 140,
+                              width: double.maxFinite,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(Icons.image_not_supported, size: 60, color: Colors.grey);
+                              },
                             ),
                           ),
-                        ),
-                        Positioned(
-                          top: 10,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              product['discount'] as String,
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                          Positioned(
+                            top: 10,
+                            left: 10,
+                            child: product.isOnSale
+                                ? Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary,
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black..withAlpha(25),
-                                  blurRadius: 5,
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.favorite_border,
-                              size: 20,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            product['name'] as String,
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                size: 16,
-                                color: Colors.amber,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                product['rating'].toString(),
+                              child: Text(
+                                '${product.discountPercentage.toStringAsFixed(0)}% OFF',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Text(
-                                product['price'] as String,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
+                                  fontSize: 12,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                product['oldPrice'] as String,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
+                            )
+                                : const SizedBox.shrink(),
+                          ),
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(25),
+                                    blurRadius: 5,
+                                  ),
+                                ],
                               ),
-                            ],
+                              child: const Icon(
+                                Icons.favorite_border,
+                                size: 20,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Row(
+                              children: [
+                                const Icon(Icons.star, size: 16, color: Colors.amber),
+                                const SizedBox(width: 4),
+                                Text(
+                                  product.rating.toString(),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Text(
+                                  'R\$ ${product.price.toStringAsFixed(2)}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                if (product.oldPrice != null) ...[
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'R\$ ${product.oldPrice!.toStringAsFixed(2)}',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: AppColors.textSecondary,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -832,7 +831,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         onTap: (index) {
           switch (index) {
             case 0:
-              // Já está na home
+            // Já está na home
               break;
             case 1:
               ScaffoldMessenger.of(context).showSnackBar(
@@ -853,6 +852,65 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               break;
           }
         },
+      ),
+    );
+  }
+
+  // painel de filtros
+  void _showFilterBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Ordenar por', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+              Obx(() => Column(
+                children: [
+                  RadioListTile<SortOption>(
+                    title: const Text('Preço: Menor para Maior'),
+                    value: SortOption.priceAsc,
+                    groupValue: productController.sortOption.value,
+                    onChanged: (val) => productController.setSortOption(val!),
+                  ),
+                  RadioListTile<SortOption>(
+                    title: const Text('Preço: Maior para Menor'),
+                    value: SortOption.priceDesc,
+                    groupValue: productController.sortOption.value,
+                    onChanged: (val) => productController.setSortOption(val!),
+                  ),
+                ],
+              )),
+              const Divider(),
+              Text('Categorias', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+              Obx(() => Wrap(
+                spacing: 8.0,
+                children: productController.availableCategories.map((category) {
+                  return FilterChip(
+                    label: Text(category),
+                    selected: productController.selectedCategories.contains(category),
+                    onSelected: (_) => productController.toggleCategory(category),
+                  );
+                }).toList(),
+              )),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                child: const Text('Aplicar Filtros'),
+                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
