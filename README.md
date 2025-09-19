@@ -71,7 +71,7 @@ A primeira parte concentra-se no desenvolvimento completo da interface do usuár
 
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/seu-usuario/devshop.git
+   git clone https://github.com/GOA03/devshop.git
    cd devshop
    ```
 
