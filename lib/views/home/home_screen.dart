@@ -194,11 +194,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(25),
-              blurRadius: 20,
+              blurRadius: 30,
               offset: const Offset(0, 5),
             ),
           ],
@@ -211,20 +211,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               color: AppColors.textSecondary,
               fontSize: 14,
             ),
-            prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
-            suffixIcon: IconButton(
-              onPressed: () => _showFilterBottomSheet(context),
-              icon: Container(
-                margin: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: const Icon(Icons.tune, color: Colors.white, size: 20),
+            suffixIcon: Container(
+              margin: const EdgeInsets.only(right: 5),
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.search, color: AppColors.textSecondary),
               ),
             ),
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
           ),
         ),
       ),
