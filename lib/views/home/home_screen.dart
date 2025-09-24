@@ -813,41 +813,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             label: 'Início',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category_outlined),
-            activeIcon: Icon(Icons.category),
-            label: 'Categorias',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag_outlined),
             activeIcon: Icon(Icons.shopping_bag),
             label: 'Produtos',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Perfil',
+            icon: Icon(Icons.favorite_outline),
+            activeIcon: Icon(Icons.favorite),
+            label: 'Favoritos',
           ),
         ],
         onTap: (index) {
           switch (index) {
             case 0:
-            // Já está na home
+              // Já está na home
               break;
             case 1:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Navegando para Categorias...')),
-              );
-              break;
-            case 2:
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProductsListScreen()),
               );
               break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            case 2:
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Navegando para Favoritos...')),
               );
               break;
           }
