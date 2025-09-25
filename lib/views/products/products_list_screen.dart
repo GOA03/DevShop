@@ -4,6 +4,7 @@ import '../../core/constants/colors.dart';
 import '../../models/product_model.dart';
 import '../../widgets/product_card.dart';
 import '../cart/cart_screen.dart';
+import 'product_detail_screen.dart';
 
 class ProductsListScreen extends StatefulWidget {
   const ProductsListScreen({super.key});
@@ -436,10 +437,10 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   }
 
   void _navigateToProductDetail(Product product) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Navegando para detalhes de ${product.name}'),
-        duration: const Duration(seconds: 1),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailScreen(product: product),
       ),
     );
   }
