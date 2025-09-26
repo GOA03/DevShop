@@ -83,12 +83,20 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildAppBar() {
+    Widget _buildAppBar() {
     return SliverAppBar(
-      expandedHeight: 200,
+      expandedHeight: 100,
       pinned: true,
       backgroundColor: AppColors.primary,
       flexibleSpace: FlexibleSpaceBar(
+        centerTitle: true, // centraliza mesmo em collapse
+        title: Text(
+          'Meu Perfil',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         background: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -129,13 +137,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ],
           ),
         ),
-        title: Text(
-          'Meu Perfil',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
       ),
       actions: [
         IconButton(
@@ -158,88 +159,90 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildProfileHeader() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Container(
-        transform: Matrix4.translationValues(0, -40, 0),
-        child: Column(
-          children: [
-            // Avatar
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 4,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(51),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
+
+    Widget _buildProfileHeader() {
+  return FadeTransition(
+    opacity: _fadeAnimation,
+    child: Container(
+      margin: const EdgeInsets.only(top: 16), // margem top adicionada
+      child: Column(
+        children: [
+          // Avatar
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 4,
               ),
-              child: ClipOval(
-                child: Container(
-                  color: AppColors.primary,
-                  child: Center(
-                    child: Text(
-                      userName.split(' ').map((e) => e[0]).take(2).join(),
-                      style: GoogleFonts.poppins(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(51),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: ClipOval(
+              child: Container(
+                color: AppColors.primary,
+                child: Center(
+                  child: Text(
+                    userName.split(' ').map((e) => e[0]).take(2).join(),
+                    style: GoogleFonts.poppins(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Nome
-            Text(
-              userName,
+          ),
+          const SizedBox(height: 16),
+          // Nome
+          Text(
+            userName,
+            style: GoogleFonts.poppins(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          // Email
+          Text(
+            userEmail,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          // Membro desde
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withAlpha(25),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              memberSince,
               style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                fontSize: 12,
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 4),
-            // Email
-            Text(
-              userEmail,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            // Membro desde
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(25),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                memberSince,
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildStatsSection() {
     return SlideTransition(
@@ -552,12 +555,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               value: true,
             ),
             _buildSettingItem(
-              title: 'Email Marketing',
-              icon: Icons.email_outlined,
-              isSwitch: true,
-              value: false,
-            ),
-            _buildSettingItem(
               title: 'Modo Escuro',
               icon: Icons.dark_mode_outlined,
               isSwitch: true,
@@ -658,7 +655,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 30),
         child: ElevatedButton.icon(
           onPressed: () {
             _showLogoutDialog();
@@ -673,7 +670,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red.shade600,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 24),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
