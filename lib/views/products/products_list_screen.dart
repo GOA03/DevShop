@@ -391,7 +391,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 HapticFeedback.selectionClick();
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOutBack,
                 margin: const EdgeInsets.only(right: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
