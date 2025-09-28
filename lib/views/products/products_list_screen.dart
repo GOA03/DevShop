@@ -208,7 +208,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 80,
       floating: false,
       pinned: true,
       elevation: 0,
@@ -532,7 +532,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
 
   Widget _buildProductsHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -573,7 +573,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                minimumSize: const Size(0, 32),
+                minimumSize: Size.zero,
               ),
             ),
         ],
