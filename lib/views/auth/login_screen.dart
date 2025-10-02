@@ -73,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       });
 
       if (_emailController.text == 'admin@gmail.com' && _passwordController.text == '123456') {
-        // Mostra mensagem de sucesso
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

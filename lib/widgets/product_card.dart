@@ -60,7 +60,7 @@ class _ProductCardState extends State<ProductCard>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 20), // 0.08 * 255 ≈ 20
+                color: Colors.black.withValues(alpha: 20),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -69,10 +69,8 @@ class _ProductCardState extends State<ProductCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Imagem e badges
               Stack(
                 children: [
-                  // Imagem do produto
                   Container(
                     height: 140,
                     decoration: BoxDecoration(
@@ -102,7 +100,6 @@ class _ProductCardState extends State<ProductCard>
                     ),
                   ),
 
-                  // Badge de desconto
                   if (widget.product.isOnSale &&
                       widget.product.discountPercentage > 0)
                     Positioned(
@@ -128,14 +125,11 @@ class _ProductCardState extends State<ProductCard>
                       ),
                     ),
 
-                  // Botão de favorito
                   Positioned(
                     top: 12,
                     right: 12,
-                    // 1. Envolvemos com Obx para reatividade
                     child: Obx(
                           () => GestureDetector(
-                        // 2. Chamamos o callback diretamente
                         onTap: widget.onFavoriteToggle,
                         child: Container(
                           padding: const EdgeInsets.all(8),
@@ -152,7 +146,6 @@ class _ProductCardState extends State<ProductCard>
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             child: Icon(
-                              // 3. Lemos o valor diretamente do product.isFavorite
                               widget.product.isFavorite.value
                                   ? Icons.favorite
                                   : Icons.favorite_border,
@@ -168,7 +161,6 @@ class _ProductCardState extends State<ProductCard>
                     ),
                   ),
 
-                  // Badge de estoque baixo
                   if (widget.product.stock <= 5 && widget.product.stock > 0)
                     Positioned(
                       bottom: 12,
@@ -195,7 +187,6 @@ class _ProductCardState extends State<ProductCard>
                 ],
               ),
 
-              // Informações do produto
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.8),
@@ -203,7 +194,6 @@ class _ProductCardState extends State<ProductCard>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Nome e categoria
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -229,7 +219,6 @@ class _ProductCardState extends State<ProductCard>
                         ],
                       ),
 
-                      // Rating e reviews
                       if (widget.product.rating > 0)
                         Row(
                           children: [
@@ -258,12 +247,10 @@ class _ProductCardState extends State<ProductCard>
                           ],
                         ),
 
-                      // Preços e botão
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // Preços
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -287,7 +274,6 @@ class _ProductCardState extends State<ProductCard>
                             ],
                           ),
 
-                          // Botão adicionar ao carrinho
                           GestureDetector(
                             onTap: widget.onAddToCart,
                             child: Container(

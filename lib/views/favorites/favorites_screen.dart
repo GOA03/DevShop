@@ -6,14 +6,13 @@ import 'package:get/get.dart';
 import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
 import '../products/product_detail_screen.dart';
-import '../../models/product_model.dart'; // Importe o modelo do produto
+import '../../models/product_model.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Recupera a instância do ProductController
     final ProductController productController = Get.find();
 
     return Scaffold(
@@ -30,10 +29,8 @@ class FavoritesScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 1,
       ),
-      // Obx vai reconstruir o widget quando a lista de favoritos mudar
       body: Obx(() {
         if (productController.favoriteProducts.isEmpty) {
-          // Mensagem para quando não há favoritos
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +61,6 @@ class FavoritesScreen extends StatelessWidget {
             ),
           );
         } else {
-          // Exibe a lista de favoritos
           return ListView.builder(
             padding: const EdgeInsets.all(12),
             itemCount: productController.favoriteProducts.length,
@@ -78,7 +74,6 @@ class FavoritesScreen extends StatelessWidget {
     );
   }
 
-  // Widget para o card de produto favorito
   Widget _buildFavoriteProductCard(
       BuildContext context, Product product, ProductController controller) {
     return GestureDetector(
@@ -137,7 +132,6 @@ class FavoritesScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              // Ícone para remover dos favoritos
               IconButton(
                 icon: const Icon(
                   Icons.favorite,

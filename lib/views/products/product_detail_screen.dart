@@ -20,7 +20,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
 
-  // <-- CORREÇÃO: Controller declarado como 'late final'
   late final ProductController productController;
 
   int quantity = 1;
@@ -176,13 +175,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
       actions: [
-        // <-- CORREÇÃO: O IconButton agora está dentro de um Obx para ser reativo
         Obx(
               () => IconButton(
             onPressed: _toggleFavorite,
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              // <-- CORREÇÃO: Lendo o status direto do produto
               child: Icon(
                 widget.product.isFavorite.value
                     ? Icons.favorite

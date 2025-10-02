@@ -517,7 +517,6 @@ class _HomeScreenState extends State<HomeScreen>
         const SizedBox(height: 15),
         SizedBox(
           height: 280,
-          // Obx observa a lista de produtos do controller e reconstrói a lista na tela sempre que ela for alterada.
           child: Obx(
             () => ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -554,7 +553,6 @@ class _HomeScreenState extends State<HomeScreen>
                         Stack(
                           children: [
                             ClipRRect(
-                              // Adicionado para cortar a imagem com as bordas arredondadas
                               borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(20),
                               ),
@@ -866,7 +864,6 @@ class _HomeScreenState extends State<HomeScreen>
         onTap: (index) {
           switch (index) {
             case 0:
-              // Já está na home
               break;
             case 1:
               Navigator.push(

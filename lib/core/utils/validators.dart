@@ -1,11 +1,9 @@
 class Validators {
-  // Validação de email
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email é obrigatório';
     }
     
-    // Regex para validar email
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+',
     );
@@ -17,7 +15,6 @@ class Validators {
     return null;
   }
 
-  // Validação de senha
   static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Senha é obrigatória';
@@ -30,7 +27,6 @@ class Validators {
     return null;
   }
 
-  // Validação de nome
   static String? validateName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Nome é obrigatório';
@@ -43,13 +39,11 @@ class Validators {
     return null;
   }
 
-  // Validação de telefone
   static String? validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'Telefone é obrigatório';
     }
     
-    // Remove caracteres não numéricos
     final numbers = value.replaceAll(RegExp(r'[^0-9]'), '');
     
     if (numbers.length < 10 || numbers.length > 11) {
@@ -59,7 +53,6 @@ class Validators {
     return null;
   }
 
-  // Validação de campo obrigatório genérico
   static String? validateRequired(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
       return '$fieldName é obrigatório';

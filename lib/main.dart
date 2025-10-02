@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/constants/colors.dart';
-import 'views/splash/splash_screen.dart'; // ✅ Import da SplashScreen
+import 'views/splash/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
         
-        // ✅ Configurações extras para melhor integração
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
@@ -79,7 +78,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const SplashScreen(), // ✅ Iniciar com SplashScreen
+      home: const SplashScreen(),
     );
   }
 }

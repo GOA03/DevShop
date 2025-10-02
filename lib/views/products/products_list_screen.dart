@@ -145,7 +145,6 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         return matchesSearch && matchesCategory;
       }).toList();
 
-      // Aplicar ordenação
       switch (_selectedSort) {
         case 'Menor Preço':
           _filteredProducts.sort((a, b) => a.price.compareTo(b.price));
