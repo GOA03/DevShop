@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/constants/colors.dart';
 import '../models/product_model.dart';
+import 'package:get/get.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
@@ -25,12 +26,10 @@ class _ProductCardState extends State<ProductCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  bool _isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-    _isFavorite = widget.product.isFavorite;
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -44,13 +43,6 @@ class _ProductCardState extends State<ProductCard>
   void dispose() {
     _animationController.dispose();
     super.dispose();
-  }
-
-  void _handleFavoriteToggle() {
-    setState(() {
-      _isFavorite = !_isFavorite;
-    });
-    widget.onFavoriteToggle?.call();
   }
 
   @override
@@ -140,31 +132,36 @@ class _ProductCardState extends State<ProductCard>
                   Positioned(
                     top: 12,
                     right: 12,
-                    child: GestureDetector(
-                      onTap: _handleFavoriteToggle,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 8,
+                    // 1. Envolvemos com Obx para reatividade
+                    child: Obx(
+                          () => GestureDetector(
+                        // 2. Chamamos o callback diretamente
+                        onTap: widget.onFavoriteToggle,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Icon(
+                              // 3. Lemos o valor diretamente do product.isFavorite
+                              widget.product.isFavorite.value
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              key: ValueKey(widget.product.isFavorite.value),
+                              size: 20,
+                              color: widget.product.isFavorite.value
+                                  ? AppColors.secondary
+                                  : AppColors.textSecondary,
                             ),
-                          ],
-                        ),
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: Icon(
-                            _isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            key: ValueKey(_isFavorite),
-                            size: 20,
-                            color: _isFavorite
-                                ? AppColors.secondary
-                                : AppColors.textSecondary,
                           ),
                         ),
                       ),
