@@ -1,3 +1,6 @@
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get.dart';
+
 class Product {
   final String id;
   final String name;
@@ -8,7 +11,7 @@ class Product {
   final String category;
   final double rating;
   final int reviewCount;
-  final bool isFavorite;
+  RxBool isFavorite;
   final bool isOnSale;
   final int stock;
 
@@ -22,10 +25,10 @@ class Product {
     required this.category,
     this.rating = 0.0,
     this.reviewCount = 0,
-    this.isFavorite = false,
+    bool isFavorite = false,
     this.isOnSale = false,
     this.stock = 0,
-  });
+  }) : this.isFavorite = isFavorite.obs;
 
   double get discountPercentage {
     if (oldPrice != null && oldPrice! > price) {
@@ -58,7 +61,7 @@ class Product {
       category: category ?? this.category,
       rating: rating ?? this.rating,
       reviewCount: reviewCount ?? this.reviewCount,
-      isFavorite: isFavorite ?? this.isFavorite,
+      isFavorite: isFavorite ?? this.isFavorite.value,
       isOnSale: isOnSale ?? this.isOnSale,
       stock: stock ?? this.stock,
     );

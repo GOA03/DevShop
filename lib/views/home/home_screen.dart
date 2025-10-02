@@ -8,6 +8,7 @@ import '../../core/constants/strings.dart';
 import '../products/products_list_screen.dart';
 import '../products/product_detail_screen.dart';
 import '../profile/profile_screen.dart';
+import '../favorites/favorites_screen.dart';
 import '../cart/cart_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -516,7 +517,6 @@ class _HomeScreenState extends State<HomeScreen>
         const SizedBox(height: 15),
         SizedBox(
           height: 280,
-          // Obx observa a lista de produtos do controller e reconstrói a lista na tela sempre que ela for alterada.
           child: Obx(
             () => ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -553,7 +553,6 @@ class _HomeScreenState extends State<HomeScreen>
                         Stack(
                           children: [
                             ClipRRect(
-                              // Adicionado para cortar a imagem com as bordas arredondadas
                               borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(20),
                               ),
@@ -598,22 +597,33 @@ class _HomeScreenState extends State<HomeScreen>
                             Positioned(
                               top: 10,
                               right: 10,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withAlpha(25),
-                                      blurRadius: 5,
+                              child: Obx(
+                                    () => GestureDetector(
+                                  onTap: () {
+                                    productController.toggleFavorite(product);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withAlpha(25),
+                                          blurRadius: 5,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.favorite_border,
-                                  size: 20,
-                                  color: AppColors.textSecondary,
+                                    child: Icon(
+                                      product.isFavorite.value
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      size: 20,
+                                      color: product.isFavorite.value
+                                          ? Colors.redAccent
+                                          : AppColors.textSecondary,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -854,7 +864,6 @@ class _HomeScreenState extends State<HomeScreen>
         onTap: (index) {
           switch (index) {
             case 0:
-              // Já está na home
               break;
             case 1:
               Navigator.push(
@@ -865,8 +874,11 @@ class _HomeScreenState extends State<HomeScreen>
               );
               break;
             case 2:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Navegando para Favoritos...')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FavoritesScreen(),
+                ),
               );
               break;
           }

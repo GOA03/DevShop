@@ -89,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       pinned: true,
       backgroundColor: AppColors.primary,
       flexibleSpace: FlexibleSpaceBar(
-        centerTitle: true, // centraliza mesmo em collapse
+        centerTitle: true,
         title: Text(
           'Meu Perfil',
           style: GoogleFonts.poppins(
@@ -164,10 +164,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   return FadeTransition(
     opacity: _fadeAnimation,
     child: Container(
-      margin: const EdgeInsets.only(top: 16), // margem top adicionada
+      margin: const EdgeInsets.only(top: 16),
       child: Column(
         children: [
-          // Avatar
           Container(
             width: 120,
             height: 120,
@@ -202,7 +201,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
           ),
           const SizedBox(height: 16),
-          // Nome
           Text(
             userName,
             style: GoogleFonts.poppins(
@@ -212,7 +210,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
           ),
           const SizedBox(height: 4),
-          // Email
           Text(
             userEmail,
             style: GoogleFonts.poppins(
@@ -221,7 +218,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
           ),
           const SizedBox(height: 4),
-          // Membro desde
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -554,12 +550,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               isSwitch: true,
               value: true,
             ),
-            _buildSettingItem(
+            /*_buildSettingItem( TODO: implementar modo escuro
               title: 'Modo Escuro',
               icon: Icons.dark_mode_outlined,
               isSwitch: true,
               value: false,
-            ),
+            ),*/
             _buildSettingItem(
               title: 'Idioma',
               icon: Icons.language_outlined,
