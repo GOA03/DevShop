@@ -1,227 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../core/constants/colors.dart';
+import '../../controllers/cart_controller.dart';
+import '../../models/cart_model.dart';
 import '../../models/product_model.dart';
 import '../../widgets/custom_button.dart';
 
-// Modelo temporário para CartItem (até implementar cart_model.dart)
-class CartItem {
-  final Product product;
-  int quantity;
-
-  CartItem({
-    required this.product,
-    required this.quantity,
-  });
-}
-
-class CartScreen extends StatefulWidget {
+class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
-  State<CartScreen> createState() => _CartScreenState();
-}
-
-class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  // Mock cart items - Em um app real, viriam do CartController
-  List<CartItem> cartItems = [
-    CartItem(
-      product: Product(
-        id: '1',
-        name: 'iPhone 14 Pro',
-        description: 'Smartphone Apple com tela Super Retina XDR',
-        price: 5999.99,
-        oldPrice: 6999.99,
-        imageUrl: '',
-        category: 'Smartphones',
-        rating: 4.8,
-        reviewCount: 1250,
-        stock: 15,
-      ),
-      quantity: 1,
-    ),
-    CartItem(
-      product: Product(
-        id: '2',
-        name: 'MacBook Pro 14"',
-        description: 'Notebook Apple com chip M2 Pro',
-        price: 12999.99,
-        oldPrice: 14999.99,
-        imageUrl: '',
-        category: 'Notebooks',
-        rating: 4.9,
-        reviewCount: 890,
-        stock: 8,
-      ),
-      quantity: 1,
-    ),
-    CartItem(
-      product: Product(
-        id: '3',
-        name: 'AirPods Pro',
-        description: 'Fones sem fio com cancelamento de ruído',
-        price: 1299.99,
-        imageUrl: '',
-        category: 'Audio',
-        rating: 4.7,
-        reviewCount: 2340,
-        stock: 25,
-      ),
-      quantity: 2,
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    ));
-    
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  double get totalAmount {
-    return cartItems.fold(0.0, (sum, item) => sum + (item.product.price * item.quantity));
-  }
-
-  double get totalSavings {
-    return cartItems.fold(0.0, (sum, item) {
-      if (item.product.oldPrice != null) {
-        return sum + ((item.product.oldPrice! - item.product.price) * item.quantity);
-      }
-      return sum;
-    });
-  }
-
-  void _updateQuantity(int index, int newQuantity) {
-    setState(() {
-      if (newQuantity <= 0) {
-        cartItems.removeAt(index);
-      } else {
-        cartItems[index].quantity = newQuantity;
-      }
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(newQuantity <= 0 ? 'Item removido do carrinho' : 'Quantidade atualizada'),
-        backgroundColor: newQuantity <= 0 ? AppColors.error : AppColors.success,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _showClearCartDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Limpar Carrinho'),
-          content: const Text('Deseja remover todos os itens do carrinho?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  cartItems.clear();
-                });
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Carrinho limpo com sucesso'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              },
-              child: const Text(
-                'Limpar',
-                style: TextStyle(color: AppColors.error),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showCheckoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Finalizar Compra'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Total: R\$ ${totalAmount.toStringAsFixed(2)}'),
-              if (totalSavings > 0)
-                Text(
-                  'Economia: R\$ ${totalSavings.toStringAsFixed(2)}',
-                  style: const TextStyle(color: AppColors.success),
-                ),
-              const SizedBox(height: 16),
-              const Text('Confirma a finalização da compra?'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  cartItems.clear();
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Compra finalizada com sucesso!'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              },
-              child: const Text('Confirmar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final CartController cartController = Get.find<CartController>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -236,134 +27,142 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          if (cartItems.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep),
-              onPressed: _showClearCartDialog,
-            ),
+          Obx(() => cartController.itemCount > 0
+              ? IconButton(
+                  icon: const Icon(Icons.delete_sweep),
+                  onPressed: () => _showClearCartDialog(context, cartController),
+                )
+              : const SizedBox()),
         ],
       ),
-      body: cartItems.isEmpty ? _buildEmptyCart() : _buildCartContent(),
-      bottomNavigationBar: cartItems.isNotEmpty ? _buildCheckoutSection() : null,
+      body: Obx(() {
+        if (cartController.itemCount == 0) {
+          return _buildEmptyCart();
+        } else {
+          return _buildCartContent(cartController);
+        }
+      }),
+      bottomNavigationBar: Obx(() {
+        if (cartController.itemCount > 0) {
+          return _buildCheckoutSection(context, cartController);
+        } else {
+          return const SizedBox.shrink();
+        }
+      }),
     );
   }
 
   Widget _buildEmptyCart() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.shopping_cart_outlined,
-              size: 120,
-              color: AppColors.textSecondary.withAlpha(127),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.shopping_cart_outlined,
+            size: 120,
+            color: AppColors.textSecondary.withAlpha(127),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Seu carrinho está vazio',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Seu carrinho está vazio',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-              ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Adicione produtos para continuar',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.textSecondary.withAlpha(178),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Adicione produtos para continuar',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.textSecondary.withAlpha(178),
-              ),
-            ),
-            const SizedBox(height: 32),
-            CustomButton(
-              text: 'Explorar Produtos',
-              onPressed: () => Navigator.pop(context),
-              icon: Icons.shopping_bag_outlined,
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 32),
+          CustomButton(
+            text: 'Explorar Produtos',
+            onPressed: () => Get.back(),
+            icon: Icons.shopping_bag_outlined,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCartContent() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: Column(
-          children: [
-            // Cart Summary Header
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+  Widget _buildCartContent(CartController cartController) {
+    return Column(
+      children: [
+        // Cart Summary Header
+        Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(13),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${cartItems.length} ${cartItems.length == 1 ? 'item' : 'itens'}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      if (totalSavings > 0)
-                        Text(
-                          'Economia: R\$ ${totalSavings.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                    ],
-                  ),
                   Text(
-                    'R\$ ${totalAmount.toStringAsFixed(2)}',
+                    '${cartController.itemCount} ${cartController.itemCount == 1 ? 'item' : 'itens'}',
                     style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                      fontSize: 16,
+                      color: AppColors.textSecondary,
                     ),
                   ),
+                  if (cartController.totalSavings > 0)
+                    Text(
+                      'Economia: R\$ ${cartController.totalSavings.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.success,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                 ],
               ),
-            ),
-            
-            // Cart Items List
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: cartItems.length,
-                itemBuilder: (context, index) {
-                  return _buildCartItem(cartItems[index], index);
-                },
+              Text(
+                'R\$ ${cartController.totalAmount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+
+        // Cart Items List
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: cartController.cartItemsWithDetails.length,
+            itemBuilder: (context, index) {
+              final item = cartController.cartItemsWithDetails[index];
+              return _buildCartItem(item, cartController);
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildCartItem(CartItem item, int index) {
+  Widget _buildCartItem(Map<String, dynamic> item, CartController cartController) {
+    final cartItem = item['cartItem'] as CartItem;
+    final product = item['product'] as Product;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -388,9 +187,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 width: 80,
                 height: 80,
                 color: AppColors.background,
-                child: item.product.imageUrl.isNotEmpty
+                child: product.imageUrl.isNotEmpty
                     ? Image.network(
-                        item.product.imageUrl,
+                        product.imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return const Icon(
@@ -406,16 +205,16 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       ),
               ),
             ),
-            
+
             const SizedBox(width: 12),
-            
+
             // Product Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.product.name,
+                    product.name,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -425,21 +224,21 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  
+
                   Row(
                     children: [
                       Text(
-                        'R\$ ${item.product.price.toStringAsFixed(2)}',
+                        'R\$ ${product.price.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                         ),
                       ),
-                      if (item.product.oldPrice != null) ...[
+                      if (product.oldPrice != null) ...[
                         const SizedBox(width: 8),
                         Text(
-                          'R\$ ${item.product.oldPrice!.toStringAsFixed(2)}',
+                          'R\$ ${product.oldPrice!.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 14,
                             decoration: TextDecoration.lineThrough,
@@ -449,9 +248,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       ],
                     ],
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Quantity Controls
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -460,7 +259,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         children: [
                           _buildQuantityButton(
                             icon: Icons.remove,
-                            onPressed: () => _updateQuantity(index, item.quantity - 1),
+                            onPressed: () => cartController.updateQuantity(product.id, cartItem.quantity - 1),
                           ),
                           Container(
                             margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -470,7 +269,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              '${item.quantity}',
+                              '${cartItem.quantity}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -480,13 +279,13 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           ),
                           _buildQuantityButton(
                             icon: Icons.add,
-                            onPressed: () => _updateQuantity(index, item.quantity + 1),
+                            onPressed: () => cartController.updateQuantity(product.id, cartItem.quantity + 1),
                           ),
                         ],
                       ),
-                      
+
                       Text(
-                        'R\$ ${(item.product.price * item.quantity).toStringAsFixed(2)}',
+                        'R\$ ${(product.price * cartItem.quantity).toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -526,7 +325,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCheckoutSection() {
+  Widget _buildCheckoutSection(BuildContext context, CartController cartController) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -555,7 +354,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                   ),
                 ),
                 Text(
-                  'R\$ ${totalAmount.toStringAsFixed(2)}',
+                  'R\$ ${cartController.totalAmount.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -564,8 +363,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            
-            if (totalSavings > 0) ...[
+
+            if (cartController.totalSavings > 0) ...[
               const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -578,7 +377,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   Text(
-                    'R\$ ${totalSavings.toStringAsFixed(2)}',
+                    'R\$ ${cartController.totalSavings.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -588,17 +387,95 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ],
               ),
             ],
-            
+
             const SizedBox(height: 16),
-            
+
             CustomButton(
               text: 'Finalizar Compra',
-              onPressed: _showCheckoutDialog,
+              onPressed: () => _showCheckoutDialog(context, cartController),
               icon: Icons.shopping_cart_checkout,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showClearCartDialog(BuildContext context, CartController cartController) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Limpar Carrinho'),
+          content: const Text('Deseja remover todos os itens do carrinho?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                cartController.clearCart();
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Carrinho limpo com sucesso'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              },
+              child: const Text(
+                'Limpar',
+                style: TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showCheckoutDialog(BuildContext context, CartController cartController) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Finalizar Compra'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Total: R\$ ${cartController.totalAmount.toStringAsFixed(2)}'),
+              if (cartController.totalSavings > 0)
+                Text(
+                  'Economia: R\$ ${cartController.totalSavings.toStringAsFixed(2)}',
+                  style: const TextStyle(color: AppColors.success),
+                ),
+              const SizedBox(height: 16),
+              const Text('Confirma a finalização da compra?'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                cartController.clearCart();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Compra finalizada com sucesso!'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              },
+              child: const Text('Confirmar'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

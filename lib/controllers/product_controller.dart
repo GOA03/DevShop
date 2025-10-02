@@ -78,4 +78,8 @@ class ProductController extends GetxController {
   List<String> get availableCategories {
     return _allProducts.map((p) => p.category).toSet().toList();
   }
+
+  Product? getProductById(String id) {
+    return _allProducts.firstWhereOrNull((p) => p.id == id);
+  }
 }

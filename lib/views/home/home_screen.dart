@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/product_controller.dart';
+import '../../controllers/cart_controller.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/strings.dart';
 import '../products/products_list_screen.dart';
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen>
   int _currentPage = 0;
 
   final ProductController productController = Get.put(ProductController());
+  final CartController cartController = Get.put(CartController());
 
   @override
   void initState() {
