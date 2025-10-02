@@ -21,7 +21,8 @@ class ProductCard extends StatefulWidget {
   State<ProductCard> createState() => _ProductCardState();
 }
 
-class _ProductCardState extends State<ProductCard> with SingleTickerProviderStateMixin {
+class _ProductCardState extends State<ProductCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isFavorite = false;
@@ -34,13 +35,9 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -98,8 +95,8 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                       ),
                       child: Image.network(
                         widget.product.imageUrl,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+                        width: double.maxFinite,
+                        fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return Center(
                             child: Icon(
@@ -112,9 +109,10 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                       ),
                     ),
                   ),
-                  
+
                   // Badge de desconto
-                  if (widget.product.isOnSale && widget.product.discountPercentage > 0)
+                  if (widget.product.isOnSale &&
+                      widget.product.discountPercentage > 0)
                     Positioned(
                       top: 12,
                       left: 12,
@@ -137,7 +135,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-                  
+
                   // Botão de favorito
                   Positioned(
                     top: 12,
@@ -159,16 +157,20 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           child: Icon(
-                            _isFavorite ? Icons.favorite : Icons.favorite_border,
+                            _isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             key: ValueKey(_isFavorite),
                             size: 20,
-                            color: _isFavorite ? AppColors.secondary : AppColors.textSecondary,
+                            color: _isFavorite
+                                ? AppColors.secondary
+                                : AppColors.textSecondary,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  
+
                   // Badge de estoque baixo
                   if (widget.product.stock <= 5 && widget.product.stock > 0)
                     Positioned(
@@ -195,11 +197,11 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                     ),
                 ],
               ),
-              
+
               // Informações do produto
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(8.8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -220,7 +222,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                           Text(
                             widget.product.name,
                             style: GoogleFonts.poppins(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
@@ -229,7 +231,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                           ),
                         ],
                       ),
-                      
+
                       // Rating e reviews
                       if (widget.product.rating > 0)
                         Row(
@@ -248,7 +250,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                                 color: AppColors.textPrimary,
                               ),
                             ),
-                                                        const SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
                               '(${widget.product.reviewCount})',
                               style: GoogleFonts.poppins(
@@ -258,7 +260,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                             ),
                           ],
                         ),
-                      
+
                       // Preços e botão
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -287,7 +289,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                               ),
                             ],
                           ),
-                          
+
                           // Botão adicionar ao carrinho
                           GestureDetector(
                             onTap: widget.onAddToCart,
@@ -298,7 +300,9 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.3),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
                                   ),
