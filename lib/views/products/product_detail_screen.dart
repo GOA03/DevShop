@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
 import '../../models/product_model.dart';
+
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
 
-  const ProductDetailScreen({
-    super.key,
-    required this.product,
-  });
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -26,10 +24,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 
   // Mock de múltiplas imagens (em um app real, viriam do produto)
   List<String> get productImages => [
-        widget.product.imageUrl,
-        widget.product.imageUrl, // Simulando mais imagens
-        widget.product.imageUrl,
-      ];
+    widget.product.imageUrl,
+    widget.product.imageUrl, // Simulando mais imagens
+    widget.product.imageUrl,
+  ];
 
   @override
   void initState() {
@@ -44,29 +42,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeInOut),
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeInOut),
+      ),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.2, 0.8, curve: Curves.easeOutBack),
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.2, 0.8, curve: Curves.easeOutBack),
+          ),
+        );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.3, 1.0, curve: Curves.elasticOut),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 1.0, curve: Curves.elasticOut),
+      ),
+    );
 
     _animationController.forward();
   }
@@ -188,10 +184,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       foregroundColor: Colors.white,
       title: Text(
         widget.product.name,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
       actions: [
         IconButton(
@@ -267,12 +260,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             ),
 
             // Badge de desconto
-            if (widget.product.isOnSale || widget.product.discountPercentage > 0)
+            if (widget.product.isOnSale ||
+                widget.product.discountPercentage > 0)
               Positioned(
                 top: 12,
                 left: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.error,
                     borderRadius: BorderRadius.circular(12),
@@ -294,7 +291,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 top: 12,
                 right: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.warning,
                     borderRadius: BorderRadius.circular(12),
@@ -342,9 +342,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               color: AppColors.textPrimary,
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Categoria
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -396,16 +396,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             children: [
               Icon(
                 widget.product.stock > 0 ? Icons.check_circle : Icons.error,
-                color: widget.product.stock > 0 ? AppColors.success : AppColors.error,
+                color: widget.product.stock > 0
+                    ? AppColors.success
+                    : AppColors.error,
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
-                widget.product.stock > 0 
+                widget.product.stock > 0
                     ? 'Em estoque (${widget.product.stock} unidades)'
                     : 'Fora de estoque',
                 style: TextStyle(
-                  color: widget.product.stock > 0 ? AppColors.success : AppColors.error,
+                  color: widget.product.stock > 0
+                      ? AppColors.success
+                      : AppColors.error,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -443,11 +447,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                               const Icon(
-                  Icons.star,
-                  color: AppColors.warning,
-                  size: 24,
-                ),
+                const Icon(Icons.star, color: AppColors.warning, size: 24),
                 const SizedBox(width: 4),
                 Text(
                   widget.product.rating.toStringAsFixed(1),
@@ -475,16 +475,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                       index < widget.product.rating.floor()
                           ? Icons.star
                           : index < widget.product.rating
-                              ? Icons.star_half
-                              : Icons.star_border,
+                          ? Icons.star_half
+                          : Icons.star_border,
                       color: AppColors.warning,
                       size: 18,
                     );
                   }),
                 ),
-                
+
                 const SizedBox(height: 4),
-                
+
                 Text(
                   '${widget.product.reviewCount} avaliações',
                   style: TextStyle(
@@ -534,9 +534,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               color: AppColors.textPrimary,
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           Text(
             widget.product.description,
             style: TextStyle(
@@ -579,38 +579,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               color: AppColors.textPrimary,
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
-          ...specs.map((spec) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    spec['label']!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
+
+          ...specs
+              .map(
+                (spec) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          spec['label']!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          spec['value']!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    spec['value']!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )).toList(),
+              )
+              .toList(),
         ],
       ),
     );
@@ -619,7 +623,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   Widget _buildRelatedSection() {
     // Produtos relacionados mockados
     List<Product> relatedProducts = mockProducts
-        .where((p) => p.category == widget.product.category && p.id != widget.product.id)
+        .where(
+          (p) =>
+              p.category == widget.product.category &&
+              p.id != widget.product.id,
+        )
         .take(4)
         .toList();
 
@@ -638,9 +646,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               color: AppColors.textPrimary,
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           SizedBox(
             height: 200,
             child: ListView.builder(
@@ -656,7 +664,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProductDetailScreen(product: product),
+                          builder: (context) =>
+                              ProductDetailScreen(product: product),
                         ),
                       );
                     },
@@ -683,12 +692,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                           product.imageUrl,
                                           width: double.infinity,
                                           fit: BoxFit.contain,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return const Icon(
-                                              Icons.image_not_supported,
-                                              color: AppColors.textSecondary,
-                                            );
-                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return const Icon(
+                                                  Icons.image_not_supported,
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                );
+                                              },
                                         ),
                                       )
                                     : const Icon(
@@ -697,9 +708,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                       ),
                               ),
                             ),
-                            
+
                             const SizedBox(height: 8),
-                            
+
                             Text(
                               product.name,
                               style: const TextStyle(
@@ -710,9 +721,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            
+
                             const SizedBox(height: 4),
-                            
+
                             Text(
                               'R\$ ${product.price.toStringAsFixed(2)}',
                               style: const TextStyle(
@@ -754,17 +765,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             // Controle de quantidade
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.textSecondary.withOpacity(0.3)),
+                border: Border.all(
+                  color: AppColors.textSecondary.withOpacity(0.3),
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: quantity > 1 ? () {
-                      setState(() {
-                        quantity--;
-                      });
-                    } : null,
+                    onPressed: quantity > 1
+                        ? () {
+                            setState(() {
+                              quantity--;
+                            });
+                          }
+                        : null,
                     icon: const Icon(Icons.remove, size: 18),
                     color: AppColors.textSecondary,
                   ),
@@ -780,11 +795,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     ),
                   ),
                   IconButton(
-                    onPressed: quantity < widget.product.stock ? () {
-                      setState(() {
-                        quantity++;
-                      });
-                    } : null,
+                    onPressed: quantity < widget.product.stock
+                        ? () {
+                            setState(() {
+                              quantity++;
+                            });
+                          }
+                        : null,
                     icon: const Icon(Icons.add, size: 18),
                     color: AppColors.textSecondary,
                   ),

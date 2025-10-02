@@ -16,7 +16,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   final PageController _pageController = PageController();
@@ -31,13 +32,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
     _animationController.forward();
   }
 
@@ -120,10 +117,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                AppColors.primary,
-                AppColors.primaryDark,
-              ],
+              colors: [AppColors.primary, AppColors.primaryDark],
             ),
           ),
           child: Stack(
@@ -164,7 +158,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               color: Colors.white.withAlpha(51),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.notifications_outlined, color: Colors.white),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Colors.white,
+            ),
           ),
           onPressed: () {},
         ),
@@ -219,7 +216,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 25,
+              vertical: 15,
+            ),
           ),
         ),
       ),
@@ -347,13 +347,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             banners.length,
-                (index) => AnimatedContainer(
+            (index) => AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
               width: _currentPage == index ? 25 : 8,
               height: 8,
               decoration: BoxDecoration(
-                color: _currentPage == index ? AppColors.primary : AppColors.textSecondary.withAlpha(76),
+                color: _currentPage == index
+                    ? AppColors.primary
+                    : AppColors.textSecondary.withAlpha(76),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -413,51 +415,59 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               final categoryName = productController.availableCategories[index];
               final style = categoryStyles[categoryName] ?? defaultStyle;
 
-              return Obx(
-                    () {
-                  final isSelected = productController.selectedCategories.contains(categoryName);
-                  return Container(
-                    margin: const EdgeInsets.only(right: 15),
-                    child: GestureDetector(
-                      onTap: () {
-                        productController.toggleCategory(categoryName);
-                      },
-                      child: Column(
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 65,
-                            height: 65,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? (style['color'] as Color)
-                                  : (style['color'] as Color).withAlpha(25),
-                              borderRadius: BorderRadius.circular(20),
-                              border: isSelected
-                                  ? Border.all(color: style['color'] as Color, width: 2)
-                                  : null,
-                            ),
-                            child: Icon(
-                              style['icon'] as IconData,
-                              color: isSelected ? Colors.white : (style['color'] as Color),
-                              size: 30,
-                            ),
+              return Obx(() {
+                final isSelected = productController.selectedCategories
+                    .contains(categoryName);
+                return Container(
+                  margin: const EdgeInsets.only(right: 15),
+                  child: GestureDetector(
+                    onTap: () {
+                      productController.toggleCategory(categoryName);
+                    },
+                    child: Column(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 65,
+                          height: 65,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? (style['color'] as Color)
+                                : (style['color'] as Color).withAlpha(25),
+                            borderRadius: BorderRadius.circular(20),
+                            border: isSelected
+                                ? Border.all(
+                                    color: style['color'] as Color,
+                                    width: 2,
+                                  )
+                                : null,
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            categoryName,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                            ),
+                          child: Icon(
+                            style['icon'] as IconData,
+                            color: isSelected
+                                ? Colors.white
+                                : (style['color'] as Color),
+                            size: 30,
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          categoryName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                },
-              );
+                  ),
+                );
+              });
             },
           ),
         ),
@@ -486,7 +496,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ProductsListScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const ProductsListScreen(),
+                    ),
                   );
                 },
                 child: Text(
@@ -505,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           height: 280,
           // Obx observa a lista de produtos do controller e reconstrói a lista na tela sempre que ela for alterada.
           child: Obx(
-                () => ListView.builder(
+            () => ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: productController.filteredProducts.length,
@@ -530,7 +542,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     children: [
                       Stack(
                         children: [
-                          ClipRRect( // Adicionado para cortar a imagem com as bordas arredondadas
+                          ClipRRect(
+                            // Adicionado para cortar a imagem com as bordas arredondadas
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(20),
                             ),
@@ -538,9 +551,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               product.imageUrl,
                               height: 140,
                               width: double.maxFinite,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.image_not_supported, size: 60, color: Colors.grey);
+                                return const Icon(
+                                  Icons.image_not_supported,
+                                  size: 60,
+                                  color: Colors.grey,
+                                );
                               },
                             ),
                           ),
@@ -549,20 +566,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             left: 10,
                             child: product.isOnSale
                                 ? Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                '${product.discountPercentage.toStringAsFixed(0)}% OFF',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            )
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.secondary,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  )
                                 : const SizedBox.shrink(),
                           ),
                           Positioned(
@@ -597,7 +617,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             Text(
                               product.name,
                               maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              overflow: TextOverflow.fade,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -607,7 +627,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             const SizedBox(height: 5),
                             Row(
                               children: [
-                                const Icon(Icons.star, size: 16, color: Colors.amber),
+                                const Icon(
+                                  Icons.star,
+                                  size: 16,
+                                  color: Colors.amber,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   product.rating.toString(),
@@ -619,7 +643,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Row(
+                            Column(
                               children: [
                                 Text(
                                   'R\$ ${product.price.toStringAsFixed(2)}',
@@ -798,9 +822,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.poppins(
-          fontSize: 12,
-        ),
+        unselectedLabelStyle: GoogleFonts.poppins(fontSize: 12),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
@@ -826,7 +848,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             case 1:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProductsListScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const ProductsListScreen(),
+                ),
               );
               break;
             case 2:
