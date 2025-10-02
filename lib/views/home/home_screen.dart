@@ -6,6 +6,7 @@ import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/strings.dart';
 import '../products/products_list_screen.dart';
+import '../products/product_detail_screen.dart';
 import '../profile/profile_screen.dart';
 import '../cart/cart_screen.dart';
 
@@ -523,153 +524,163 @@ class _HomeScreenState extends State<HomeScreen>
               itemCount: productController.filteredProducts.length,
               itemBuilder: (context, index) {
                 final product = productController.filteredProducts[index];
-                return Container(
-                  width: 180,
-                  margin: const EdgeInsets.only(right: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(20),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailScreen(product: product),
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            // Adicionado para cortar a imagem com as bordas arredondadas
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                            child: Image.network(
-                              product.imageUrl,
-                              height: 140,
-                              width: double.maxFinite,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.image_not_supported,
-                                  size: 60,
-                                  color: Colors.grey,
-                                );
-                              },
-                            ),
-                          ),
-                          Positioned(
-                            top: 10,
-                            left: 10,
-                            child: product.isOnSale
-                                ? Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.secondary,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      '${product.discountPercentage.toStringAsFixed(0)}% OFF',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                          Positioned(
-                            top: 10,
-                            right: 10,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(25),
-                                    blurRadius: 5,
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.favorite_border,
-                                size: 20,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    );
+                  },
+                  child: Container(
+                    width: 180,
+                    margin: const EdgeInsets.only(right: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(20),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Stack(
                           children: [
-                            Text(
-                              product.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                            ClipRRect(
+                              // Adicionado para cortar a imagem com as bordas arredondadas
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                              child: Image.network(
+                                product.imageUrl,
+                                height: 140,
+                                width: double.maxFinite,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.image_not_supported,
+                                    size: 60,
+                                    color: Colors.grey,
+                                  );
+                                },
                               ),
                             ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  size: 16,
-                                  color: Colors.amber,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  product.rating.toString(),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
+                            Positioned(
+                              top: 10,
+                              left: 10,
+                              child: product.isOnSale
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.secondary,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
                             ),
-                            const SizedBox(height: 8),
-                            Column(
-                              children: [
-                                Text(
-                                  'R\$ ${product.price.toStringAsFixed(2)}',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                if (product.oldPrice != null) ...[
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'R\$ ${product.oldPrice!.toStringAsFixed(2)}',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: AppColors.textSecondary,
-                                      decoration: TextDecoration.lineThrough,
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(25),
+                                      blurRadius: 5,
                                     ),
-                                  ),
-                                ],
-                              ],
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.favorite_border,
+                                  size: 20,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star,
+                                    size: 16,
+                                    color: Colors.amber,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    product.rating.toString(),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Column(
+                                children: [
+                                  Text(
+                                    'R\$ ${product.price.toStringAsFixed(2)}',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  if (product.oldPrice != null) ...[
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'R\$ ${product.oldPrice!.toStringAsFixed(2)}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: AppColors.textSecondary,
+                                        decoration: TextDecoration.lineThrough,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
