@@ -1,15 +1,8 @@
+import 'package:dev_shop/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
 import '../../models/product.dart';
 import '../../widgets/custom_button.dart';
-
-// Modelo temporário para CartItem (até implementar cart_model.dart)
-class CartItem {
-  final Product product;
-  int quantity;
-
-  CartItem({required this.product, required this.quantity});
-}
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -23,57 +16,12 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Mock cart items - Em um app real, viriam do CartController
-  List<CartItem> cartItems = [
-    CartItem(
-      product: Product(
-        id: '1',
-        name: 'iPhone 14 Pro',
-        description: 'Smartphone Apple com tela Super Retina XDR',
-        price: 5999.99,
-        oldPrice: 6999.99,
-        imageUrl: '',
-        category: 'Smartphones',
-        rating: 4.8,
-        reviewCount: 1250,
-        stock: 15,
-      ),
-      quantity: 1,
-    ),
-    CartItem(
-      product: Product(
-        id: '2',
-        name: 'MacBook Pro 14"',
-        description: 'Notebook Apple com chip M2 Pro',
-        price: 12999.99,
-        oldPrice: 14999.99,
-        imageUrl: '',
-        category: 'Notebooks',
-        rating: 4.9,
-        reviewCount: 890,
-        stock: 8,
-      ),
-      quantity: 1,
-    ),
-    CartItem(
-      product: Product(
-        id: '3',
-        name: 'AirPods Pro',
-        description: 'Fones sem fio com cancelamento de ruído',
-        price: 1299.99,
-        imageUrl: '',
-        category: 'Audio',
-        rating: 4.7,
-        reviewCount: 2340,
-        stock: 25,
-      ),
-      quantity: 2,
-    ),
-  ];
+  final CartController cartController = CartController();
 
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
@@ -101,29 +49,25 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   }
 
   double get totalAmount {
-    return cartItems.fold(
+    return cartController.items.fold(
       0.0,
       (sum, item) => sum + (item.product.price * item.quantity),
     );
   }
 
   double get totalSavings {
-    return cartItems.fold(0.0, (sum, item) {
-      if (item.product.oldPrice != null) {
-        return sum +
-            ((item.product.oldPrice! - item.product.price) * item.quantity);
+    return cartController.items.fold(0.0, (sum, item) {
+      final oldPrice = item.product.oldPrice;
+      if (oldPrice != null) {
+        return sum + ((oldPrice - item.product.price) * item.quantity);
       }
       return sum;
     });
   }
 
-  void _updateQuantity(int index, int newQuantity) {
+  void _updateQuantity(Product product, int newQuantity) {
     setState(() {
-      if (newQuantity <= 0) {
-        cartItems.removeAt(index);
-      } else {
-        cartItems[index].quantity = newQuantity;
-      }
+      cartController.updateQuantity(product, newQuantity);
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -142,87 +86,81 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   void _showClearCartDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Limpar Carrinho'),
-          content: const Text('Deseja remover todos os itens do carrinho?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
+      builder: (_) => AlertDialog(
+        title: const Text('Limpar Carrinho'),
+        content: const Text('Deseja remover todos os itens do carrinho?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() => cartController.clearCart());
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Carrinho limpo com sucesso'),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            },
+            child: const Text(
+              'Limpar',
+              style: TextStyle(color: AppColors.error),
             ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  cartItems.clear();
-                });
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Carrinho limpo com sucesso'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              },
-              child: const Text(
-                'Limpar',
-                style: TextStyle(color: AppColors.error),
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 
   void _showCheckoutDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Finalizar Compra'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Total: R\$ ${totalAmount.toStringAsFixed(2)}'),
-              if (totalSavings > 0)
-                Text(
-                  'Economia: R\$ ${totalSavings.toStringAsFixed(2)}',
-                  style: const TextStyle(color: AppColors.success),
-                ),
-              const SizedBox(height: 16),
-              const Text('Confirma a finalização da compra?'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  cartItems.clear();
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Compra finalizada com sucesso!'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              },
-              child: const Text('Confirmar'),
-            ),
+      builder: (_) => AlertDialog(
+        title: const Text('Finalizar Compra'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Total: R\$ ${totalAmount.toStringAsFixed(2)}'),
+            if (totalSavings > 0)
+              Text(
+                'Economia: R\$ ${totalSavings.toStringAsFixed(2)}',
+                style: const TextStyle(color: AppColors.success),
+              ),
+            const SizedBox(height: 16),
+            const Text('Confirma a finalização da compra?'),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() => cartController.clearCart());
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Compra finalizada com sucesso!'),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            },
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final cartItems = cartController.items;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -251,7 +189,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   Widget _buildEmptyCart() {
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -290,71 +230,20 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCartContent() {
+    final cartItems = cartController.items;
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
         position: _slideAnimation,
         child: Column(
           children: [
-            // Cart Summary Header
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${cartItems.length} ${cartItems.length == 1 ? 'item' : 'itens'}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      if (totalSavings > 0)
-                        Text(
-                          'Economia: R\$ ${totalSavings.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                    ],
-                  ),
-                  Text(
-                    'R\$ ${totalAmount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Cart Items List
+            _buildCartSummaryHeader(cartItems),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: cartItems.length,
-                itemBuilder: (context, index) {
-                  return _buildCartItem(cartItems[index], index);
-                },
+                itemBuilder: (_, index) => _buildCartItem(cartItems[index]),
               ),
             ),
           ],
@@ -363,7 +252,59 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCartItem(CartItem item, int index) {
+  Widget _buildCartSummaryHeader(List<CartItem> cartItems) {
+    return Container(
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(13),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${cartItems.length} ${cartItems.length == 1 ? 'item' : 'itens'}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              if (totalSavings > 0)
+                Text(
+                  'Economia: R\$ ${totalSavings.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+          Text(
+            'R\$ ${totalAmount.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCartItem(CartItem item) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -381,7 +322,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // Product Image
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Container(
@@ -392,12 +332,10 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     ? Image.network(
                         item.product.imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.image_not_supported,
-                            color: AppColors.textSecondary,
-                          );
-                        },
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.image_not_supported,
+                          color: AppColors.textSecondary,
+                        ),
                       )
                     : const Icon(
                         Icons.shopping_bag,
@@ -406,10 +344,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       ),
               ),
             ),
-
             const SizedBox(width: 12),
-
-            // Product Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,53 +356,52 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-
+                  const SizedBox(height: 3),
                   Row(
                     children: [
                       Text(
                         'R\$ ${item.product.price.toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                         ),
                       ),
-                      if (item.product.oldPrice != null) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          'R\$ ${item.product.oldPrice!.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            decoration: TextDecoration.lineThrough,
-                            color: AppColors.textSecondary.withAlpha(153),
+                      if (item.product.oldPrice != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 7),
+                          child: Text(
+                            'R\$ ${item.product.oldPrice!.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              decoration: TextDecoration.lineThrough,
+                              color: AppColors.textSecondary.withAlpha(153),
+                            ),
                           ),
                         ),
-                      ],
                     ],
                   ),
-
-                  const SizedBox(height: 8),
-
-                  // Quantity Controls
+                  const SizedBox(height: 7),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
                           _buildQuantityButton(
-                            icon: Icons.remove,
-                            onPressed: () =>
-                                _updateQuantity(index, item.quantity - 1),
+                            Icons.remove,
+                            () => _updateQuantity(
+                              item.product,
+                              item.quantity - 1,
+                            ),
                           ),
                           Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            margin: const EdgeInsets.symmetric(horizontal: 11),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                              horizontal: 14,
+                              vertical: 7,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.background,
@@ -476,24 +410,25 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             child: Text(
                               '${item.quantity}',
                               style: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textPrimary,
                               ),
                             ),
                           ),
                           _buildQuantityButton(
-                            icon: Icons.add,
-                            onPressed: () =>
-                                _updateQuantity(index, item.quantity + 1),
+                            Icons.add,
+                            () => _updateQuantity(
+                              item.product,
+                              item.quantity + 1,
+                            ),
                           ),
                         ],
                       ),
-
                       Text(
                         'R\$ ${(item.product.price * item.quantity).toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
@@ -509,10 +444,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildQuantityButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
+  Widget _buildQuantityButton(IconData icon, VoidCallback onPressed) {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -565,33 +497,31 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
-
-            if (totalSavings > 0) ...[
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Você economizou:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
+            if (totalSavings > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Você economizou:',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'R\$ ${totalSavings.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.success,
+                    Text(
+                      'R\$ ${totalSavings.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.success,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ],
-
             const SizedBox(height: 16),
-
             CustomButton(
               text: 'Finalizar Compra',
               onPressed: _showCheckoutDialog,

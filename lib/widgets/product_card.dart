@@ -1,3 +1,4 @@
+import 'package:dev_shop/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/constants/colors.dart';
@@ -282,7 +283,12 @@ class _ProductCardState extends State<ProductCard>
                                   ],
                                 ),
                                 GestureDetector(
-                                  onTap: widget.onAddToCart,
+                                  onTap: () {
+                                    CartController().addProduct(widget.product);
+                                    if (widget.onAddToCart != null) {
+                                      widget.onAddToCart!();
+                                    }
+                                  },
                                   child: Container(
                                     padding: EdgeInsets.all(width * 0.03),
                                     decoration: BoxDecoration(

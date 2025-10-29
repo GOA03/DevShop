@@ -376,7 +376,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildCategories() {
     final Map<String, Map<String, dynamic>> categoryStyles = {
-      'Eletrônicos': {'icon': Icons.phone_android, 'color': Colors.blue},
+      "Eletrônicos": {'icon': Icons.phone_android, 'color': Colors.blue},
       'Calçados': {'icon': Icons.directions_walk, 'color': Colors.pink},
       'Games': {'icon': Icons.sports_esports, 'color': Colors.green},
       'Moda': {'icon': Icons.checkroom, 'color': Colors.purple},

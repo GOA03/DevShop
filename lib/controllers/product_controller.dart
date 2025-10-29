@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:dev_shop/service/http_interceptor.dart';
 import 'package:get/get.dart';
+import 'package:http_interceptor/http/intercepted_client.dart';
 import '../models/product.dart';
+import 'package:http/http.dart' as http;
 
 enum SortOption { none, priceAsc, priceDesc }
 
@@ -11,15 +16,58 @@ class ProductController extends GetxController {
   final Rx<SortOption> sortOption = SortOption.none.obs;
   final RxSet<String> selectedCategories = <String>{}.obs;
 
+  //Acesso a API
+  static const String url = "http://10.100.123.130:3000/";
+  static const String learnHttpEndpoint = "products";
+
+  //Concatenação
+  String getUrl() {
+    return "$url$learnHttpEndpoint";
+  }
+
+  //Client com interceptor
+  http.Client client = InterceptedClient.build(
+    interceptors: [LoggerInterceptor()],
+  );
+
+  //Métodos HTTP
+  Future<bool> register(Product product) async {
+    http.Response response = await client.post(
+      Uri.parse(getUrl()),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(product.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<List<Product>> getAll() async {
+    final response = await client.get(Uri.parse(getUrl()));
+    if (response.statusCode != 200) {
+      throw Exception("Erro ao buscar journals");
+    }
+    List<dynamic> lsitDynamic = json.decode(response.body);
+    List<Product> list = [];
+    for (var item in lsitDynamic) {
+      list.add(Product.fromJson(item));
+    }
+    return list;
+  }
+
+  //Restante do codigo Original
   @override
   void onInit() {
     super.onInit();
     _loadProducts();
   }
 
-  void _loadProducts() {
+  Future<void> _loadProducts() async {
     // No futuro isso pode vir de uma API. Por agora vou usar os dados mockados
-    final mockData = mockProducts;
+    final mockData = await getAll();
     _allProducts.assignAll(mockData);
     filteredProducts.assignAll(_allProducts);
     favoriteProducts.assignAll(_allProducts.where((p) => p.isFavorite.value));

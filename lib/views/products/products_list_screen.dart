@@ -1,3 +1,4 @@
+import 'package:dev_shop/controllers/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +7,8 @@ import '../../models/product.dart';
 import '../../widgets/product_card.dart';
 import '../cart/cart_screen.dart';
 import 'product_detail_screen.dart';
+
+import 'package:get/get.dart';
 
 class ProductsListScreen extends StatefulWidget {
   const ProductsListScreen({super.key});
@@ -16,8 +19,10 @@ class ProductsListScreen extends StatefulWidget {
 
 class _ProductsListScreenState extends State<ProductsListScreen>
     with TickerProviderStateMixin {
-  final List<Product> _products = mockProducts;
-  List<Product> _filteredProducts = mockProducts;
+  List<Product> _filteredProducts = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
   String _selectedCategory = 'Todos';
   String _selectedSort = 'Relevância';
   bool _isGridView = true;
@@ -33,6 +38,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   late Animation<double> _searchAnimation;
   late Animation<double> _filterSlideAnimation;
   late Animation<Offset> _slideAnimation;
+
+  final ProductController productController = Get.put(ProductController());
 
   final List<String> _categories = [
     'Todos',
@@ -56,6 +63,22 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     super.initState();
     _initAnimations();
     _searchFocusNode.addListener(_onSearchFocusChanged);
+    _loadProducts(); // 👈 Aqui
+  }
+
+  Future<void> _loadProducts() async {
+    try {
+      final products = await productController.getAll();
+      setState(() {
+        _filteredProducts = products;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Erro ao carregar produtos';
+      });
+    }
   }
 
   void _initAnimations() {
@@ -129,36 +152,45 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     super.dispose();
   }
 
-  void _filterProducts() {
-    setState(() {
-      _filteredProducts = _products.where((product) {
-        final matchesSearch = product.name.toLowerCase().contains(
-          _searchController.text.toLowerCase(),
-        );
-        final matchesCategory =
-            _selectedCategory == 'Todos' ||
-            product.category == _selectedCategory;
+  void _filterProducts() async {
+    try {
+      // Busca todos os produtos novamente, caso queira sempre filtrar do total
+      final allProducts = await productController.getAll();
 
-        return matchesSearch && matchesCategory;
-      }).toList();
-
-      switch (_selectedSort) {
-        case 'Menor Preço':
-          _filteredProducts.sort((a, b) => a.price.compareTo(b.price));
-          break;
-        case 'Maior Preço':
-          _filteredProducts.sort((a, b) => b.price.compareTo(a.price));
-          break;
-        case 'Melhor Avaliação':
-          _filteredProducts.sort((a, b) => b.rating.compareTo(a.rating));
-          break;
-        case 'Mais Vendidos':
-          _filteredProducts.sort(
-            (a, b) => b.reviewCount.compareTo(a.reviewCount),
+      setState(() {
+        _filteredProducts = allProducts.where((product) {
+          final matchesSearch = product.name.toLowerCase().contains(
+            _searchController.text.toLowerCase(),
           );
-          break;
-      }
-    });
+          final matchesCategory =
+              _selectedCategory == 'Todos' ||
+              product.category == _selectedCategory;
+
+          return matchesSearch && matchesCategory;
+        }).toList();
+
+        switch (_selectedSort) {
+          case 'Menor Preço':
+            _filteredProducts.sort((a, b) => a.price.compareTo(b.price));
+            break;
+          case 'Maior Preço':
+            _filteredProducts.sort((a, b) => b.price.compareTo(a.price));
+            break;
+          case 'Melhor Avaliação':
+            _filteredProducts.sort((a, b) => b.rating.compareTo(a.rating));
+            break;
+          case 'Mais Vendidos':
+            _filteredProducts.sort(
+              (a, b) => b.reviewCount.compareTo(a.reviewCount),
+            );
+            break;
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Erro ao aplicar filtros';
+      });
+    }
   }
 
   void _toggleFilters() {
@@ -610,6 +642,28 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   }
 
   Widget _buildProductsSliverList() {
+    if (_isLoading) {
+      return SliverFillRemaining(
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Text(
+            _errorMessage!,
+            style: GoogleFonts.poppins(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      );
+    }
+
     if (_filteredProducts.isEmpty) {
       return SliverFillRemaining(
         child: Center(
@@ -743,6 +797,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
 
   void _toggleFavorite(Product product) {
     HapticFeedback.lightImpact();
+    productController.toggleFavorite(product);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(

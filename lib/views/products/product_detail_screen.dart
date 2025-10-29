@@ -1,5 +1,8 @@
+import 'package:dev_shop/controllers/cart_controller.dart';
+import 'package:dev_shop/views/cart/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
 import '../../models/product.dart';
@@ -715,6 +718,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
       child: SafeArea(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
               decoration: BoxDecoration(
@@ -761,7 +765,77 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+
+            FloatingActionButton.extended(
+              onPressed: () {
+                CartController().addProduct(widget.product);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.check_circle_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Produto adicionado!',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                "product.name",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: AppColors.success,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    margin: const EdgeInsets.all(20),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+                Navigator.pop(context);
+              },
+              backgroundColor: const Color.fromARGB(255, 203, 255, 107),
+              icon: const Icon(
+                Icons.shopping_cart,
+                color: Color.fromARGB(255, 41, 41, 41),
+              ),
+              label: Text(
+                'Comprar',
+                style: GoogleFonts.poppins(
+                  color: const Color.fromARGB(255, 41, 41, 41),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
         ),
       ),
