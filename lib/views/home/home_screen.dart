@@ -52,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
+        bottom: false,
         child: CustomScrollView(
           slivers: [
             _buildAppBar(),
@@ -253,117 +254,123 @@ class _HomeScreenState extends State<HomeScreen>
       },
     ];
 
-    return Column(
-      children: [
-        SizedBox(
-          height: 180,
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemCount: banners.length,
-            itemBuilder: (context, index) {
-              final banner = banners[index];
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [banner['color1'], banner['color2']],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 190,
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemCount: banners.length,
+              itemBuilder: (context, index) {
+                final banner = banners[index];
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
                   ),
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: banner['color1'].withAlpha(127),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [banner['color1'], banner['color2']],
                     ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -30,
-                      bottom: -30,
-                      child: Icon(
-                        banner['icon'],
-                        size: 150,
-                        color: Colors.white.withAlpha(25),
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: banner['color1'].withAlpha(127),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(30),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            banner['title'],
-                            style: GoogleFonts.poppins(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            banner['subtitle'],
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: Colors.white.withAlpha(230),
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              'Ver mais',
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        right: -30,
+                        bottom: -30,
+                        child: Icon(
+                          banner['icon'],
+                          size: 150,
+                          color: Colors.white.withAlpha(25),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(30),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              banner['title'],
                               style: GoogleFonts.poppins(
-                                color: banner['color1'],
+                                fontSize: 28,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
-                          ),
-                        ],
+                            Text(
+                              banner['subtitle'],
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: Colors.white.withAlpha(230),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'Ver mais',
+                                style: GoogleFonts.poppins(
+                                  color: banner['color1'],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 15),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            banners.length,
-            (index) => AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              width: _currentPage == index ? 25 : 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: _currentPage == index
-                    ? AppColors.primary
-                    : AppColors.textSecondary.withAlpha(76),
-                borderRadius: BorderRadius.circular(4),
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              banners.length,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentPage == index ? 25 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: _currentPage == index
+                      ? AppColors.primary
+                      : AppColors.textSecondary.withAlpha(76),
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -483,8 +490,9 @@ class _HomeScreenState extends State<HomeScreen>
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Produtos em Destaque',
@@ -529,7 +537,8 @@ class _HomeScreenState extends State<HomeScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProductDetailScreen(product: product),
+                        builder: (context) =>
+                            ProductDetailScreen(product: product),
                       ),
                     );
                   },
@@ -598,7 +607,7 @@ class _HomeScreenState extends State<HomeScreen>
                               top: 10,
                               right: 10,
                               child: Obx(
-                                    () => GestureDetector(
+                                () => GestureDetector(
                                   onTap: () {
                                     productController.toggleFavorite(product);
                                   },

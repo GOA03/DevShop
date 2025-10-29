@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../models/product_model.dart';
+import '../models/product.dart';
 
 enum SortOption { none, priceAsc, priceDesc }
 
@@ -66,15 +66,19 @@ class ProductController extends GetxController {
     List<Product> tempProducts = List.from(_allProducts);
 
     if (searchQuery.value.isNotEmpty) {
-      tempProducts = tempProducts.where((product) =>
-          product.name.toLowerCase().contains(searchQuery.value.toLowerCase())
-      ).toList();
+      tempProducts = tempProducts
+          .where(
+            (product) => product.name.toLowerCase().contains(
+              searchQuery.value.toLowerCase(),
+            ),
+          )
+          .toList();
     }
 
     if (selectedCategories.isNotEmpty) {
-      tempProducts = tempProducts.where((product) =>
-          selectedCategories.contains(product.category)
-      ).toList();
+      tempProducts = tempProducts
+          .where((product) => selectedCategories.contains(product.category))
+          .toList();
     }
 
     switch (sortOption.value) {

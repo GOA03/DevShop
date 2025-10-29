@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
-
 import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
 import '../products/product_detail_screen.dart';
-import '../../models/product_model.dart';
+import '../../models/product.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -66,7 +65,11 @@ class FavoritesScreen extends StatelessWidget {
             itemCount: productController.favoriteProducts.length,
             itemBuilder: (context, index) {
               final product = productController.favoriteProducts[index];
-              return _buildFavoriteProductCard(context, product, productController);
+              return _buildFavoriteProductCard(
+                context,
+                product,
+                productController,
+              );
             },
           );
         }
@@ -75,7 +78,10 @@ class FavoritesScreen extends StatelessWidget {
   }
 
   Widget _buildFavoriteProductCard(
-      BuildContext context, Product product, ProductController controller) {
+    BuildContext context,
+    Product product,
+    ProductController controller,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -133,11 +139,7 @@ class FavoritesScreen extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(
-                  Icons.favorite,
-                  color: Colors.red,
-                  size: 28,
-                ),
+                icon: const Icon(Icons.favorite, color: Colors.red, size: 28),
                 onPressed: () {
                   controller.toggleFavorite(product);
                 },

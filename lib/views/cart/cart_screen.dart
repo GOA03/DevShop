@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
-import '../../models/product_model.dart';
+import '../../models/product.dart';
 import '../../widgets/custom_button.dart';
 
 // Modelo temporário para CartItem (até implementar cart_model.dart)
@@ -8,10 +8,7 @@ class CartItem {
   final Product product;
   int quantity;
 
-  CartItem({
-    required this.product,
-    required this.quantity,
-  });
+  CartItem({required this.product, required this.quantity});
 }
 
 class CartScreen extends StatefulWidget {
@@ -81,23 +78,19 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutBack,
-    ));
-    
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutBack,
+          ),
+        );
+
     _animationController.forward();
   }
 
@@ -108,13 +101,17 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   }
 
   double get totalAmount {
-    return cartItems.fold(0.0, (sum, item) => sum + (item.product.price * item.quantity));
+    return cartItems.fold(
+      0.0,
+      (sum, item) => sum + (item.product.price * item.quantity),
+    );
   }
 
   double get totalSavings {
     return cartItems.fold(0.0, (sum, item) {
       if (item.product.oldPrice != null) {
-        return sum + ((item.product.oldPrice! - item.product.price) * item.quantity);
+        return sum +
+            ((item.product.oldPrice! - item.product.price) * item.quantity);
       }
       return sum;
     });
@@ -128,10 +125,14 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         cartItems[index].quantity = newQuantity;
       }
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(newQuantity <= 0 ? 'Item removido do carrinho' : 'Quantidade atualizada'),
+        content: Text(
+          newQuantity <= 0
+              ? 'Item removido do carrinho'
+              : 'Quantidade atualizada',
+        ),
         backgroundColor: newQuantity <= 0 ? AppColors.error : AppColors.success,
         duration: const Duration(seconds: 2),
       ),
@@ -227,10 +228,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       appBar: AppBar(
         title: const Text(
           'Meu Carrinho',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.primary,
         elevation: 0,
@@ -244,7 +242,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         ],
       ),
       body: cartItems.isEmpty ? _buildEmptyCart() : _buildCartContent(),
-      bottomNavigationBar: cartItems.isNotEmpty ? _buildCheckoutSection() : null,
+      bottomNavigationBar: cartItems.isNotEmpty
+          ? _buildCheckoutSection()
+          : null,
     );
   }
 
@@ -346,7 +346,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            
+
             // Cart Items List
             Expanded(
               child: ListView.builder(
@@ -406,9 +406,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       ),
               ),
             ),
-            
+
             const SizedBox(width: 12),
-            
+
             // Product Details
             Expanded(
               child: Column(
@@ -425,7 +425,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  
+
                   Row(
                     children: [
                       Text(
@@ -449,9 +449,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       ],
                     ],
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Quantity Controls
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -460,11 +460,15 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         children: [
                           _buildQuantityButton(
                             icon: Icons.remove,
-                            onPressed: () => _updateQuantity(index, item.quantity - 1),
+                            onPressed: () =>
+                                _updateQuantity(index, item.quantity - 1),
                           ),
                           Container(
                             margin: const EdgeInsets.symmetric(horizontal: 12),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.background,
                               borderRadius: BorderRadius.circular(8),
@@ -480,11 +484,12 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           ),
                           _buildQuantityButton(
                             icon: Icons.add,
-                            onPressed: () => _updateQuantity(index, item.quantity + 1),
+                            onPressed: () =>
+                                _updateQuantity(index, item.quantity + 1),
                           ),
                         ],
                       ),
-                      
+
                       Text(
                         'R\$ ${(item.product.price * item.quantity).toStringAsFixed(2)}',
                         style: const TextStyle(
@@ -517,11 +522,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 18,
-        ),
+        child: Icon(icon, color: Colors.white, size: 18),
       ),
     );
   }
@@ -564,7 +565,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            
+
             if (totalSavings > 0) ...[
               const SizedBox(height: 4),
               Row(
@@ -588,9 +589,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ],
               ),
             ],
-            
+
             const SizedBox(height: 16),
-            
+
             CustomButton(
               text: 'Finalizar Compra',
               onPressed: _showCheckoutDialog,

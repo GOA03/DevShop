@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
-import '../../models/product_model.dart';
+import '../../models/product.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -85,8 +85,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               ? 'Adicionado aos favoritos!'
               : 'Removido dos favoritos!',
         ),
-        backgroundColor:
-        widget.product.isFavorite.value ? AppColors.success : AppColors.error,
+        backgroundColor: widget.product.isFavorite.value
+            ? AppColors.success
+            : AppColors.error,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -109,18 +110,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   borderRadius: BorderRadius.circular(12),
                   image: productImages[index].isNotEmpty
                       ? DecorationImage(
-                    image: NetworkImage(productImages[index]),
-                    fit: BoxFit.contain,
-                  )
+                          image: NetworkImage(productImages[index]),
+                          fit: BoxFit.contain,
+                        )
                       : null,
                   color: AppColors.background,
                 ),
                 child: productImages[index].isEmpty
                     ? const Icon(
-                  Icons.image_not_supported,
-                  size: 64,
-                  color: AppColors.textSecondary,
-                )
+                        Icons.image_not_supported,
+                        size: 64,
+                        color: AppColors.textSecondary,
+                      )
                     : null,
               );
             },
@@ -176,7 +177,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
       actions: [
         Obx(
-              () => IconButton(
+          () => IconButton(
             onPressed: _toggleFavorite,
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
@@ -185,7 +186,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     ? Icons.favorite
                     : Icons.favorite_border,
                 key: ValueKey(widget.product.isFavorite.value),
-                color: widget.product.isFavorite.value ? Colors.red : Colors.white,
+                color: widget.product.isFavorite.value
+                    ? Colors.red
+                    : Colors.white,
               ),
             ),
           ),
@@ -227,25 +230,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   borderRadius: BorderRadius.circular(16),
                   child: widget.product.imageUrl.isNotEmpty
                       ? Image.network(
-                    widget.product.imageUrl,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 64,
-                          color: AppColors.textSecondary,
-                        ),
-                      );
-                    },
-                  )
+                          widget.product.imageUrl,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                size: 64,
+                                color: AppColors.textSecondary,
+                              ),
+                            );
+                          },
+                        )
                       : const Center(
-                    child: Icon(
-                      Icons.shopping_bag,
-                      size: 64,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                          child: Icon(
+                            Icons.shopping_bag,
+                            size: 64,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -465,10 +468,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               ],
             ),
           ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Ver todas'),
-          ),
+          TextButton(onPressed: () {}, child: const Text('Ver todas')),
         ],
       ),
     );
@@ -546,35 +546,35 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
           ...specs
               .map(
                 (spec) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      spec['label']!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          spec['label']!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      spec['value']!,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textPrimary,
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          spec['value']!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          )
+                ),
+              )
               .toList(),
         ],
       ),
@@ -585,8 +585,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     List<Product> relatedProducts = mockProducts
         .where(
           (p) =>
-      p.category == widget.product.category && p.id != widget.product.id,
-    )
+              p.category == widget.product.category &&
+              p.id != widget.product.id,
+        )
         .take(4)
         .toList();
 
@@ -644,24 +645,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                 ),
                                 child: product.imageUrl.isNotEmpty
                                     ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    product.imageUrl,
-                                    width: double.infinity,
-                                    fit: BoxFit.contain,
-                                    errorBuilder:
-                                        (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.image_not_supported,
-                                        color: AppColors.textSecondary,
-                                      );
-                                    },
-                                  ),
-                                )
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          product.imageUrl,
+                                          width: double.infinity,
+                                          fit: BoxFit.contain,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return const Icon(
+                                                  Icons.image_not_supported,
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                );
+                                              },
+                                        ),
+                                      )
                                     : const Icon(
-                                  Icons.shopping_bag,
-                                  color: AppColors.textSecondary,
-                                ),
+                                        Icons.shopping_bag,
+                                        color: AppColors.textSecondary,
+                                      ),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -726,10 +728,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   IconButton(
                     onPressed: quantity > 1
                         ? () {
-                      setState(() {
-                        quantity--;
-                      });
-                    }
+                            setState(() {
+                              quantity--;
+                            });
+                          }
                         : null,
                     icon: const Icon(Icons.remove, size: 18),
                     color: AppColors.textSecondary,
@@ -748,10 +750,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   IconButton(
                     onPressed: quantity < widget.product.stock
                         ? () {
-                      setState(() {
-                        quantity++;
-                      });
-                    }
+                            setState(() {
+                              quantity++;
+                            });
+                          }
                         : null,
                     icon: const Icon(Icons.add, size: 18),
                     color: AppColors.textSecondary,

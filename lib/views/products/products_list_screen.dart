@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
-import '../../models/product_model.dart';
+import '../../models/product.dart';
 import '../../widgets/product_card.dart';
 import '../cart/cart_screen.dart';
 import 'product_detail_screen.dart';
@@ -23,7 +23,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   bool _isGridView = true;
   bool _showFilters = false;
   bool _isSearching = false;
-  
+
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   late AnimationController _animationController;
@@ -63,48 +63,42 @@ class _ProductsListScreenState extends State<ProductsListScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _searchAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _filterAnimationController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
 
-    _searchAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _searchAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _searchAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _searchAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
-    _filterSlideAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _filterAnimationController,
-      curve: Curves.easeOutBack,
-    ));
+    _filterSlideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _filterAnimationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -115,7 +109,9 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         _isSearching = true;
       });
       _searchAnimationController.forward();
-    } else if (!_searchFocusNode.hasFocus && _isSearching && _searchController.text.isEmpty) {
+    } else if (!_searchFocusNode.hasFocus &&
+        _isSearching &&
+        _searchController.text.isEmpty) {
       setState(() {
         _isSearching = false;
       });
@@ -139,9 +135,10 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         final matchesSearch = product.name.toLowerCase().contains(
           _searchController.text.toLowerCase(),
         );
-        final matchesCategory = _selectedCategory == 'Todos' ||
+        final matchesCategory =
+            _selectedCategory == 'Todos' ||
             product.category == _selectedCategory;
-        
+
         return matchesSearch && matchesCategory;
       }).toList();
 
@@ -156,7 +153,9 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           _filteredProducts.sort((a, b) => b.rating.compareTo(a.rating));
           break;
         case 'Mais Vendidos':
-          _filteredProducts.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
+          _filteredProducts.sort(
+            (a, b) => b.reviewCount.compareTo(a.reviewCount),
+          );
           break;
       }
     });
@@ -166,7 +165,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     setState(() {
       _showFilters = !_showFilters;
     });
-    
+
     if (_showFilters) {
       _filterAnimationController.forward();
       HapticFeedback.lightImpact();
@@ -186,21 +185,30 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                _buildSearchSection(),
-                _buildCategoryFilter(),
-                if (_showFilters) _buildAdvancedFilters(),
-                _buildProductsHeader(),
-              ],
+      body: SafeArea(
+        bottom: true,
+        child: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(),
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  _buildSearchSection(),
+                  _buildCategoryFilter(),
+                  if (_showFilters) _buildAdvancedFilters(),
+                  _buildProductsHeader(),
+                ],
+              ),
             ),
-          ),
-          _buildProductsSliverList(),
-        ],
+            _buildProductsSliverList(),
+            // Espaço extra no fina
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: MediaQuery.of(context).padding.bottom + 32,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -250,7 +258,9 @@ class _ProductsListScreenState extends State<ProductsListScreen>
               icon: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Icon(
-                  _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
+                  _isGridView
+                      ? Icons.view_list_rounded
+                      : Icons.grid_view_rounded,
                   key: ValueKey(_isGridView),
                   color: Colors.white,
                   size: 22,
@@ -265,8 +275,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           child: Container(
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
-              color: _showFilters 
-                  ? Colors.white 
+              color: _showFilters
+                  ? Colors.white
                   : Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -336,7 +346,9 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                   scale: _searchAnimation,
                   child: Icon(
                     _isSearching ? Icons.search_rounded : Icons.search_outlined,
-                    color: _isSearching ? AppColors.primary : AppColors.textSecondary,
+                    color: _isSearching
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                     size: 22,
                   ),
                 ),
@@ -380,7 +392,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           itemBuilder: (context, index) {
             final category = _categories[index];
             final isSelected = _selectedCategory == category;
-            
+
             return GestureDetector(
               onTap: () {
                 setState(() {
@@ -393,17 +405,25 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOutBack,
                 margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   gradient: isSelected
                       ? LinearGradient(
-                          colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)],
+                          colors: [
+                            AppColors.primary,
+                            AppColors.primary.withValues(alpha: 0.8),
+                          ],
                         )
                       : null,
                   color: isSelected ? null : Colors.white,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: isSelected ? Colors.transparent : Colors.grey.shade200,
+                    color: isSelected
+                        ? Colors.transparent
+                        : Colors.grey.shade200,
                     width: 1.5,
                   ),
                   boxShadow: [
@@ -420,8 +440,12 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                   child: Text(
                     category,
                     style: GoogleFonts.poppins(
-                      color: isSelected ? Colors.white : AppColors.textSecondary,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? Colors.white
+                          : AppColors.textSecondary,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                       fontSize: 13,
                     ),
                   ),
@@ -461,11 +485,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.sort_rounded,
-                    color: AppColors.primary,
-                    size: 18,
-                  ),
+                  Icon(Icons.sort_rounded, color: AppColors.primary, size: 18),
                   const SizedBox(width: 6),
                   Text(
                     'Ordenar por',
@@ -500,22 +520,31 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                       decoration: BoxDecoration(
                         gradient: isSelected
                             ? LinearGradient(
-                                colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)],
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primary.withValues(alpha: 0.8),
+                                ],
                               )
                             : null,
                         color: isSelected ? null : AppColors.background,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isSelected ? Colors.transparent : Colors.grey.shade200,
+                          color: isSelected
+                              ? Colors.transparent
+                              : Colors.grey.shade200,
                           width: 1,
                         ),
                       ),
                       child: Text(
                         option,
                         style: GoogleFonts.poppins(
-                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textSecondary,
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                         ),
                       ),
                     ),
@@ -558,10 +587,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 FocusScope.of(context).unfocus();
                 HapticFeedback.lightImpact();
               },
-              icon: const Icon(
-                Icons.clear_all_rounded,
-                size: 16,
-              ),
+              icon: const Icon(Icons.clear_all_rounded, size: 16),
               label: Text(
                 'Limpar',
                 style: GoogleFonts.poppins(
@@ -571,7 +597,10 @@ class _ProductsListScreenState extends State<ProductsListScreen>
               ),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 minimumSize: Size.zero,
               ),
             ),
@@ -642,10 +671,32 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 16,
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final product = _filteredProducts[index];
-                  return FadeTransition(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final product = _filteredProducts[index];
+                return FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Hero(
+                    tag: 'product_${product.id}',
+                    child: ProductCard(
+                      product: product,
+                      onTap: () => _navigateToProductDetail(product),
+                      onFavoriteToggle: () => _toggleFavorite(product),
+                      onAddToCart: () => _addToCart(product),
+                    ),
+                  ),
+                );
+              }, childCount: _filteredProducts.length),
+            ),
+          )
+        : SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final product = _filteredProducts[index];
+                return Container(
+                  height: 140,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: Hero(
                       tag: 'product_${product.id}',
@@ -656,37 +707,9 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                         onAddToCart: () => _addToCart(product),
                       ),
                     ),
-                  );
-                },
-                childCount: _filteredProducts.length,
-              ),
-            ),
-          )
-        : SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final product = _filteredProducts[index];
-                  return Container(
-                    height: 140,
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Hero(
-                        tag: 'product_${product.id}',
-                        child: ProductCard(
-                          product: product,
-                          onTap: () => _navigateToProductDetail(product),
-                          onFavoriteToggle: () => _toggleFavorite(product),
-                          onAddToCart: () => _addToCart(product),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                childCount: _filteredProducts.length,
-              ),
+                  ),
+                );
+              }, childCount: _filteredProducts.length),
             ),
           );
   }
@@ -700,13 +723,16 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             ProductDetailScreen(product: product),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            )),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
             child: child,
           );
         },
@@ -721,27 +747,19 @@ class _ProductsListScreenState extends State<ProductsListScreen>
       SnackBar(
         content: Row(
           children: [
-            Icon(
-              Icons.favorite_rounded,
-              color: Colors.pink.shade300,
-              size: 20,
-            ),
+            Icon(Icons.favorite_rounded, color: Colors.pink.shade300, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 '${product.name} adicionado aos favoritos',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w500,
-                ),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
               ),
             ),
           ],
         ),
         backgroundColor: AppColors.textPrimary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(20),
         duration: const Duration(seconds: 2),
       ),
@@ -795,9 +813,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         ),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         margin: const EdgeInsets.all(20),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
@@ -810,18 +826,22 @@ class _ProductsListScreenState extends State<ProductsListScreen>
               PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     const CartScreen(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.0, 1.0),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                    )),
-                    child: child,
-                  );
-                },
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      return SlideTransition(
+                        position:
+                            Tween<Offset>(
+                              begin: const Offset(0.0, 1.0),
+                              end: Offset.zero,
+                            ).animate(
+                              CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutCubic,
+                              ),
+                            ),
+                        child: child,
+                      );
+                    },
                 transitionDuration: const Duration(milliseconds: 300),
               ),
             );
