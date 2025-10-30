@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
 import '../auth/login_screen.dart';
+import '../favorites/favorites_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,18 +13,18 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
-  // Dados mockados do usuário
+
+  // Dados mockados do usuário (mantidos por enquanto)
   final String userName = 'João Silva';
   final String userEmail = 'joao.silva@email.com';
   final String userPhone = '(11) 98765-4321';
   final String memberSince = 'Membro desde 2023';
   final int ordersCount = 12;
-  final int favoriteCount = 28;
   final int addressCount = 2;
 
   @override
@@ -31,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -39,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       parent: _animationController,
       curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -47,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       parent: _animationController,
       curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
     ));
-    
+
     _animationController.forward();
   }
 
@@ -59,6 +62,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final productController = Get.find<ProductController>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -69,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: Column(
                 children: [
                   _buildProfileHeader(),
-                  _buildStatsSection(),
+                  _buildStatsSection(productController),
                   _buildMenuSection(),
                   _buildSettingsSection(),
                   _buildLogoutButton(),
@@ -83,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-    Widget _buildAppBar() {
+  Widget _buildAppBar() {
     return SliverAppBar(
       expandedHeight: 100,
       pinned: true,
@@ -159,88 +164,86 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-
-    Widget _buildProfileHeader() {
-  return FadeTransition(
-    opacity: _fadeAnimation,
-    child: Container(
-      margin: const EdgeInsets.only(top: 16),
-      child: Column(
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 4,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(51),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+  Widget _buildProfileHeader() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        margin: const EdgeInsets.only(top: 16),
+        child: Column(
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white,
+                  width: 4,
                 ),
-              ],
-            ),
-            child: ClipOval(
-              child: Container(
-                color: AppColors.primary,
-                child: Center(
-                  child: Text(
-                    userName.split(' ').map((e) => e[0]).take(2).join(),
-                    style: GoogleFonts.poppins(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(51),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Container(
+                  color: AppColors.primary,
+                  child: Center(
+                    child: Text(
+                      userName.split(' ').map((e) => e[0]).take(2).join(),
+                      style: GoogleFonts.poppins(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            userName,
-            style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            userEmail,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(25),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              memberSince,
+            const SizedBox(height: 16),
+            Text(
+              userName,
               style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              userEmail,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(25),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                memberSince,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-
-  Widget _buildStatsSection() {
+  Widget _buildStatsSection(ProductController productController) {
     return SlideTransition(
       position: _slideAnimation,
       child: Container(
@@ -271,11 +274,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               width: 1,
               color: Colors.grey.withAlpha(77),
             ),
-            _buildStatItem(
-              icon: Icons.favorite,
-              value: favoriteCount.toString(),
-              label: 'Favoritos',
-              color: AppColors.secondary,
+            Obx(
+                  () => _buildStatItem(
+                icon: Icons.favorite,
+                value: productController.favoriteProducts.length.toString(),
+                label: 'Favoritos',
+                color: AppColors.secondary,
+              ),
             ),
             Container(
               height: 40,
@@ -349,6 +354,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         'title': 'Favoritos',
         'subtitle': 'Produtos salvos',
         'color': AppColors.secondary,
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+          );
+        },
       },
       {
         'icon': Icons.location_on_outlined,
@@ -356,7 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         'subtitle': 'Gerenciar endereços de entrega',
         'color': AppColors.accent,
       },
-      {
+      /*{
         'icon': Icons.credit_card_outlined,
         'title': 'Pagamento',
         'subtitle': 'Formas de pagamento',
@@ -365,7 +376,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       {
         'icon': Icons.notifications_outlined,
         'title': 'Notificações',
-        'subtitle': 'Central de notificações',
         'color': Colors.orange,
         'badge': '5',
       },
@@ -374,7 +384,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         'title': 'Ajuda e Suporte',
         'subtitle': 'FAQ e contato',
         'color': Colors.teal,
-      },
+      },*/
     ];
 
     return FadeTransition(
@@ -412,6 +422,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               subtitle: item['subtitle'] as String,
               color: item['color'] as Color,
               badge: item['badge'] as String?,
+              onTap: item['onTap'] as VoidCallback?,
               isLast: item == menuItems.last,
             )),
           ],
@@ -426,14 +437,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     required String subtitle,
     required Color color,
     String? badge,
+    VoidCallback? onTap,
     bool isLast = false,
   }) {
     return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Navegando para $title...')),
-        );
-      },
+      onTap: onTap ??
+              () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Navegando para $title...')),
+            );
+          },
       borderRadius: isLast
           ? const BorderRadius.vertical(bottom: Radius.circular(20))
           : null,
@@ -443,11 +456,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           border: isLast
               ? null
               : Border(
-                  bottom: BorderSide(
-                    color: Colors.grey.withAlpha(25),
-                    width: 1,
-                  ),
-                ),
+            bottom: BorderSide(
+              color: Colors.grey.withAlpha(25),
+              width: 1,
+            ),
+          ),
         ),
         child: Row(
           children: [
@@ -587,11 +600,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         border: isLast
             ? null
             : Border(
-                bottom: BorderSide(
-                  color: Colors.grey.withAlpha(25),
-                  width: 1,
-                ),
-              ),
+          bottom: BorderSide(
+            color: Colors.grey.withAlpha(25),
+            width: 1,
+          ),
+        ),
       ),
       child: Row(
         children: [
@@ -651,24 +664,27 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 30),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        width: double.infinity,
         child: ElevatedButton.icon(
           onPressed: () {
             _showLogoutDialog();
           },
-          icon: const Icon(Icons.logout),
+          icon: const Icon(Icons.logout, size: 20),
           label: Text(
             'Sair da Conta',
             style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w600,
+                fontSize: 16
             ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red.shade600,
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.background,
+            foregroundColor: AppColors.error,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(15),
+                side: BorderSide(color: AppColors.error.withOpacity(0.3))
             ),
             elevation: 0,
           ),
@@ -729,7 +745,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               _navigateToLogin();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade600,
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -745,9 +762,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   void _navigateToLogin() {
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
     );
   }
 }
