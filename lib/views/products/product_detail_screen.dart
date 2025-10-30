@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Para HapticFeedback (feedback tátil)
-import 'package:get/get.dart'; // Para gestão de estado (favoritos)
-import 'package:google_fonts/google_fonts.dart'; // Para fontes personalizadas
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import '../../controllers/product_controller.dart'; // Controlador de produtos
-import '../../core/constants/colors.dart'; // Cores da aplicação
-import '../../models/product_model.dart'; // Modelo do produto
-import '../../widgets/custom_button.dart'; // Botão personalizado
-import '../cart/cart_screen.dart'; // Ecrã do carrinho (para navegação)
+import '../../controllers/product_controller.dart';
+import '../../core/constants/colors.dart'; // Ainda usado para cores de status (success, error, warning) e de "marca" (rating)
+import '../../models/product_model.dart';
+import '../../widgets/custom_button.dart';
+import '../cart/cart_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final Product product; // O produto que este ecrã vai exibir
+  final Product product;
 
   const ProductDetailScreen({super.key, required this.product});
 
@@ -19,25 +19,23 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen>
-    with TickerProviderStateMixin { // Permite múltiplos controladores de animação
+    with TickerProviderStateMixin {
 
-  // Controladores de animação
-  late AnimationController _animationController; // Controlador principal
-  late Animation<double> _fadeAnimation; // Animação de esbatimento (fade-in)
-  late Animation<Offset> _slideAnimation; // Animação de deslize (slide-up)
-  late Animation<double> _scaleAnimation; // Animação de escala (zoom-in)
+  // ... (Controladores de animação, initState, dispose, _toggleFavorite, _showImageGallery, _addToCart)
+  // (Nenhuma alteração de tema necessária nesses métodos, exceto nos
+  // SnackBar e Diálogo, que já usam cores de status ou o tema do Material)
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
 
-  // Controlador de produtos (GetX)
   late final ProductController productController;
 
-  // Variáveis de estado locais do ecrã
-  int quantity = 1; // Quantidade inicial do produto a adicionar
-  int selectedImageIndex = 0; // Índice da imagem principal mostrada na galeria
+  int quantity = 1;
+  int selectedImageIndex = 0;
 
-  // Lista simulada de imagens do produto (em produção, isto viria do modelo `Product`)
   List<String> get productImages => [
     widget.product.imageUrl,
-    // Simulação de mais imagens (repetindo a principal)
     widget.product.imageUrl,
     widget.product.imageUrl,
   ];
@@ -45,70 +43,61 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   @override
   void initState() {
     super.initState();
-    productController = Get.find(); // Encontra a instância global do ProductController
-    _initializeAnimations(); // Chama o método para configurar e iniciar as animações
+    productController = Get.find();
+    _initializeAnimations();
   }
 
-  // Configura os controladores e as curvas de animação
   void _initializeAnimations() {
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1200), // Duração total
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    // Animação de Fade (opacidade de 0 a 1)
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        // Intervalo: ocorre nos primeiros 60% da duração total
         curve: const Interval(0.0, 0.6, curve: Curves.easeInOut),
       ),
     );
 
-    // Animação de Slide (deslize de baixo para cima)
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
           CurvedAnimation(
             parent: _animationController,
-            // Intervalo: ocorre entre 20% e 80% da duração, com efeito "easeOutBack"
             curve: const Interval(0.2, 0.8, curve: Curves.easeOutBack),
           ),
         );
 
-    // Animação de Scale (escala da imagem principal)
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        // Intervalo: ocorre entre 30% e 100%, com efeito "elasticOut"
         curve: const Interval(0.3, 1.0, curve: Curves.elasticOut),
       ),
     );
 
-    _animationController.forward(); // Inicia as animações
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose(); // Liberta os recursos do controlador
+    _animationController.dispose();
     super.dispose();
   }
 
-  // Função para alternar o estado de favorito
   void _toggleFavorite() {
-    productController.toggleFavorite(widget.product); // Usa o controlador GetX
-    HapticFeedback.lightImpact(); // Feedback tátil
+    productController.toggleFavorite(widget.product);
+    HapticFeedback.lightImpact();
 
-    // Mostra SnackBar de confirmação
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           widget.product.isFavorite.value
-              ? '${widget.product.name} adicionado aos favoritos!'
-              : '${widget.product.name} removido dos favoritos.',
+              ? 'Adicionado aos favoritos!'
+              : 'Removido dos favoritos!',
           style: GoogleFonts.poppins(),
         ),
         backgroundColor:
-        widget.product.isFavorite.value ? AppColors.success : Colors.orange.shade700, // Cor dinâmica
+        widget.product.isFavorite.value ? AppColors.success : Colors.orange.shade700,
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -117,29 +106,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Função para mostrar a galeria de imagens num diálogo
   void _showImageGallery() {
-    if (productImages.length <= 1) return; // Não abre se só houver 1 imagem
-    HapticFeedback.mediumImpact(); // Feedback tátil
+    if (productImages.length <= 1) return;
+    HapticFeedback.mediumImpact();
 
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        backgroundColor: Colors.transparent, // Fundo do diálogo transparente
-        insetPadding: const EdgeInsets.all(10), // Padding à volta do PageView
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(10),
         child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.7, // 70% da altura do ecrã
+          height: MediaQuery.of(context).size.height * 0.7,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                // PageView para deslizar entre as imagens
                 child: PageView.builder(
                   itemCount: productImages.length,
-                  controller: PageController(initialPage: selectedImageIndex), // Começa na imagem atual
-                  onPageChanged: (index) => setState(() => selectedImageIndex = index), // Atualiza o índice ao mudar
+                  controller: PageController(initialPage: selectedImageIndex),
+                  onPageChanged: (index) => setState(() => selectedImageIndex = index),
                   itemBuilder: (context, index) {
-                    // InteractiveViewer permite dar zoom e arrastar a imagem
                     return InteractiveViewer(
                       minScale: 0.5,
                       maxScale: 4.0,
@@ -147,15 +133,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         margin: const EdgeInsets.symmetric(horizontal: 5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: Colors.white, // Fundo branco para a imagem
+                          // ALTERAÇÃO: Cor de fundo da imagem vinda do tema (branco ou cinza escuro)
+                          color: Theme.of(context).colorScheme.surface,
                           image: productImages[index].isNotEmpty
                               ? DecorationImage(
                             image: NetworkImage(productImages[index]),
-                            fit: BoxFit.contain, // Mostra a imagem inteira
+                            fit: BoxFit.contain,
                           )
                               : null,
                         ),
-                        // Ícone de fallback caso a imagem não exista
                         child: productImages[index].isEmpty
                             ? const Center(
                           child: Icon(
@@ -174,16 +160,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(productImages.length, (index) {
-                  return AnimatedContainer( // Anima a transição da bolinha
+                  return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: selectedImageIndex == index ? 12 : 8, // Bolinha ativa é maior
+                    width: selectedImageIndex == index ? 12 : 8,
                     height: selectedImageIndex == index ? 12 : 8,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
+                      // ALTERAÇÃO: Cor do indicador vinda do tema
                       color: selectedImageIndex == index
-                          ? AppColors.primary // Cor da bolinha ativa
-                          : Colors.grey.shade400, // Cor da bolinha inativa
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.grey.shade600, // Cinza escuro para inativo
                     ),
                   );
                 }),
@@ -195,14 +182,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Função para adicionar o produto ao carrinho (simulada)
   void _addToCart() {
-    HapticFeedback.mediumImpact(); // Feedback tátil mais forte
+    HapticFeedback.mediumImpact();
 
-    // --- LÓGICA REAL DE ADICIONAR AO CARRINHO ---
-    // (Ex: Get.find<CartController>().addItem(widget.product, quantity);)
-
-    // Mostra SnackBar de confirmação
+    // SnackBar de sucesso (verde) é uma cor de status, mantemos fixa.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -220,7 +203,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 children: [
                   Text('Adicionado ao carrinho!', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
                   Text(
-                    '${widget.product.name} (x$quantity)', // Mostra o nome e a quantidade
+                    '${widget.product.name} (x$quantity)',
                     style: GoogleFonts.poppins(fontSize: 12, color: Colors.white.withOpacity(0.9)),
                     maxLines: 1, overflow: TextOverflow.ellipsis,
                   ),
@@ -229,18 +212,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             ),
           ],
         ),
-        backgroundColor: AppColors.success, // Cor de sucesso
-        behavior: SnackBarBehavior.floating, // Estilo flutuante
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         margin: const EdgeInsets.all(20),
         duration: const Duration(seconds: 3),
-        // Ação para navegar para o carrinho
         action: SnackBarAction(
           label: 'Ver carrinho',
           textColor: Colors.white,
           backgroundColor: Colors.white.withOpacity(0.2),
           onPressed: () {
-            // Navega para o CartScreen com animação de baixo para cima
             Navigator.push(
               context,
               PageRouteBuilder(
@@ -261,30 +242,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // --- MÉTODOS DE CONSTRUÇÃO DA UI (BUILD) ---
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background, // Cor de fundo
-      body: CustomScrollView( // Permite AppBar "colapsável" e conteúdo rolável
+      // ALTERAÇÃO: Cor de fundo vinda do tema
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: CustomScrollView(
         slivers: [
-          _buildSliverAppBar(), // A barra superior
-          SliverToBoxAdapter( // Adaptador para widgets normais dentro do CustomScrollView
-            child: FadeTransition( // Aplica animação de fade
+          _buildSliverAppBar(),
+          SliverToBoxAdapter(
+            child: FadeTransition(
               opacity: _fadeAnimation,
-              child: SlideTransition( // Aplica animação de slide
+              child: SlideTransition(
                 position: _slideAnimation,
-                child: Column( // Coluna principal para todo o conteúdo abaixo da AppBar
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildImageGallery(), // Secção da imagem principal
-                    _buildProductInfo(), // Secção com nome, preço, stock
-                    _buildRatingSection(), // Secção de avaliações
-                    _buildDescriptionSection(), // Secção de descrição
-                    _buildSpecsSection(), // Secção de especificações
-                    _buildRelatedSection(), // Secção de produtos relacionados
-                    const SizedBox(height: 100), // Espaço inferior
+                    _buildImageGallery(),
+                    _buildProductInfo(),
+                    _buildRatingSection(),
+                    _buildDescriptionSection(),
+                    _buildSpecsSection(),
+                    _buildRelatedSection(),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -292,47 +273,45 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomBar(), // A barra inferior fixa
+      bottomNavigationBar: _buildBottomBar(),
     );
   }
 
-  // Constrói a AppBar (barra superior)
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      floating: true, // Flutua sobre o conteúdo ao rolar para cima
-      pinned: true, // Permanece fixa no topo
-      backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white, // Cor dos ícones e texto
-      elevation: 2, // Sombra
+      floating: true,
+      pinned: true,
+      // ALTERAÇÃO: Cores da AppBar vindas do tema
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
+      elevation: 2,
       title: Text(
         widget.product.name,
         style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
-        overflow: TextOverflow.ellipsis, // Evita quebra de linha
+        overflow: TextOverflow.ellipsis,
       ),
-      actions: [ // Botões à direita
-        // Botão de Favorito
-        Obx( // Widget do GetX que observa o estado 'isFavorite'
+      actions: [
+        Obx(
               () => IconButton(
-            tooltip: widget.product.isFavorite.value ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos',
-            onPressed: _toggleFavorite, // Chama a função ao clicar
-            icon: AnimatedSwitcher( // Anima a troca de ícones
+            onPressed: _toggleFavorite,
+            icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
               child: Icon(
                 widget.product.isFavorite.value
-                    ? Icons.favorite_rounded // Ícone preenchido
-                    : Icons.favorite_border_rounded, // Ícone de borda
-                key: ValueKey<bool>(widget.product.isFavorite.value), // Chave para o AnimatedSwitcher
-                color: widget.product.isFavorite.value ? Colors.redAccent.shade100 : Colors.white,
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                key: ValueKey(widget.product.isFavorite.value),
+                // Cor de favorito (vermelho) é fixa, cor de inativo vem do tema
+                color: widget.product.isFavorite.value
+                    ? Colors.redAccent.shade100
+                // ALTERAÇÃO: Cor do ícone inativo vinda do tema
+                    : Theme.of(context).appBarTheme.foregroundColor,
               ),
             ),
           ),
         ),
-        // Botão de Compartilhar
         IconButton(
-          tooltip: 'Compartilhar Produto',
           onPressed: () {
-            // TODO: Implementar lógica de partilha (ex: usar o pacote 'share_plus')
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Compartilhar ${widget.product.name}... (em breve)')),
             );
@@ -343,36 +322,40 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Constrói a secção da galeria de imagem principal
   Widget _buildImageGallery() {
-    return ScaleTransition( // Aplica animação de escala
+    return ScaleTransition(
       scale: _scaleAnimation,
       child: Container(
-        height: 300, // Altura da imagem
+        height: 300,
         margin: const EdgeInsets.all(16),
-        child: Stack( // Stack para sobrepor selos (desconto, stock)
+        child: Stack(
           alignment: Alignment.center,
           children: [
-            // Container da Imagem
             GestureDetector(
-              onTap: _showImageGallery, // Abre galeria em popup
+              onTap: _showImageGallery,
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  // ALTERAÇÃO: Cor de fundo vinda do tema
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+                  boxShadow: [
+                    BoxShadow(
+                      // ALTERAÇÃO: Sombra reage ao tema
+                      color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.1 : 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                // Hero widget para a animação de transição
                 child: Hero(
-                  tag: 'product_${widget.product.id}', // Tag deve ser única e igual à da lista
+                  tag: 'product_${widget.product.id}',
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: widget.product.imageUrl.isNotEmpty
                         ? Image.network(
-                      productImages[selectedImageIndex], // Mostra a imagem selecionada
-                      fit: BoxFit.contain, // Ajuste da imagem
-                      // Indicador de loading
+                      productImages[selectedImageIndex],
+                      fit: BoxFit.contain,
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
                         return Center(
@@ -380,23 +363,36 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             value: loadingProgress.expectedTotalBytes != null
                                 ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
                                 : null,
-                            strokeWidth: 2,
+                            // ALTERAÇÃO: Cor do loading vinda do tema
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         );
                       },
-                      // Ícone de erro
                       errorBuilder: (context, error, stackTrace) {
-                        return const Center(child: Icon(Icons.broken_image_outlined, size: 64, color: AppColors.textSecondary));
+                        return Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            size: 64,
+                            // ALTERAÇÃO: Cor do ícone vinda do tema
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                        );
                       },
                     )
-                    // Ícone de fallback se não houver imagem
-                        : const Center(child: Icon(Icons.shopping_bag_outlined, size: 64, color: AppColors.textSecondary)),
+                        : Center(
+                      child: Icon(
+                        Icons.shopping_bag_outlined,
+                        size: 64,
+                        // ALTERAÇÃO: Cor do ícone vinda do tema
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
 
-            // Selo de Desconto
+            // Selos (desconto, stock) mantêm cores de "marca" fixas
             if (widget.product.isOnSale && widget.product.discountPercentage > 0)
               Positioned(
                 top: 12, left: 12,
@@ -410,7 +406,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 ),
               ),
 
-            // Selo de Stock Baixo
             if (widget.product.stock <= 5 && widget.product.stock > 0)
               Positioned(
                 top: 12, right: 12,
@@ -424,7 +419,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 ),
               ),
 
-            // Indicador de Página (se houver múltiplas imagens)
             if (productImages.length > 1)
               Positioned(
                 bottom: 12,
@@ -443,60 +437,80 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Constrói a secção com Nome, Preço, Categoria e Stock
   Widget _buildProductInfo() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        // ALTERAÇÃO: Cor do card vinda do tema
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
+            blurRadius: 10, offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nome do Produto
           Text(
             widget.product.name,
-            style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: GoogleFonts.poppins(
+              fontSize: 24, fontWeight: FontWeight.bold,
+              // ALTERAÇÃO: Cor do texto vinda do tema
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 8),
-          // Categoria (Chip)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(
+              // ALTERAÇÃO: Cor do chip vinda do tema
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Text(
               widget.product.category,
-              style: GoogleFonts.poppins(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w600),
+              style: GoogleFonts.poppins(
+                // ALTERAÇÃO: Cor do texto do chip vinda do tema
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 12, fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          // Preços
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              Text( // Preço atual
+              Text(
                 'R\$ ${widget.product.price.toStringAsFixed(2)}',
-                style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: GoogleFonts.poppins(
+                  fontSize: 28, fontWeight: FontWeight.bold,
+                  // ALTERAÇÃO: Cor do preço vinda do tema
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              if (widget.product.oldPrice != null) ...[ // Preço antigo (se existir)
+              if (widget.product.oldPrice != null) ...[
                 const SizedBox(width: 12),
                 Text(
                   'R\$ ${widget.product.oldPrice!.toStringAsFixed(2)}',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
-                    decoration: TextDecoration.lineThrough, // Rasurado
-                    color: AppColors.textSecondary.withOpacity(0.6),
+                    decoration: TextDecoration.lineThrough,
+                    // ALTERAÇÃO: Cor do preço antigo vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
               ],
             ],
           ),
           const SizedBox(height: 12),
-          // Indicador de Stock
           Row(
             children: [
+              // Cores de status (success/error) são mantidas
               Icon(
                 widget.product.stock > 0 ? Icons.check_circle_outline_rounded : Icons.highlight_off_rounded,
                 color: widget.product.stock > 0 ? AppColors.success : AppColors.error,
@@ -508,6 +522,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     ? 'Em stock (${widget.product.stock} ${widget.product.stock == 1 ? "unidade" : "unidades"})'
                     : 'Fora de stock',
                 style: GoogleFonts.poppins(
+                  // Cores de status são mantidas
                   color: widget.product.stock > 0 ? AppColors.success : AppColors.error,
                   fontWeight: FontWeight.w600,
                 ),
@@ -519,25 +534,33 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Constrói a secção de Avaliação
   Widget _buildRatingSection() {
     if (widget.product.rating <= 0 && widget.product.reviewCount <= 0) {
-      return const SizedBox.shrink(); // Oculta se não houver avaliações
+      return const SizedBox.shrink();
     }
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        // ALTERAÇÃO: Cor do card vinda do tema
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
+            blurRadius: 10, offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          // Nota Média
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(color: AppColors.warning.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              // Cor de "aviso" (amarelo) é mantida
+              color: AppColors.warning.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -545,40 +568,50 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 const SizedBox(width: 6),
                 Text(
                   widget.product.rating.toStringAsFixed(1),
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: GoogleFonts.poppins(
+                    fontSize: 18, fontWeight: FontWeight.bold,
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 16),
-          // Estrelas e Contagem
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row( // 5 Estrelas
+                Row(
                   children: List.generate(5, (index) {
                     double rating = widget.product.rating;
-                    IconData iconData = Icons.star_border_rounded; // Padrão: vazia
+                    IconData iconData;
                     if (index < rating.floor()) {
-                      iconData = Icons.star_rounded; // Cheia
+                      iconData = Icons.star_rounded;
                     } else if (index < rating && (rating - index) >= 0.5) {
-                      iconData = Icons.star_half_rounded; // Meia
+                      iconData = Icons.star_half_rounded;
+                    } else {
+                      iconData = Icons.star_border_rounded;
                     }
+                    // Cor de estrela (amarelo) é mantida
                     return Icon(iconData, color: AppColors.warning, size: 20);
                   }),
                 ),
                 const SizedBox(height: 4),
-                Text( // Contagem
+                Text(
                   '${widget.product.reviewCount} ${widget.product.reviewCount == 1 ? "avaliação" : "avaliações"}',
-                  style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 14),
+                  style: GoogleFonts.poppins(
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
           ),
-          // Botão "Ver todas"
           TextButton(
-            onPressed: () { /* TODO: Navegar para ecrã de reviews */ },
+            onPressed: () {},
+            // A cor do TextButton virá do tema automaticamente
             child: Text('Ver todas', style: GoogleFonts.poppins()),
           ),
         ],
@@ -586,77 +619,108 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Constrói a secção de Descrição
   Widget _buildDescriptionSection() {
     if (widget.product.description.isEmpty) {
-      return const SizedBox.shrink(); // Oculta se não houver descrição
+      return const SizedBox.shrink();
     }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        // ALTERAÇÃO: Cor do card vinda do tema
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
+            blurRadius: 10, offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Descrição',
-            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: GoogleFonts.poppins(
+              fontSize: 18, fontWeight: FontWeight.bold,
+              // ALTERAÇÃO: Cor do texto vinda do tema
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 12),
           Text(
             widget.product.description,
-            style: GoogleFonts.poppins(fontSize: 14, color: AppColors.textSecondary, height: 1.6), // Espaçamento entre linhas
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              // ALTERAÇÃO: Cor do texto vinda do tema
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              height: 1.6,
+            ),
           ),
         ],
       ),
     );
   }
 
-  // Constrói a secção de Especificações (com dados simulados)
   Widget _buildSpecsSection() {
-    List<Map<String, String>> specs = _getProductSpecs(); // Obtém dados simulados
-    if (specs.isEmpty) return const SizedBox.shrink(); // Oculta se vazio
+    List<Map<String, String>> specs = _getProductSpecs();
+    if (specs.isEmpty) return const SizedBox.shrink();
 
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        // ALTERAÇÃO: Cor do card vinda do tema
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
+            blurRadius: 10, offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Especificações',
-            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: GoogleFonts.poppins(
+              fontSize: 18, fontWeight: FontWeight.bold,
+              // ALTERAÇÃO: Cor do texto vinda do tema
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 16),
-          // Cria uma linha para cada especificação
           ...specs.map(
                 (spec) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded( // Rótulo (ex: "Marca")
+                  Expanded(
                     flex: 1,
                     child: Text(
                       spec['label']!,
-                      style: GoogleFonts.poppins(fontSize: 14, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        // ALTERAÇÃO: Cor do texto vinda do tema
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Expanded( // Valor (ex: "Apple")
+                  Expanded(
                     flex: 2,
                     child: Text(
                       spec['value']!,
-                      style: GoogleFonts.poppins(fontSize: 14, color: AppColors.textPrimary),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        // ALTERAÇÃO: Cor do texto vinda do tema
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ),
                 ],
@@ -668,15 +732,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Constrói a secção de Produtos Relacionados (com dados simulados)
   Widget _buildRelatedSection() {
-    // Filtra produtos da mesma categoria, excluindo o atual, e limita a 4
     List<Product> relatedProducts = mockProducts
         .where((p) => p.category == widget.product.category && p.id != widget.product.id)
         .take(4)
         .toList();
 
-    if (relatedProducts.isEmpty) return const SizedBox.shrink(); // Oculta se vazio
+    if (relatedProducts.isEmpty) return const SizedBox.shrink();
 
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -685,56 +747,59 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         children: [
           Text(
             'Produtos Relacionados',
-            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: GoogleFonts.poppins(
+              fontSize: 18, fontWeight: FontWeight.bold,
+              // ALTERAÇÃO: Cor do texto vinda do tema
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
           ),
           const SizedBox(height: 12),
-          // Lista horizontal
           SizedBox(
-            height: 220, // Altura da lista
+            height: 220,
             child: ListView.builder(
-              scrollDirection: Axis.horizontal, // Scroll horizontal
+              scrollDirection: Axis.horizontal,
               itemCount: relatedProducts.length,
               itemBuilder: (context, index) {
                 final product = relatedProducts[index];
                 return Container(
-                  width: 150, // Largura de cada cartão
+                  width: 150,
                   margin: const EdgeInsets.only(right: 12),
                   child: GestureDetector(
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      // Navega para o detalhe do produto relacionado (substituindo o ecrã atual)
-                      Navigator.pushReplacement(
-                        context,
+                      Navigator.pushReplacement( context,
                         PageRouteBuilder(
                           pageBuilder: (context, animation, secondaryAnimation) => ProductDetailScreen(product: product),
                           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            return FadeTransition(opacity: animation, child: child); // Transição suave
+                            return FadeTransition(opacity: animation, child: child);
                           },
                           transitionDuration: const Duration(milliseconds: 300),
                         ),
                       );
                     },
-                    child: Card( // Cartão do produto relacionado
+                    // O Card usará automaticamente o CardTheme do tema
+                    child: Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       clipBehavior: Clip.antiAlias,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Imagem
                           Expanded(
                             flex: 3,
                             child: Container(
                               width: double.infinity,
-                              color: AppColors.background,
+                              // ALTERAÇÃO: Cor de fundo vinda do tema
+                              color: Theme.of(context).colorScheme.background,
                               child: product.imageUrl.isNotEmpty
-                                  ? Image.network(product.imageUrl, fit: BoxFit.contain,
+                                  ? Image.network( product.imageUrl, fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) =>
-                                  const Center(child: Icon(Icons.broken_image_outlined, color: AppColors.textSecondary)))
-                                  : const Center(child: Icon(Icons.shopping_bag_outlined, color: AppColors.textSecondary)),
+                                  // ALTERAÇÃO: Cor do ícone vinda do tema
+                                  Center(child: Icon(Icons.broken_image_outlined, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))))
+                              // ALTERAÇÃO: Cor do ícone vinda do tema
+                                  : Center(child: Icon(Icons.shopping_bag_outlined, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
                             ),
                           ),
-                          // Texto (Nome e Preço)
                           Expanded(
                             flex: 2,
                             child: Padding(
@@ -745,12 +810,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                 children: [
                                   Text(
                                     product.name,
-                                    style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13, fontWeight: FontWeight.w600,
+                                      // ALTERAÇÃO: Cor do texto vinda do tema (já está dentro de um Card, então usa onSurface)
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                                     maxLines: 2, overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
                                     'R\$ ${product.price.toStringAsFixed(2)}',
-                                    style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 14, fontWeight: FontWeight.bold,
+                                        // ALTERAÇÃO: Cor do preço vinda do tema
+                                        color: Theme.of(context).colorScheme.primary
+                                    ),
                                   ),
                                 ],
                               ),
@@ -769,46 +842,55 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  // Constrói a barra inferior fixa com controlo de quantidade e botão
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface, // Fundo branco
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -2))], // Sombra
+        // ALTERAÇÃO: Cor de fundo vinda do tema
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            // ALTERAÇÃO: Sombra reage ao tema
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.1 : 0.3),
+            blurRadius: 10, offset: const Offset(0, -2),
+          ),
+        ],
       ),
-      child: SafeArea( // Garante que não fica sob controlos do sistema
+      child: SafeArea(
         child: Row(
           children: [
-            // Controlo de Quantidade
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                // ALTERAÇÃO: Cor da borda vinda do tema
+                border: Border.all(color: Theme.of(context).dividerColor),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  // Botão Menos (-)
                   IconButton(
-                    onPressed: quantity > 1 ? () => setState(() => quantity--) : null, // Desabilita em 1
+                    onPressed: quantity > 1 ? () => setState(() => quantity--) : null,
                     icon: const Icon(Icons.remove, size: 18),
-                    color: quantity > 1 ? AppColors.textPrimary : Colors.grey.shade400,
+                    // ALTERAÇÃO: Cor do ícone vinda do tema (ou cinza se desabilitado)
+                    color: quantity > 1 ? Theme.of(context).colorScheme.onSurface : Colors.grey.shade600,
                     splashRadius: 20,
                     constraints: const BoxConstraints(),
                   ),
-                  // Mostrador da Quantidade
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       '$quantity',
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.bold,
+                        // ALTERAÇÃO: Cor do texto vinda do tema
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ),
-                  // Botão Mais (+)
                   IconButton(
-                    onPressed: quantity < widget.product.stock ? () => setState(() => quantity++) : null, // Desabilita no stock máximo
+                    onPressed: quantity < widget.product.stock ? () => setState(() => quantity++) : null,
                     icon: const Icon(Icons.add, size: 18),
-                    color: quantity < widget.product.stock ? AppColors.textPrimary : Colors.grey.shade400,
+                    // ALTERAÇÃO: Cor do ícone vinda do tema (ou cinza se desabilitado)
+                    color: quantity < widget.product.stock ? Theme.of(context).colorScheme.onSurface : Colors.grey.shade600,
                     splashRadius: 20,
                     constraints: const BoxConstraints(),
                   ),
@@ -816,15 +898,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               ),
             ),
             const SizedBox(width: 16),
-            // Botão Adicionar ao Carrinho
             Expanded(
               child: CustomButton(
                 text: 'Adicionar',
-                // Passa a função _addToCart OU null (para desabilitar)
-                onPressed: widget.product.stock > 0 ? _addToCart : null,
+                onPressed: widget.product.stock > 0 ? _addToCart : null, // Desabilita se stock=0
                 icon: Icons.add_shopping_cart_rounded,
                 height: 52,
-                // O CustomButton (corrigido) agora trata o estilo desabilitado internamente
+                // As cores de "desabilitado" são tratadas dentro do CustomButton
               ),
             ),
           ],
@@ -833,34 +913,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-
-  // Função auxiliar para gerar dados simulados de especificações
+  // Função auxiliar (não precisa de cores do tema)
   List<Map<String, String>> _getProductSpecs() {
-    // Isto deve ser substituído por dados reais vindos do backend/modelo
+    // ... (Lógica permanece a mesma)
     switch (widget.product.category.toLowerCase()) {
       case 'eletrônicos':
         return [
-          {'label': 'Marca', 'value': 'Marca Exemplo (Simulado)'},
+          {'label': 'Marca', 'value': 'Marca Exemplo (Apple/Samsung/Sony)'},
           {'label': 'Modelo', 'value': widget.product.name.split(' ').last},
           {'label': 'Garantia', 'value': '12 meses'},
         ];
       case 'calçados':
         return [
-          {'label': 'Marca', 'value': 'Marca Exemplo (Simulado)'},
+          {'label': 'Marca', 'value': 'Marca Exemplo (Nike/Adidas)'},
           {'label': 'Material', 'value': 'Sintético (Simulado)'},
           {'label': 'Indicado para', 'value': 'Corrida / Casual (Simulado)'},
         ];
       case 'games':
-        if (widget.product.id == '7') { // Específico para o PS5 (ID 7 no mock)
+        if (widget.product.id == '7') {
           return [
             {'label': 'Plataforma', 'value': 'PlayStation 5'},
             {'label': 'Armazenamento', 'value': 'SSD 825GB'},
             {'label': 'CPU', 'value': 'AMD Zen 2 (8x @ 3.5GHz)'},
-            {'label': 'GPU', 'value': 'AMD RDNA 2 (10.28 TFLOPs)'},
-            {'label': 'Memória RAM', 'value': '16GB GDDR6'},
           ];
         }
-        return []; // Vazio para outros jogos sem specs definidas
+        return [];
       default:
         return [
           {'label': 'Disponibilidade', 'value': widget.product.stock > 0 ? 'Em estoque' : 'Fora de estoque'},

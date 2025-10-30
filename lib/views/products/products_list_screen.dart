@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart'; // Importar GetX
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../controllers/product_controller.dart'; // Importar o controlador
-import '../../core/constants/colors.dart';
+import '../../controllers/product_controller.dart';
+import '../../core/constants/colors.dart'; // Ainda necessário para cores de "marca" (ex: filtros)
 import '../../models/product_model.dart';
-import '../../widgets/product_card.dart';
+import '../../widgets/product_card.dart'; // Este já foi refatorado
 import '../cart/cart_screen.dart';
 import 'product_detail_screen.dart';
 
@@ -17,54 +17,64 @@ class ProductsListScreen extends StatefulWidget {
 }
 
 class _ProductsListScreenState extends State<ProductsListScreen>
-    with TickerProviderStateMixin { // Use TickerProviderStateMixin for multiple controllers
-  final List<Product> _products = mockProducts;
-  List<Product> _filteredProducts = mockProducts;
-  String _selectedCategory = 'Todos';
-  String _selectedSort = 'Relevância'; // Added sort option state
+    with TickerProviderStateMixin {
+
+  final ProductController productController = Get.find();
+
   bool _isGridView = true;
-  bool _showFilters = false; // Added state for showing filters
-  bool _isSearching = false; // Added state for search focus animation
+  bool _showFilters = false;
+  bool _isSearching = false;
 
   final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode(); // Added FocusNode
-  late AnimationController _animationController; // Main animation controller
-  late AnimationController _searchAnimationController; // Controller for search icon animation
-  late AnimationController _filterAnimationController; // Controller for filter panel animation
+  final FocusNode _searchFocusNode = FocusNode();
+  late AnimationController _animationController;
+  late AnimationController _searchAnimationController;
+  late AnimationController _filterAnimationController;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _searchAnimation; // Animation for search icon scale
-  late Animation<double> _filterSlideAnimation; // Animation for filter panel slide/fade
-  late Animation<Offset> _slideAnimation; // Added slide animation for app bar title
+  late Animation<double> _searchAnimation;
+  late Animation<double> _filterSlideAnimation;
+  late Animation<Offset> _slideAnimation;
 
-  final List<String> _categories = [
-    'Todos',
-    'Eletrônicos',
-    'Calçados',
-    'Games',
-    'Roupas',
-    'Acessórios', // Added more categories as example
+  late final List<String> _categories;
+  final List<SortOption> _sortOptions = [
+    SortOption.none,
+    SortOption.priceAsc,
+    SortOption.priceDesc,
   ];
 
-  // Added sort options list
-  final List<String> _sortOptions = [
-    'Relevância',
-    'Menor Preço',
-    'Maior Preço',
-    'Mais Vendidos',
-    'Melhor Avaliação',
-  ];
+  final Map<SortOption, String> _sortOptionNames = {
+    SortOption.none: 'Relevância',
+    SortOption.priceAsc: 'Menor Preço',
+    SortOption.priceDesc: 'Maior Preço',
+  };
+
 
   @override
   void initState() {
     super.initState();
+    _categories = ['Todos', ...productController.availableCategories];
+    _searchController.text = productController.searchQuery.value;
+
     _initAnimations();
-    _searchFocusNode.addListener(_onSearchFocusChanged); // Add listener for focus changes
+    _searchFocusNode.addListener(_onSearchFocusChanged);
   }
 
-  // Initialize all animation controllers and animations
+  // ... (initState, _initAnimations, _onSearchFocusChanged, dispose, _toggleFilters, _toggleViewMode)
+  // (Nenhuma alteração de tema necessária nesses métodos)
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    _animationController.dispose();
+    _searchAnimationController.dispose();
+    _filterAnimationController.dispose();
+    super.dispose();
+  }
+
   void _initAnimations() {
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800), // Adjusted duration
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
@@ -74,7 +84,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     );
 
     _filterAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 400), // Adjusted duration
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
@@ -83,39 +93,36 @@ class _ProductsListScreenState extends State<ProductsListScreen>
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: Curves.easeOutCubic, // Changed curve
+      curve: Curves.easeOutCubic,
     ));
 
-    _searchAnimation = Tween<double>( // Scale animation for search icon
+    _searchAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _searchAnimationController,
-      curve: Curves.elasticOut, // Changed curve for bouncy effect
+      curve: Curves.elasticOut,
     ));
 
-    _filterSlideAnimation = Tween<double>( // Animation for filter panel
+    _filterSlideAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _filterAnimationController,
-      curve: Curves.easeOutBack, // Changed curve
+      curve: Curves.easeOutBack,
     ));
 
-    // Slide animation for the AppBar title
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1), // Start from above
+      begin: const Offset(0, -1),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCubic,
     ));
 
-
-    _animationController.forward(); // Start the main animation
+    _animationController.forward();
   }
 
-  // Handle search bar focus changes for animation
   void _onSearchFocusChanged() {
     if (_searchFocusNode.hasFocus && !_isSearching) {
       setState(() {
@@ -130,51 +137,6 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     }
   }
 
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _searchFocusNode.dispose(); // Dispose focus node
-    _animationController.dispose();
-    _searchAnimationController.dispose(); // Dispose search animation controller
-    _filterAnimationController.dispose(); // Dispose filter animation controller
-    super.dispose();
-  }
-
-  // Updated filter logic to include sorting
-  void _filterProducts() {
-    setState(() {
-      _filteredProducts = _products.where((product) {
-        final matchesSearch = product.name.toLowerCase().contains(
-          _searchController.text.toLowerCase(),
-        );
-        final matchesCategory = _selectedCategory == 'Todos' ||
-            product.category == _selectedCategory;
-
-        // Apply both search and category filters
-        return matchesSearch && matchesCategory;
-      }).toList();
-
-      // Apply sorting based on selected option
-      switch (_selectedSort) {
-        case 'Menor Preço':
-          _filteredProducts.sort((a, b) => a.price.compareTo(b.price));
-          break;
-        case 'Maior Preço':
-          _filteredProducts.sort((a, b) => b.price.compareTo(a.price));
-          break;
-        case 'Melhor Avaliação':
-          _filteredProducts.sort((a, b) => b.rating.compareTo(a.rating));
-          break;
-        case 'Mais Vendidos':
-          _filteredProducts.sort((a, b) => b.reviewCount.compareTo(a.reviewCount)); // Assuming reviewCount indicates sales
-          break;
-      // Default is 'Relevância', no sorting needed here as it depends on backend or default order
-      }
-    });
-  }
-
-  // Toggle filter panel visibility with animation and haptic feedback
   void _toggleFilters() {
     setState(() {
       _showFilters = !_showFilters;
@@ -182,114 +144,132 @@ class _ProductsListScreenState extends State<ProductsListScreen>
 
     if (_showFilters) {
       _filterAnimationController.forward();
-      HapticFeedback.lightImpact(); // Add haptic feedback
+      HapticFeedback.lightImpact();
     } else {
       _filterAnimationController.reverse();
     }
   }
 
-  // Toggle between grid and list view with haptic feedback
   void _toggleViewMode() {
     setState(() {
       _isGridView = !_isGridView;
     });
-    HapticFeedback.selectionClick(); // Add haptic feedback
+    HapticFeedback.selectionClick();
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // ALTERAÇÃO: Cor de fundo vinda do tema
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: CustomScrollView(
         slivers: [
           _buildSliverAppBar(),
           SliverToBoxAdapter(
             child: Column(
               children: [
-                _buildSearchSection(), // Extracted search section
-                _buildCategoryFilter(), // Extracted category filter section
-                if (_showFilters) _buildAdvancedFilters(), // Conditionally show advanced filters
-                _buildProductsHeader(), // Header showing product count and clear filters button
+                _buildSearchSection(),
+                _buildCategoryFilter(),
+                if (_showFilters) _buildAdvancedFilters(),
+                _buildProductsHeader(),
               ],
             ),
           ),
-          _buildProductsSliverList(), // Product list/grid
+          Obx(() => _buildProductsSliverList()),
         ],
       ),
     );
   }
 
-  // Build the SliverAppBar with animations and actions
   Widget _buildSliverAppBar() {
+    // Obter cores do tema
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
+    final iconColor = Theme.of(context).appBarTheme.foregroundColor;
+    final iconBgColor = Theme.of(context).brightness == Brightness.light
+        ? Colors.white.withAlpha(51)
+        : Colors.white.withAlpha(20);
+
     return SliverAppBar(
-      expandedHeight: 80, // Reduced height
-      floating: false, // Keep it visible when scrolling up
+      expandedHeight: 80,
+      floating: false,
       pinned: true,
-      elevation: 0, // Remove shadow
-      backgroundColor: AppColors.primary,
+      elevation: 0,
+      // ALTERAÇÃO: Cor da AppBar vinda do tema
+      backgroundColor: appBarColor,
       flexibleSpace: FlexibleSpaceBar(
-        title: SlideTransition( // Added slide animation to title
+        centerTitle: true,
+        title: SlideTransition(
           position: _slideAnimation,
           child: Text(
             'Produtos',
             style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontWeight: FontWeight.w700, // Bolder title
-              fontSize: 24, // Larger font size
+              // A cor já é definida pelo foregroundColor da AppBarTheme
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
             ),
           ),
         ),
-        background: Container( // Added gradient background
+        background: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            // ALTERAÇÃO: Gradiente apenas no modo claro
+            gradient: Theme.of(context).brightness == Brightness.light
+                ? LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
                 AppColors.primary,
-                AppColors.primary.withOpacity(0.8), // Slightly transparent end color
+                AppColors.primary.withOpacity(0.8),
               ],
-            ),
+            )
+                : null,
+            color: appBarColor, // Cor sólida para modo escuro
           ),
         ),
       ),
       actions: [
-        // View toggle button with animation
+        // Botão de Mudar Visualização
         ScaleTransition(
-          scale: _fadeAnimation, // Reuse fade animation for scale effect
+          scale: _fadeAnimation,
           child: Container(
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2), // Semi-transparent background
+              // ALTERAÇÃO: Cor de fundo do ícone reage ao tema
+              color: iconBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
-              icon: AnimatedSwitcher( // Animate icon change
+              icon: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Icon(
                   _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
-                  key: ValueKey(_isGridView), // Key for animation
-                  color: Colors.white,
-                  size: 22, // Slightly smaller icon
+                  key: ValueKey(_isGridView),
+                  // ALTERAÇÃO: Cor do ícone vinda do tema
+                  color: iconColor,
+                  size: 22,
                 ),
               ),
               onPressed: _toggleViewMode,
             ),
           ),
         ),
-        // Filter toggle button with animation
+        // Botão de Filtros
         ScaleTransition(
           scale: _fadeAnimation,
           child: Container(
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
-              color: _showFilters ? Colors.white : Colors.white.withOpacity(0.2), // Change background when active
+              // ALTERAÇÃO: Cor reage ao estado E ao tema
+              color: _showFilters
+                  ? Theme.of(context).colorScheme.surface // Cor de superfície (branco/cinza)
+                  : iconBgColor, // Cor de fundo de ícone normal
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
               icon: Icon(
-                Icons.tune_rounded, // Use tune icon
-                color: _showFilters ? AppColors.primary : Colors.white, // Change color when active
+                Icons.tune_rounded,
+                // ALTERAÇÃO: Cor reage ao estado E ao tema
+                color: _showFilters ? Theme.of(context).colorScheme.primary : iconColor,
                 size: 22,
               ),
               onPressed: _toggleFilters,
@@ -300,36 +280,39 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     );
   }
 
-  // Build the search text field section with Hero animation and improved styling
   Widget _buildSearchSection() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        // ALTERAÇÃO: Cor vinda do tema
+        color: Theme.of(context).appBarTheme.backgroundColor,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(25),
           bottomRight: Radius.circular(25),
         ),
-        boxShadow: [ // Added shadow
+        boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            // ALTERAÇÃO: Cor da sombra reage ao tema
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Hero( // Wrap TextField with Hero for potential transition from home screen
+      child: Hero(
         tag: 'search_bar',
-        child: Material( // Material widget needed for Hero transition
+        child: Material(
           color: Colors.transparent,
-          child: AnimatedContainer( // Animate container properties if needed
+          child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20), // More rounded corners
+              // ALTERAÇÃO: Cor do campo vinda do tema
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  // ALTERAÇÃO: Sombra reage ao tema
+                  color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.1 : 0.2),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -337,43 +320,47 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             ),
             child: TextField(
               controller: _searchController,
-              focusNode: _searchFocusNode, // Assign focus node
-              onChanged: (_) => _filterProducts(),
-              style: GoogleFonts.poppins( // Consistent font style
+              focusNode: _searchFocusNode,
+              onChanged: (query) => productController.search(query),
+              // ALTERAÇÃO: Cor do texto vinda do tema
+              style: GoogleFonts.poppins(
                 fontSize: 15,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
-                hintText: 'Buscar produtos incríveis...', // Engaging hint text
+                hintText: 'Buscar produtos incríveis...',
+                // ALTERAÇÃO: Cor do hint vinda do tema
                 hintStyle: GoogleFonts.poppins(
-                  color: AppColors.textSecondary.withOpacity(0.6),
+                  color: Theme.of(context).inputDecorationTheme.hintStyle?.color,
                   fontSize: 14,
                 ),
-                prefixIcon: ScaleTransition( // Animate search icon scale
-                  scale: _searchAnimation, // Use the defined search animation
+                prefixIcon: ScaleTransition(
+                  scale: _searchAnimation,
                   child: Icon(
-                    _isSearching ? Icons.search_rounded : Icons.search_outlined, // Change icon based on focus
-                    color: _isSearching ? AppColors.primary : AppColors.textSecondary, // Change color based on focus
+                    _isSearching ? Icons.search_rounded : Icons.search_outlined,
+                    // ALTERAÇÃO: Cor do ícone reage ao foco E ao tema
+                    color: _isSearching ? Theme.of(context).colorScheme.primary : Theme.of(context).inputDecorationTheme.prefixIconColor,
                     size: 22,
                   ),
                 ),
-                suffixIcon: _searchController.text.isNotEmpty
+                suffixIcon: Obx(() => productController.searchQuery.value.isNotEmpty
                     ? IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.clear_rounded,
-                    color: AppColors.textSecondary,
+                    // ALTERAÇÃO: Cor do ícone vinda do tema
+                    color: Theme.of(context).inputDecorationTheme.prefixIconColor,
                     size: 20,
                   ),
                   onPressed: () {
                     _searchController.clear();
-                    _filterProducts();
-                    FocusScope.of(context).unfocus(); // Dismiss keyboard
+                    productController.search('');
+                    FocusScope.of(context).unfocus();
                   },
                 )
-                    : null,
-                border: InputBorder.none, // Remove default border
+                    : const SizedBox.shrink()),
+                border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16, // Adjust padding
+                  horizontal: 16,
                   vertical: 14,
                 ),
               ),
@@ -384,13 +371,11 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     );
   }
 
-
-  // Build the horizontal category filter list with improved styling
   Widget _buildCategoryFilter() {
-    return FadeTransition( // Added fade transition
+    return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        height: 55, // Increased height for better touch target
+        height: 55,
         margin: const EdgeInsets.symmetric(vertical: 16),
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
@@ -398,67 +383,75 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           itemCount: _categories.length,
           itemBuilder: (context, index) {
             final category = _categories[index];
-            final isSelected = _selectedCategory == category;
 
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedCategory = category;
-                  _filterProducts();
-                });
-                HapticFeedback.selectionClick(); // Haptic feedback on tap
-              },
-              child: AnimatedContainer( // Animate container properties
-                duration: const Duration(milliseconds: 150), // Faster animation
-                curve: Curves.easeOutBack, // Animated curve
-                margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: isSelected // Use gradient for selected category
-                      ? LinearGradient(
-                    colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
-                  )
-                      : null,
-                  color: isSelected ? null : Colors.white, // White background for unselected
-                  borderRadius: BorderRadius.circular(22), // More rounded corners
-                  border: Border.all( // Subtle border for unselected
-                    color: isSelected ? Colors.transparent : Colors.grey.shade200,
-                    width: 1.5,
-                  ),
-                  boxShadow: [ // Add shadow for depth
-                    BoxShadow(
-                      color: isSelected
-                          ? AppColors.primary.withOpacity(0.25)
-                          : Colors.black.withOpacity(0.04),
-                      blurRadius: isSelected ? 12 : 6,
-                      offset: const Offset(0, 4),
+            return Obx(() {
+              final isSelected = (category == 'Todos' && productController.selectedCategories.isEmpty) ||
+                  productController.selectedCategories.contains(category);
+
+              return GestureDetector(
+                onTap: () {
+                  if (category == 'Todos') {
+                    productController.selectedCategories.clear();
+                  } else {
+                    productController.toggleCategory(category);
+                  }
+                  HapticFeedback.selectionClick();
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOutBack,
+                  margin: const EdgeInsets.only(right: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    // Usa gradiente no selecionado (cor de marca)
+                    gradient: isSelected
+                        ? LinearGradient(
+                      colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                    )
+                        : null,
+                    // ALTERAÇÃO: Cor de fundo não selecionado vinda do tema
+                    color: isSelected ? null : Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(22),
+                    // ALTERAÇÃO: Borda não selecionada vinda do tema
+                    border: Border.all(
+                      color: isSelected ? Colors.transparent : Theme.of(context).dividerColor.withOpacity(0.5),
+                      width: 1.5,
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    category,
-                    style: GoogleFonts.poppins(
-                      color: isSelected ? Colors.white : AppColors.textSecondary,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, // Adjust weight
-                      fontSize: 13, // Slightly smaller font
+                    boxShadow: [ // Sombra
+                      BoxShadow(
+                        color: isSelected
+                            ? AppColors.primary.withOpacity(0.25)
+                        // ALTERAÇÃO: Sombra não selecionada reage ao tema
+                            : Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.04 : 0.1),
+                        blurRadius: isSelected ? 12 : 6,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      category,
+                      style: GoogleFonts.poppins(
+                        // ALTERAÇÃO: Cor do texto não selecionado vinda do tema
+                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
+              );
+            });
           },
         ),
       ),
     );
   }
 
-
-  // Build the advanced filter section (sorting options) with slide/fade animation
   Widget _buildAdvancedFilters() {
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(0, -0.5), // Slide down from top
+        begin: const Offset(0, -0.5),
         end: Offset.zero,
       ).animate(_filterSlideAnimation),
       child: FadeTransition(
@@ -467,11 +460,13 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            // ALTERAÇÃO: Cor do container vinda do tema
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                // ALTERAÇÃO: Sombra reage ao tema
+                color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.06 : 0.2),
                 blurRadius: 15,
                 offset: const Offset(0, 6),
               ),
@@ -480,11 +475,12 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row( // Title with icon
+              Row(
                 children: [
                   Icon(
                     Icons.sort_rounded,
-                    color: AppColors.primary,
+                    // ALTERAÇÃO: Cor do ícone vinda do tema
+                    color: Theme.of(context).colorScheme.primary,
                     size: 18,
                   ),
                   const SizedBox(width: 6),
@@ -492,55 +488,61 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                     'Ordenar por',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700, // Bolder title
-                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      // ALTERAÇÃO: Cor do texto vinda do tema
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              Wrap( // Use Wrap for responsive layout of sort options
+              Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: _sortOptions.map((option) {
-                  final isSelected = _selectedSort == option;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedSort = option;
-                        _filterProducts();
-                      });
-                      HapticFeedback.selectionClick(); // Haptic feedback
-                    },
-                    child: AnimatedContainer( // Animate selection change
-                      duration: const Duration(milliseconds: 300),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: isSelected // Gradient for selected option
-                            ? LinearGradient(
-                          colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
-                        )
-                            : null,
-                        color: isSelected ? null : AppColors.background, // Background color change
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected ? Colors.transparent : Colors.grey.shade200,
-                          width: 1,
+                  final String optionName = _sortOptionNames[option] ?? 'Relevância';
+
+                  return Obx(() {
+                    final isSelected = productController.sortOption.value == option;
+
+                    return GestureDetector(
+                      onTap: () {
+                        productController.setSortOption(option);
+                        HapticFeedback.selectionClick();
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: isSelected
+                              ? LinearGradient( // Gradiente (cor de marca)
+                            colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                          )
+                              : null,
+                          // ALTERAÇÃO: Cor de fundo não selecionado vinda do tema
+                          color: isSelected ? null : Theme.of(context).colorScheme.background,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            // ALTERAÇÃO: Cor da borda vinda do tema
+                            color: isSelected ? Colors.transparent : Theme.of(context).dividerColor.withOpacity(0.5),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          optionName,
+                          style: GoogleFonts.poppins(
+                            // ALTERAÇÃO: Cor do texto não selecionado vinda do tema
+                            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        option,
-                        style: GoogleFonts.poppins(
-                          color: isSelected ? Colors.white : AppColors.textSecondary,
-                          fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  );
+                    );
+                  });
                 }).toList(),
               ),
             ],
@@ -550,42 +552,39 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     );
   }
 
-
-  // Build the header showing product count and a clear filter button
   Widget _buildProductsHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          AnimatedSwitcher( // Animate text change for product count
+          Obx(() => AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Text(
-              '${_filteredProducts.length} produtos encontrados',
-              key: ValueKey(_filteredProducts.length), // Key for animation
+              '${productController.filteredProducts.length} produtos encontrados',
+              key: ValueKey(productController.filteredProducts.length),
               style: GoogleFonts.poppins(
-                color: AppColors.textSecondary,
+                // ALTERAÇÃO: Cor do texto vinda do tema
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),
-          ),
-          // Show "Clear" button only if filters are active
-          if (_selectedCategory != 'Todos' || _searchController.text.isNotEmpty)
-            TextButton.icon(
+          )),
+          Obx(() {
+            bool hasFilters = productController.selectedCategories.isNotEmpty ||
+                productController.searchQuery.value.isNotEmpty;
+
+            return hasFilters
+                ? TextButton.icon(
               onPressed: () {
-                setState(() {
-                  _selectedCategory = 'Todos';
-                  _searchController.clear();
-                  _filterProducts(); // Re-apply filters (which effectively clears them)
-                });
-                FocusScope.of(context).unfocus(); // Dismiss keyboard
-                HapticFeedback.lightImpact(); // Haptic feedback
+                productController.selectedCategories.clear();
+                _searchController.clear();
+                productController.search('');
+                FocusScope.of(context).unfocus();
+                HapticFeedback.lightImpact();
               },
-              icon: const Icon(
-                Icons.clear_all_rounded, // Use clear_all icon
-                size: 16,
-              ),
+              icon: const Icon(Icons.clear_all_rounded, size: 16),
               label: Text(
                 'Limpar',
                 style: GoogleFonts.poppins(
@@ -594,45 +593,49 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 ),
               ),
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // Adjust padding
-                minimumSize: Size.zero, // Allow smaller button size
+                // ALTERAÇÃO: Cor do botão vinda do tema
+                foregroundColor: Theme.of(context).colorScheme.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                minimumSize: Size.zero,
               ),
-            ),
+            )
+                : const SizedBox.shrink();
+          }),
         ],
       ),
     );
   }
 
-
-  // Build the product list/grid with empty state and animations
   Widget _buildProductsSliverList() {
-    // Show empty state if no products match filters
-    if (_filteredProducts.isEmpty) {
-      return SliverFillRemaining( // Use SliverFillRemaining to fill available space
+    final products = productController.filteredProducts;
+
+    if (products.isEmpty) {
+      return SliverFillRemaining(
         child: Center(
           child: FadeTransition(
-            opacity: _fadeAnimation, // Fade in the empty state message
+            opacity: _fadeAnimation,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container( // Decorative container for the icon
+                Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.background, // Use background color
+                    // ALTERAÇÃO: Cor do fundo do ícone vinda do tema
+                    color: Theme.of(context).colorScheme.surface,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
                   child: Icon(
-                    Icons.search_off_rounded, // Use search_off icon
+                    Icons.search_off_rounded,
                     size: 60,
-                    color: AppColors.textSecondary.withOpacity(0.5),
+                    // ALTERAÇÃO: Cor do ícone vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -641,7 +644,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -649,7 +653,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                   'Tente buscar por outro termo ou categoria',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: AppColors.textSecondary.withOpacity(0.7),
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
               ],
@@ -659,46 +664,46 @@ class _ProductsListScreenState extends State<ProductsListScreen>
       );
     }
 
-    // Build grid view
+    // O ProductCard já foi refatorado, então o SliverGrid/SliverList
+    // não precisa de mais alterações de cor.
     return _isGridView
         ? SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2 columns
-          childAspectRatio: 0.65, // Adjust aspect ratio for card size
-          crossAxisSpacing: 12, // Spacing between columns
-          mainAxisSpacing: 16, // Spacing between rows
+          crossAxisCount: 2,
+          childAspectRatio: 0.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 16,
         ),
         delegate: SliverChildBuilderDelegate(
               (context, index) {
-            final product = _filteredProducts[index];
-            return FadeTransition( // Fade in each product card
+            final product = products[index];
+            return FadeTransition(
               opacity: _fadeAnimation,
-              child: Hero( // Wrap ProductCard with Hero
-                tag: 'product_${product.id}', // Unique tag for Hero animation
+              child: Hero(
+                tag: 'product_${product.id}',
                 child: ProductCard(
                   product: product,
-                  onTap: () => _navigateToProductDetail(product), // Navigate on tap
-                  onFavoriteToggle: () => _toggleFavorite(product), // Handle favorite toggle
-                  onAddToCart: () => _addToCart(product), // Handle add to cart
+                  onTap: () => _navigateToProductDetail(product),
+                  onFavoriteToggle: () => _toggleFavorite(product),
+                  onAddToCart: () => _addToCart(product),
                 ),
               ),
             );
           },
-          childCount: _filteredProducts.length,
+          childCount: products.length,
         ),
       ),
     )
-    // Build list view
         : SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
               (context, index) {
-            final product = _filteredProducts[index];
-            return Container( // Container to manage height and margin for list items
-              height: 140, // Fixed height for list items
+            final product = products[index];
+            return Container(
+              height: 140,
               margin: const EdgeInsets.only(bottom: 16),
               child: FadeTransition(
                 opacity: _fadeAnimation,
@@ -714,82 +719,85 @@ class _ProductsListScreenState extends State<ProductsListScreen>
               ),
             );
           },
-          childCount: _filteredProducts.length,
+          childCount: products.length,
         ),
       ),
     );
   }
 
-  // Navigate to Product Detail Screen with custom transition
   void _navigateToProductDetail(Product product) {
-    HapticFeedback.lightImpact(); // Haptic feedback on navigation
+    // ... (Método _navigateToProductDetail permanece igual) ...
+    HapticFeedback.lightImpact();
     Navigator.push(
       context,
-      PageRouteBuilder( // Use PageRouteBuilder for custom transition
+      PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             ProductDetailScreen(product: product),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Slide transition from right to left
           return SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(1.0, 0.0),
               end: Offset.zero,
             ).animate(CurvedAnimation(
               parent: animation,
-              curve: Curves.easeOutCubic, // Smooth curve
+              curve: Curves.easeOutCubic,
             )),
             child: child,
           );
         },
-        transitionDuration: const Duration(milliseconds: 300), // Faster transition
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
 
-  // Show snackbar when toggling favorite
   void _toggleFavorite(Product product) {
-    HapticFeedback.lightImpact(); // Haptic feedback
-    // TODO: Implement actual favorite logic (e.g., update state management)
+    productController.toggleFavorite(product);
+    HapticFeedback.lightImpact();
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row( // Improved content with icon
+        // ALTERAÇÃO: Cor da SnackBar vinda do tema
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
+        content: Row(
           children: [
             Icon(
-              Icons.favorite_rounded,
-              color: Colors.pink.shade300, // Use pink color
+              product.isFavorite.value ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: product.isFavorite.value ? Colors.pink.shade300 : Theme.of(context).colorScheme.surface, // Cor do ícone
               size: 20,
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '${product.name} adicionado aos favoritos', // Informative message
+                product.isFavorite.value
+                    ? '${product.name} adicionado aos favoritos'
+                    : '${product.name} removido dos favoritos',
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.w500,
+                  // ALTERAÇÃO: Cor do texto vinda do tema
+                  color: Theme.of(context).colorScheme.surface,
                 ),
               ),
             ),
           ],
         ),
-        backgroundColor: AppColors.textPrimary, // Use primary text color for background
-        behavior: SnackBarBehavior.floating, // Floating snackbar
-        shape: RoundedRectangleBorder( // Rounded corners
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        margin: const EdgeInsets.all(20), // Margin around snackbar
+        margin: const EdgeInsets.all(20),
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  // Show snackbar when adding to cart
   void _addToCart(Product product) {
-    HapticFeedback.mediumImpact(); // Stronger haptic feedback
-    // TODO: Implement actual add to cart logic (e.g., update state management)
+    HapticFeedback.mediumImpact();
+    // A SnackBar de "Sucesso" (verde) pode manter a sua cor fixa
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row( // Improved content layout
+        content: Row(
           children: [
-            Container( // Icon container for better visual separation
+            Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
@@ -803,15 +811,16 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Column( // Column for title and product name
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // Take minimum space
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Produto adicionado!',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
+                      color: Colors.white, // Texto branco no fundo verde
                     ),
                   ),
                   Text(
@@ -820,7 +829,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                       fontSize: 12,
                       color: Colors.white.withOpacity(0.9),
                     ),
-                    maxLines: 1, // Prevent overflow
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -828,26 +837,24 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             ),
           ],
         ),
-        backgroundColor: AppColors.success, // Use success color
+        backgroundColor: AppColors.success, // Manter cor de status (verde)
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15), // More rounded corners
+          borderRadius: BorderRadius.circular(15),
         ),
         margin: const EdgeInsets.all(20),
-        duration: const Duration(seconds: 3), // Slightly longer duration
-        action: SnackBarAction( // Add action to view cart
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
           label: 'Ver carrinho',
-          textColor: Colors.white,
-          backgroundColor: Colors.white.withOpacity(0.2), // Subtle background for action
+          textColor: Colors.white, // Manter branco no fundo verde
+          backgroundColor: Colors.white.withOpacity(0.2),
           onPressed: () {
-            // Navigate to CartScreen with custom transition
             Navigator.push(
               context,
               PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
                 const CartScreen(),
                 transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  // Slide up transition
                   return SlideTransition(
                     position: Tween<Offset>(
                       begin: const Offset(0.0, 1.0),

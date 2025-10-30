@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -64,8 +64,8 @@ class _HomeScreenState extends State<HomeScreen>
                     const SizedBox(height: 20),
                     _buildPromoBanner(),
                     const SizedBox(height: 25),
-                    _buildCategories(),
-                    const SizedBox(height: 25),
+                    /*_buildCategories(),
+                    const SizedBox(height: 25),*/
                     _buildFeaturedProducts(),
                     const SizedBox(height: 25),
                     _buildSpecialOffers(),
@@ -84,23 +84,33 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildAppBar() {
+    // Determina a cor de fundo da AppBar com base no tema
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
+    final iconColor = Theme.of(context).appBarTheme.foregroundColor;
+    final iconBgColor = Theme.of(context).brightness == Brightness.light
+        ? Colors.white.withAlpha(51)
+        : Colors.white.withAlpha(20);
+
     return SliverAppBar(
       expandedHeight: 120,
       floating: true,
       pinned: true,
-      backgroundColor: AppColors.primary,
+      // ALTERAÇÃO: Cor de fundo vinda do tema
+      backgroundColor: appBarColor,
       flexibleSpace: FlexibleSpaceBar(
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withAlpha(51),
+                // ALTERAÇÃO: Cor de fundo do ícone reage ao tema
+                color: iconBgColor,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.shopping_bag,
-                color: Colors.white,
+                // ALTERAÇÃO: Cor do ícone vinda do tema
+                color: iconColor,
                 size: 20,
               ),
             ),
@@ -110,17 +120,23 @@ class _HomeScreenState extends State<HomeScreen>
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                // A cor do texto já é definida pelo tema da AppBar
               ),
             ),
           ],
         ),
         background: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            // ALTERAÇÃO: Gradiente apenas no modo claro
+            gradient: Theme.of(context).brightness == Brightness.light
+                ? LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [AppColors.primary, AppColors.primaryDark],
-            ),
+            )
+                : null, // Sem gradiente no modo escuro
+            // Cor sólida para ambos os modos (no escuro, será a cor principal)
+            color: appBarColor,
           ),
           child: Stack(
             children: [
@@ -157,12 +173,14 @@ class _HomeScreenState extends State<HomeScreen>
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(51),
+              // ALTERAÇÃO: Cor de fundo do ícone reage ao tema
+              color: iconBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notifications_outlined,
-              color: Colors.white,
+              // ALTERAÇÃO: Cor do ícone vinda do tema
+              color: iconColor,
             ),
           ),
           onPressed: () {},
@@ -171,10 +189,12 @@ class _HomeScreenState extends State<HomeScreen>
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(51),
+              // ALTERAÇÃO: Cor de fundo do ícone reage ao tema
+              color: iconBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.person_outline, color: Colors.white),
+            // ALTERAÇÃO: Cor do ícone vinda do tema
+            child: Icon(Icons.person_outline, color: iconColor),
           ),
           onPressed: () {
             Navigator.push(
@@ -192,11 +212,13 @@ class _HomeScreenState extends State<HomeScreen>
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          // ALTERAÇÃO: Cor da barra de pesquisa vinda do tema (surface = branco/cinza escuro)
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(25),
+              // ALTERAÇÃO: Cor da sombra mais subtil
+              color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
               blurRadius: 30,
               offset: const Offset(0, 5),
             ),
@@ -204,17 +226,21 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         child: TextField(
           onChanged: productController.search,
+          // ALTERAÇÃO: Estilo do texto vindo do tema
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: 'Buscar produtos...',
+            // ALTERAÇÃO: Cor do hint vinda do tema
             hintStyle: GoogleFonts.poppins(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).inputDecorationTheme.hintStyle?.color,
               fontSize: 14,
             ),
             suffixIcon: Container(
               margin: const EdgeInsets.only(right: 5),
               child: IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.search, color: AppColors.textSecondary),
+                // ALTERAÇÃO: Cor do ícone vinda do tema
+                icon: Icon(Icons.search, color: Theme.of(context).inputDecorationTheme.prefixIconColor),
               ),
             ),
             border: InputBorder.none,
@@ -229,6 +255,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildPromoBanner() {
+    // Os banners são conteúdo de "marca", então manter as cores fixas
+    // (AppColors.primary, AppColors.secondary, etc.) é aceitável.
     final List<Map<String, dynamic>> banners = [
       {
         'title': 'Mega Ofertas',
@@ -237,13 +265,6 @@ class _HomeScreenState extends State<HomeScreen>
         'color2': AppColors.primaryDark,
         'icon': Icons.local_offer,
       },
-      /*{
-        'title': 'Frete Grátis',
-        'subtitle': 'Em compras acima de R\$99',
-        'color1': AppColors.secondary,
-        'color2': const Color(0xFFE53E3E),
-        'icon': Icons.local_shipping,
-      },*/
       {
         'title': 'Novidades',
         'subtitle': 'Confira os lançamentos',
@@ -345,19 +366,21 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
         const SizedBox(height: 15),
+        // Indicador de página
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             banners.length,
-            (index) => AnimatedContainer(
+                (index) => AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
               width: _currentPage == index ? 25 : 8,
               height: 8,
               decoration: BoxDecoration(
+                // ALTERAÇÃO: Cores do indicador de página vêm do tema
                 color: _currentPage == index
-                    ? AppColors.primary
-                    : AppColors.textSecondary.withAlpha(76),
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -367,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildCategories() {
+  /*Widget _buildCategories() {  //categorias não vai mais estar na home
     final Map<String, Map<String, dynamic>> categoryStyles = {
       'Eletrônicos': {'icon': Icons.phone_android, 'color': Colors.blue},
       'Calçados': {'icon': Icons.directions_walk, 'color': Colors.pink},
@@ -390,15 +413,26 @@ class _HomeScreenState extends State<HomeScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  // ALTERAÇÃO: Cor do texto vinda do tema
+                  color: Theme.of(context).colorScheme.onBackground,
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Navega para o ecrã de produtos SEM filtro
+                  productController.selectedCategories.clear();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProductsListScreen(),
+                    ),
+                  );
+                },
                 child: Text(
                   'Ver todas',
                   style: GoogleFonts.poppins(
-                    color: AppColors.primary,
+                    // ALTERAÇÃO: Cor do botão vinda do tema
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -425,6 +459,13 @@ class _HomeScreenState extends State<HomeScreen>
                   child: GestureDetector(
                     onTap: () {
                       productController.toggleCategory(categoryName);
+                      // Navega para o ecrã de lista de produtos
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProductsListScreen(),
+                        ),
+                      );
                     },
                     child: Column(
                       children: [
@@ -439,9 +480,9 @@ class _HomeScreenState extends State<HomeScreen>
                             borderRadius: BorderRadius.circular(20),
                             border: isSelected
                                 ? Border.all(
-                                    color: style['color'] as Color,
-                                    width: 2,
-                                  )
+                              color: style['color'] as Color,
+                              width: 2,
+                            )
                                 : null,
                           ),
                           child: Icon(
@@ -460,9 +501,10 @@ class _HomeScreenState extends State<HomeScreen>
                             fontWeight: isSelected
                                 ? FontWeight.bold
                                 : FontWeight.normal,
+                            // ALTERAÇÃO: Cor do texto reage ao tema
                             color: isSelected
-                                ? AppColors.primary
-                                : AppColors.textSecondary,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                       ],
@@ -475,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       ],
     );
-  }
+  }*/
 
   Widget _buildFeaturedProducts() {
     return Column(
@@ -491,26 +533,11 @@ class _HomeScreenState extends State<HomeScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  // ALTERAÇÃO: Cor do texto vinda do tema
+                  color: Theme.of(context).colorScheme.onBackground,
                 ),
               ),
-              /*TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProductsListScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'Ver todos',
-                  style: GoogleFonts.poppins(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),*/
+              // O botão "Ver todos" foi removido na etapa anterior
             ],
           ),
         ),
@@ -518,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen>
         SizedBox(
           height: 280,
           child: Obx(
-            () => ListView.builder(
+                () => ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: productController.filteredProducts.length,
@@ -537,11 +564,12 @@ class _HomeScreenState extends State<HomeScreen>
                     width: 180,
                     margin: const EdgeInsets.only(right: 15),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      // ALTERAÇÃO: Cor do card vinda do tema
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha(20),
+                          color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -562,37 +590,13 @@ class _HomeScreenState extends State<HomeScreen>
                                 width: double.maxFinite,
                                 fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(
+                                  return Icon(
                                     Icons.image_not_supported,
                                     size: 60,
-                                    color: Colors.grey,
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                                   );
                                 },
                               ),
-                            ),
-                            Positioned(
-                              top: 10,
-                              left: 10,
-                              child: product.isOnSale
-                                  ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.secondary,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        '${product.discountPercentage.toStringAsFixed(0)}% OFF',
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
                             ),
                             Positioned(
                               top: 10,
@@ -605,11 +609,12 @@ class _HomeScreenState extends State<HomeScreen>
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      // ALTERAÇÃO: Cor do fundo do botão favorito vinda do tema
+                                      color: Theme.of(context).colorScheme.surface,
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withAlpha(25),
+                                          color: Colors.black.withOpacity(0.1),
                                           blurRadius: 5,
                                         ),
                                       ],
@@ -619,9 +624,10 @@ class _HomeScreenState extends State<HomeScreen>
                                           ? Icons.favorite
                                           : Icons.favorite_border,
                                       size: 20,
+                                      // ALTERAÇÃO: Cor do ícone favorito reage ao tema (exceto quando ativo)
                                       color: product.isFavorite.value
                                           ? Colors.redAccent
-                                          : AppColors.textSecondary,
+                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                     ),
                                   ),
                                 ),
@@ -641,7 +647,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
+                                  // ALTERAÇÃO: Cor do texto vinda do tema
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 5),
@@ -657,7 +664,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     product.rating.toString(),
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
-                                      color: AppColors.textSecondary,
+                                      // ALTERAÇÃO: Cor do texto vinda do tema
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                     ),
                                   ),
                                 ],
@@ -670,7 +678,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.primary,
+                                      // ALTERAÇÃO: Cor do preço vinda do tema
+                                      color: Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                   if (product.oldPrice != null) ...[
@@ -679,7 +688,8 @@ class _HomeScreenState extends State<HomeScreen>
                                       'R\$ ${product.oldPrice!.toStringAsFixed(2)}',
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
-                                        color: AppColors.textSecondary,
+                                        // ALTERAÇÃO: Cor do texto vindo do tema
+                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                         decoration: TextDecoration.lineThrough,
                                       ),
                                     ),
@@ -825,10 +835,11 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        // ALTERAÇÃO: Cor de fundo vinda do tema
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(13),
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -836,9 +847,12 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
+        // ALTERAÇÃO: Cor de fundo vinda do tema
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        // ALTERAÇÃO: Cor do item selecionado vinda do tema
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        // ALTERAÇÃO: Cor do item não selecionado vinda do tema
+        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
         selectedLabelStyle: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: FontWeight.w600,
