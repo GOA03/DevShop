@@ -13,6 +13,7 @@ class Product {
   RxBool isFavorite;
   final bool isOnSale;
   final int stock;
+  final bool isFeatured;
 
   Product({
     required this.id,
@@ -27,6 +28,7 @@ class Product {
     bool isFavorite = false,
     this.isOnSale = false,
     this.stock = 0,
+    this.isFeatured = false,
   }) : this.isFavorite = isFavorite.obs;
 
   double get discountPercentage {
@@ -49,6 +51,7 @@ class Product {
     bool? isFavorite,
     bool? isOnSale,
     int? stock,
+    bool? isFeatured,
   }) {
     return Product(
       id: id ?? this.id,
@@ -63,6 +66,7 @@ class Product {
       isFavorite: isFavorite ?? this.isFavorite.value,
       isOnSale: isOnSale ?? this.isOnSale,
       stock: stock ?? this.stock,
+      isFeatured: isFeatured ?? this.isFeatured,
     );
   }
 
@@ -80,6 +84,7 @@ class Product {
       'isFavorite': isFavorite.value,
       'isOnSale': isOnSale,
       'stock': stock,
+      'isFeatured': isFeatured,
     };
   }
 
@@ -98,6 +103,7 @@ class Product {
           : false.obs,
 
       isOnSale = json['isOnSale'] ?? false,
+      isFeatured = json['isFeatured'] ?? false,
       stock = json['stock'] ?? 0;
 }
 

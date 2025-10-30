@@ -14,12 +14,13 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -31,23 +32,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
-    ));
-    
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
+          ),
+        );
+
     _animationController.forward();
   }
 
@@ -72,7 +72,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         _isLoading = false;
       });
 
-      if (_emailController.text == 'admin@gmail.com' && _passwordController.text == '123456') {
+      if (_emailController.text == 'admin@gmail.com' &&
+          _passwordController.text == '123456') {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -100,9 +101,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         );
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Credenciais inválidas!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Credenciais inválidas!')));
       }
     }
   }
@@ -211,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 isPassword: true,
                 validator: Validators.validatePassword,
               ),
-                            const SizedBox(height: 16),
+              const SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -252,11 +253,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         children: [
           Row(
             children: [
-              Expanded(
-                child: Divider(
-                  color: Colors.grey.withAlpha(76),
-                ),
-              ),
+              Expanded(child: Divider(color: Colors.grey.withAlpha(76))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
@@ -267,11 +264,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ),
                 ),
               ),
-              Expanded(
-                child: Divider(
-                  color: Colors.grey.withAlpha(76),
-                ),
-              ),
+              Expanded(child: Divider(color: Colors.grey.withAlpha(76))),
             ],
           ),
           const SizedBox(height: 20),
@@ -293,7 +286,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 color: const Color(0xFF1877F2),
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Login com Facebook em breve!')),
+                    const SnackBar(
+                      content: Text('Login com Facebook em breve!'),
+                    ),
                   );
                 },
               ),
@@ -328,10 +323,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: Colors.grey.withAlpha(51),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey.withAlpha(51), width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(13),
@@ -340,11 +332,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
           ],
         ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 30,
-        ),
+        child: Icon(icon, color: color, size: 30),
       ),
     );
   }

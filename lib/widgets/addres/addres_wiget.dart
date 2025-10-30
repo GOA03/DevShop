@@ -1,37 +1,21 @@
-import 'package:flutter/cupertino.dart';
+import 'package:dev_shop/models/addres.dart';
 import 'package:flutter/material.dart';
 
-class Addres extends StatefulWidget {
-  const Addres({
+class AddresWiget extends StatefulWidget {
+  const AddresWiget({
     super.key,
-    required this.nome,
-    required this.rua,
-    required this.bairro,
-    required this.cidade,
-    required this.pais,
-    this.isDefault = false, // parâmetro opcional para indicar se é padrão
+    required this.address,
+    required this.onSetDefault,
   });
 
-  final String nome;
-  final String rua;
-  final String bairro;
-  final String cidade;
-  final String pais;
-  final bool isDefault;
+  final Addres address;
+  final VoidCallback onSetDefault;
 
   @override
-  State<Addres> createState() => _AddresState();
+  State<AddresWiget> createState() => _AddresState();
 }
 
-class _AddresState extends State<Addres> {
-  late bool _isDefault;
-
-  @override
-  void initState() {
-    super.initState();
-    _isDefault = widget.isDefault; // inicializa o estado
-  }
-
+class _AddresState extends State<AddresWiget> {
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 600;
@@ -53,7 +37,7 @@ class _AddresState extends State<Addres> {
               children: [
                 // Nome
                 Text(
-                  widget.nome,
+                  widget.address.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -62,16 +46,16 @@ class _AddresState extends State<Addres> {
                 const SizedBox(height: 6),
 
                 // Endereço
-                Text(widget.rua),
-                Text(widget.bairro),
-                Text(widget.cidade),
-                Text(widget.pais),
-                const SizedBox(height: 6),
+                Text(widget.address.street),
+                Text(widget.address.city),
+                Text(widget.address.state),
+                Text(widget.address.contry),
+                Text(widget.address.number),
 
                 const SizedBox(height: 16),
                 const Divider(),
 
-                // Botões de ação
+                // Botões
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -80,23 +64,27 @@ class _AddresState extends State<Addres> {
                     _buildActionButton(
                       label: "Alterar",
                       color: Colors.blue.shade600,
-                      onPressed: () {},
+                      onPressed: () {
+                        // ação de editar
+                      },
                     ),
                     _buildActionButton(
                       label: "Excluir",
                       color: Colors.red.shade400,
-                      onPressed: () {},
+                      onPressed: () {
+                        // ação de excluir
+                      },
                     ),
                     _buildActionButton(
-                      label: _isDefault ? "Padrão" : "Definir como padrão",
-                      color: _isDefault ? Colors.grey : Colors.green.shade600,
-                      onPressed: _isDefault
+                      label: widget.address.isDefault
+                          ? "Padrão"
+                          : "Definir como padrão",
+                      color: widget.address.isDefault
+                          ? Colors.grey
+                          : Colors.green.shade600,
+                      onPressed: widget.address.isDefault
                           ? null
-                          : () {
-                              setState(() {
-                                _isDefault = true;
-                              });
-                            },
+                          : widget.onSetDefault,
                     ),
                   ],
                 ),

@@ -38,6 +38,10 @@ class _HomeScreenState extends State<HomeScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
     _animationController.forward();
+    productController.getAll().then((products) {
+      productController.filteredProducts.assignAll(products);
+      setState(() {}); // força rebuild após carregar
+    });
   }
 
   @override
@@ -419,9 +423,9 @@ class _HomeScreenState extends State<HomeScreen>
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: productController.availableCategories.length,
+            itemCount: productController.featuredProducts.length,
             itemBuilder: (context, index) {
-              final categoryName = productController.availableCategories[index];
+              final categoryName = productController.featuredCategories[index];
               final style = categoryStyles[categoryName] ?? defaultStyle;
 
               return Obx(() {
@@ -529,9 +533,9 @@ class _HomeScreenState extends State<HomeScreen>
             () => ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: productController.filteredProducts.length,
+              itemCount: productController.featuredProducts.length,
               itemBuilder: (context, index) {
-                final product = productController.filteredProducts[index];
+                final product = productController.featuredProducts[index];
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(

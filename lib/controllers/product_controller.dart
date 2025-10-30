@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dev_shop/controllers/api/api_controller.dart';
 import 'package:dev_shop/service/http_interceptor.dart';
 import 'package:get/get.dart';
 import 'package:http_interceptor/http/intercepted_client.dart';
@@ -15,15 +16,10 @@ class ProductController extends GetxController {
   final RxString searchQuery = ''.obs;
   final Rx<SortOption> sortOption = SortOption.none.obs;
   final RxSet<String> selectedCategories = <String>{}.obs;
+  final RxList<Product> featuredProducts = <Product>[].obs;
 
   //Acesso a API
-  static const String url = "http://10.100.123.130:3000/";
-  static const String learnHttpEndpoint = "products";
-
-  //Concatenação
-  String getUrl() {
-    return "$url$learnHttpEndpoint";
-  }
+  static final String url = ApiController().getUrl(Endpoint.products);
 
   //Client com interceptor
   http.Client client = InterceptedClient.build(
@@ -33,7 +29,7 @@ class ProductController extends GetxController {
   //Métodos HTTP
   Future<bool> register(Product product) async {
     http.Response response = await client.post(
-      Uri.parse(getUrl()),
+      Uri.parse(url),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(product.toJson()),
     );
@@ -46,7 +42,7 @@ class ProductController extends GetxController {
   }
 
   Future<List<Product>> getAll() async {
-    final response = await client.get(Uri.parse(getUrl()));
+    final response = await client.get(Uri.parse(url));
     if (response.statusCode != 200) {
       throw Exception("Erro ao buscar journals");
     }
@@ -71,6 +67,7 @@ class ProductController extends GetxController {
     _allProducts.assignAll(mockData);
     filteredProducts.assignAll(_allProducts);
     favoriteProducts.assignAll(_allProducts.where((p) => p.isFavorite.value));
+    featuredProducts.assignAll(_allProducts.where((p) => p.isFeatured == true));
   }
 
   void toggleFavorite(Product product) {
@@ -145,5 +142,9 @@ class ProductController extends GetxController {
 
   List<String> get availableCategories {
     return _allProducts.map((p) => p.category).toSet().toList();
+  }
+
+  List<String> get featuredCategories {
+    return featuredProducts.map((p) => p.category).toSet().toList();
   }
 }
