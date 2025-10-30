@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../core/constants/colors.dart';
+import '../core/constants/colors.dart'; // Ainda usado para cores de "marca" (ex: secondary, warning)
 import '../models/product_model.dart';
 import 'package:get/get.dart';
 
@@ -47,6 +47,10 @@ class _ProductCardState extends State<ProductCard>
 
   @override
   Widget build(BuildContext context) {
+    // Obter as cores do tema atual (claro ou escuro)
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return GestureDetector(
       onTapDown: (_) => _animationController.forward(),
       onTapUp: (_) => _animationController.reverse(),
@@ -56,11 +60,13 @@ class _ProductCardState extends State<ProductCard>
         scale: _scaleAnimation,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            // ALTERAÇÃO: Cor do card vinda do tema (branco no claro, cinza escuro no escuro)
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 20),
+                // ALTERAÇÃO: Sombra subtil que funciona em ambos os modos
+                color: Colors.black.withOpacity(theme.brightness == Brightness.light ? 0.05 : 0.1),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -74,7 +80,9 @@ class _ProductCardState extends State<ProductCard>
                   Container(
                     height: 140,
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      // ALTERAÇÃO: Cor de fundo da imagem (placeholder) vinda do tema
+                      // Usa a cor de fundo do ecrã, que é ligeiramente diferente da superfície do card
+                      color: theme.scaffoldBackgroundColor,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
@@ -92,7 +100,8 @@ class _ProductCardState extends State<ProductCard>
                             child: Icon(
                               Icons.image_not_supported,
                               size: 50,
-                              color: Colors.grey[400],
+                              // ALTERAÇÃO: Cor do ícone de erro vinda do tema
+                              color: colorScheme.onSurface.withOpacity(0.4),
                             ),
                           );
                         },
@@ -100,6 +109,7 @@ class _ProductCardState extends State<ProductCard>
                     ),
                   ),
 
+                  // Selo de desconto (mantém cor de "marca" fixa)
                   if (widget.product.isOnSale &&
                       widget.product.discountPercentage > 0)
                     Positioned(
@@ -111,13 +121,13 @@ class _ProductCardState extends State<ProductCard>
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary,
+                          color: AppColors.secondary, // Cor de destaque (vermelho)
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           '-${widget.product.discountPercentage.toStringAsFixed(0)}%',
                           style: GoogleFonts.poppins(
-                            color: Colors.white,
+                            color: Colors.white, // Texto branco sempre contrasta com AppColors.secondary
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
@@ -125,6 +135,7 @@ class _ProductCardState extends State<ProductCard>
                       ),
                     ),
 
+                  // Botão Favorito
                   Positioned(
                     top: 12,
                     right: 12,
@@ -134,7 +145,8 @@ class _ProductCardState extends State<ProductCard>
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            // ALTERAÇÃO: Cor de fundo vinda do tema
+                            color: colorScheme.surface,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -151,9 +163,10 @@ class _ProductCardState extends State<ProductCard>
                                   : Icons.favorite_border,
                               key: ValueKey(widget.product.isFavorite.value),
                               size: 20,
+                              // ALTERAÇÃO: Cor do ícone inativo vinda do tema
                               color: widget.product.isFavorite.value
-                                  ? AppColors.secondary
-                                  : AppColors.textSecondary,
+                                  ? AppColors.secondary // Cor de "ativo" (vermelho)
+                                  : colorScheme.onSurface.withOpacity(0.7), // Cor de "inativo" (tema)
                             ),
                           ),
                         ),
@@ -161,6 +174,7 @@ class _ProductCardState extends State<ProductCard>
                     ),
                   ),
 
+                  // Selo de Stock Baixo (mantém cor de "aviso" fixa)
                   if (widget.product.stock <= 5 && widget.product.stock > 0)
                     Positioned(
                       bottom: 12,
@@ -171,13 +185,13 @@ class _ProductCardState extends State<ProductCard>
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.warning,
+                          color: AppColors.warning, // Cor de aviso (laranja)
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           'Últimas ${widget.product.stock} unidades',
                           style: GoogleFonts.poppins(
-                            color: Colors.white,
+                            color: Colors.white, // Texto branco contrasta com AppColors.warning
                             fontWeight: FontWeight.w600,
                             fontSize: 11,
                           ),
@@ -187,6 +201,7 @@ class _ProductCardState extends State<ProductCard>
                 ],
               ),
 
+              // Secção de Texto (Informações)
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.8),
@@ -197,21 +212,25 @@ class _ProductCardState extends State<ProductCard>
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Categoria
                           Text(
                             widget.product.category,
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: AppColors.primary,
+                              // ALTERAÇÃO: Cor primária vinda do tema
+                              color: colorScheme.primary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 4),
+                          // Nome do Produto
                           Text(
                             widget.product.name,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              // ALTERAÇÃO: Cor do texto principal vinda do tema
+                              color: colorScheme.onSurface,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -219,13 +238,14 @@ class _ProductCardState extends State<ProductCard>
                         ],
                       ),
 
+                      // Rating
                       if (widget.product.rating > 0)
                         Row(
                           children: [
                             Icon(
                               Icons.star,
                               size: 16,
-                              color: Colors.amber[700],
+                              color: Colors.amber[700], // Manter cor de estrela fixa (amarelo)
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -233,7 +253,8 @@ class _ProductCardState extends State<ProductCard>
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                                // ALTERAÇÃO: Cor do texto vinda do tema
+                                color: colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(width: 4),
@@ -241,12 +262,14 @@ class _ProductCardState extends State<ProductCard>
                               '(${widget.product.reviewCount})',
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
-                                color: AppColors.textSecondary,
+                                // ALTERAÇÃO: Cor do texto secundário vinda do tema
+                                color: colorScheme.onSurface.withOpacity(0.7),
                               ),
                             ),
                           ],
                         ),
 
+                      // Preço e Botão Adicionar
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -254,46 +277,52 @@ class _ProductCardState extends State<ProductCard>
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Preço Antigo (se existir)
                               if (widget.product.oldPrice != null)
                                 Text(
                                   'R\$ ${widget.product.oldPrice!.toStringAsFixed(2)}',
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
-                                    color: AppColors.textSecondary,
+                                    // ALTERAÇÃO: Cor do texto secundário vinda do tema
+                                    color: colorScheme.onSurface.withOpacity(0.7),
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
+                              // Preço Atual
                               Text(
                                 'R\$ ${widget.product.price.toStringAsFixed(2)}',
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
+                                  // ALTERAÇÃO: Cor primária vinda do tema
+                                  color: colorScheme.primary,
                                 ),
                               ),
                             ],
                           ),
 
+                          // Botão Adicionar ao Carrinho
                           GestureDetector(
                             onTap: widget.onAddToCart,
                             child: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: AppColors.primary,
+                                // ALTERAÇÃO: Cor primária vinda do tema
+                                color: colorScheme.primary,
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primary.withValues(
-                                      alpha: 0.3,
-                                    ),
+                                    // ALTERAÇÃO: Sombra da cor primária vinda do tema
+                                    color: colorScheme.primary.withOpacity(0.3),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.add_shopping_cart,
-                                color: Colors.white,
+                                // ALTERAÇÃO: Cor do ícone que contrasta com a cor primária
+                                color: colorScheme.onPrimary,
                                 size: 20,
                               ),
                             ),
