@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Import for HapticFeedback
+import 'package:flutter/services.dart';
+import 'package:get/get.dart'; // Importar GetX
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/product_controller.dart'; // Importar o controlador
 import '../../core/constants/colors.dart';
 import '../../models/product_model.dart';
 import '../../widgets/product_card.dart';
 import '../cart/cart_screen.dart';
-import 'product_detail_screen.dart'; // Import the detail screen
+import 'product_detail_screen.dart';
 
 class ProductsListScreen extends StatefulWidget {
   const ProductsListScreen({super.key});

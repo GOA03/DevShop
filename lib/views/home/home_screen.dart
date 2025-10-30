@@ -237,13 +237,13 @@ class _HomeScreenState extends State<HomeScreen>
         'color2': AppColors.primaryDark,
         'icon': Icons.local_offer,
       },
-      {
+      /*{
         'title': 'Frete Grátis',
         'subtitle': 'Em compras acima de R\$99',
         'color1': AppColors.secondary,
         'color2': const Color(0xFFE53E3E),
         'icon': Icons.local_shipping,
-      },
+      },*/
       {
         'title': 'Novidades',
         'subtitle': 'Confira os lançamentos',
@@ -494,7 +494,7 @@ class _HomeScreenState extends State<HomeScreen>
                   color: AppColors.textPrimary,
                 ),
               ),
-              TextButton(
+              /*TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -510,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen>
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
+              ),*/
             ],
           ),
         ),

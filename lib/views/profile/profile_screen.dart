@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
 import '../auth/login_screen.dart';
+import '../favorites/favorites_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -435,9 +436,18 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Navegando para $title...')),
-        );
+        // Navega para o ecrã de favoritos se o título corresponder
+        if (title == 'Favoritos') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+          );
+        } else {
+          // Mantém o SnackBar para os outros itens como placeholder
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ecrã "$title" em breve!')),
+          );
+        }
       },
       borderRadius: isLast
           ? const BorderRadius.vertical(bottom: Radius.circular(20))
