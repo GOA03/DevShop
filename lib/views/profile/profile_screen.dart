@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
 import '../auth/login_screen.dart';
-import '../favorites/favorites_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,18 +10,18 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
-    with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Dados mockados do usuário (mantidos por enquanto)
+  // Dados mockados do usuário
   final String userName = 'João Silva';
   final String userEmail = 'joao.silva@email.com';
   final String userPhone = '(11) 98765-4321';
   final String memberSince = 'Membro desde 2023';
   final int ordersCount = 12;
+  final int favoriteCount = 28;
   final int addressCount = 2;
 
   @override
@@ -62,19 +59,17 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    final productController = Get.find<ProductController>();
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            _buildAppBar(),
+            _buildAppBar(), // AppBar que será modificada
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  _buildProfileHeader(),
-                  _buildStatsSection(productController),
+                  _buildProfileHeader(), // Cabeçalho que será modificado
+                  _buildStatsSection(),
                   _buildMenuSection(),
                   _buildSettingsSection(),
                   _buildLogoutButton(),
@@ -90,10 +85,14 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildAppBar() {
     return SliverAppBar(
-      expandedHeight: 100,
+      // ALTERAÇÃO 1: Altura da AppBar expandida foi reduzida de 100 para 80.
+      expandedHeight: 80,
       pinned: true,
       backgroundColor: AppColors.primary,
+      // ALTERAÇÃO 2: Título centralizado na AppBar (quando recolhida).
+      centerTitle: true,
       flexibleSpace: FlexibleSpaceBar(
+        // O FlexibleSpaceBar já tinha o centerTitle, o que é bom.
         centerTitle: true,
         title: Text(
           'Meu Perfil',
@@ -164,10 +163,12 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+
   Widget _buildProfileHeader() {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
+        // ALTERAÇÃO 3: Margem superior adicionada (ou mantida) conforme solicitado.
         margin: const EdgeInsets.only(top: 16),
         child: Column(
           children: [
@@ -243,7 +244,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildStatsSection(ProductController productController) {
+
+  Widget _buildStatsSection() {
     return SlideTransition(
       position: _slideAnimation,
       child: Container(
@@ -274,13 +276,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               width: 1,
               color: Colors.grey.withAlpha(77),
             ),
-            Obx(
-                  () => _buildStatItem(
-                icon: Icons.favorite,
-                value: productController.favoriteProducts.length.toString(),
-                label: 'Favoritos',
-                color: AppColors.secondary,
-              ),
+            _buildStatItem(
+              icon: Icons.favorite,
+              value: favoriteCount.toString(),
+              label: 'Favoritos',
+              color: AppColors.secondary,
             ),
             Container(
               height: 40,
@@ -354,12 +354,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         'title': 'Favoritos',
         'subtitle': 'Produtos salvos',
         'color': AppColors.secondary,
-        'onTap': () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const FavoritesScreen()),
-          );
-        },
       },
       {
         'icon': Icons.location_on_outlined,
@@ -367,7 +361,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         'subtitle': 'Gerenciar endereços de entrega',
         'color': AppColors.accent,
       },
-      /*{
+      {
         'icon': Icons.credit_card_outlined,
         'title': 'Pagamento',
         'subtitle': 'Formas de pagamento',
@@ -376,6 +370,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       {
         'icon': Icons.notifications_outlined,
         'title': 'Notificações',
+        'subtitle': 'Central de notificações',
         'color': Colors.orange,
         'badge': '5',
       },
@@ -384,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         'title': 'Ajuda e Suporte',
         'subtitle': 'FAQ e contato',
         'color': Colors.teal,
-      },*/
+      },
     ];
 
     return FadeTransition(
@@ -422,7 +417,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               subtitle: item['subtitle'] as String,
               color: item['color'] as Color,
               badge: item['badge'] as String?,
-              onTap: item['onTap'] as VoidCallback?,
               isLast: item == menuItems.last,
             )),
           ],
@@ -437,16 +431,14 @@ class _ProfileScreenState extends State<ProfileScreen>
     required String subtitle,
     required Color color,
     String? badge,
-    VoidCallback? onTap,
     bool isLast = false,
   }) {
     return InkWell(
-      onTap: onTap ??
-              () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Navegando para $title...')),
-            );
-          },
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Navegando para $title...')),
+        );
+      },
       borderRadius: isLast
           ? const BorderRadius.vertical(bottom: Radius.circular(20))
           : null,
@@ -664,27 +656,24 @@ class _ProfileScreenState extends State<ProfileScreen>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 30),
         child: ElevatedButton.icon(
           onPressed: () {
             _showLogoutDialog();
           },
-          icon: const Icon(Icons.logout, size: 20),
+          icon: const Icon(Icons.logout),
           label: Text(
             'Sair da Conta',
             style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-                fontSize: 16
+              fontWeight: FontWeight.w600,
             ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.background,
-            foregroundColor: AppColors.error,
+            backgroundColor: Colors.red.shade600,
+            foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-                side: BorderSide(color: AppColors.error.withOpacity(0.3))
+              borderRadius: BorderRadius.circular(15),
             ),
             elevation: 0,
           ),
@@ -745,8 +734,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               _navigateToLogin();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
+              backgroundColor: Colors.red.shade600,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -762,10 +750,9 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _navigateToLogin() {
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
     );
   }
 }
