@@ -1,3 +1,4 @@
+import 'package:dev_shop/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/constants/colors.dart'; // Ainda usado para cores de "marca" (ex: secondary, warning)
@@ -34,7 +35,7 @@ class _ProductCardState extends State<ProductCard>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
@@ -232,11 +233,8 @@ class _ProductCardState extends State<ProductCard>
                               // ALTERAÇÃO: Cor do texto principal vinda do tema
                               color: colorScheme.onSurface,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
-                      ),
+                        ),
 
                       // Rating
                       if (widget.product.rating > 0)
@@ -266,8 +264,10 @@ class _ProductCardState extends State<ProductCard>
                                 color: colorScheme.onSurface.withOpacity(0.7),
                               ),
                             ),
-                          ],
+                          ),
                         ),
+                      ],
+                    ),
 
                       // Preço e Botão Adicionar
                       Row(
@@ -280,7 +280,7 @@ class _ProductCardState extends State<ProductCard>
                               // Preço Antigo (se existir)
                               if (widget.product.oldPrice != null)
                                 Text(
-                                  'R\$ ${widget.product.oldPrice!.toStringAsFixed(2)}',
+                                  widget.product.category,
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
                                     // ALTERAÇÃO: Cor do texto secundário vinda do tema
@@ -298,8 +298,6 @@ class _ProductCardState extends State<ProductCard>
                                   color: colorScheme.primary,
                                 ),
                               ),
-                            ],
-                          ),
 
                           // Botão Adicionar ao Carrinho
                           GestureDetector(
@@ -326,17 +324,17 @@ class _ProductCardState extends State<ProductCard>
                                 size: 20,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

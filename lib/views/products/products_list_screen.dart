@@ -1,3 +1,4 @@
+import 'package:dev_shop/controllers/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,8 @@ import '../../models/product_model.dart';
 import '../../widgets/product_card.dart'; // Este já foi refatorado
 import '../cart/cart_screen.dart';
 import 'product_detail_screen.dart';
+
+import 'package:get/get.dart';
 
 class ProductsListScreen extends StatefulWidget {
   const ProductsListScreen({super.key});
@@ -57,6 +60,22 @@ class _ProductsListScreenState extends State<ProductsListScreen>
 
     _initAnimations();
     _searchFocusNode.addListener(_onSearchFocusChanged);
+    _loadProducts(); // 👈 Aqui
+  }
+
+  Future<void> _loadProducts() async {
+    try {
+      final products = await productController.getAll();
+      setState(() {
+        _filteredProducts = products;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Erro ao carregar produtos';
+      });
+    }
   }
 
   // ... (initState, _initAnimations, _onSearchFocusChanged, dispose, _toggleFilters, _toggleViewMode)
@@ -88,37 +107,31 @@ class _ProductsListScreenState extends State<ProductsListScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
 
-    _searchAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _searchAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _searchAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _searchAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
-    _filterSlideAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _filterAnimationController,
-      curve: Curves.easeOutBack,
-    ));
+    _filterSlideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _filterAnimationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -129,7 +142,9 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         _isSearching = true;
       });
       _searchAnimationController.forward();
-    } else if (!_searchFocusNode.hasFocus && _isSearching && _searchController.text.isEmpty) {
+    } else if (!_searchFocusNode.hasFocus &&
+        _isSearching &&
+        _searchController.text.isEmpty) {
       setState(() {
         _isSearching = false;
       });
@@ -242,7 +257,9 @@ class _ProductsListScreenState extends State<ProductsListScreen>
               icon: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Icon(
-                  _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
+                  _isGridView
+                      ? Icons.view_list_rounded
+                      : Icons.grid_view_rounded,
                   key: ValueKey(_isGridView),
                   // ALTERAÇÃO: Cor do ícone vinda do tema
                   color: iconColor,
@@ -735,13 +752,16 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             ProductDetailScreen(product: product),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            )),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
             child: child,
           );
         },
@@ -781,9 +801,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           ],
         ),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(20),
         duration: const Duration(seconds: 2),
       ),
@@ -839,9 +857,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         ),
         backgroundColor: AppColors.success, // Manter cor de status (verde)
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         margin: const EdgeInsets.all(20),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(

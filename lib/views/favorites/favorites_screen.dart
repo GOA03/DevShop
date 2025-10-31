@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart'; // Ainda usado para cor de "favorito" (vermelho)
 import '../products/product_detail_screen.dart';
-import '../../models/product_model.dart';
+import '../../models/product.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -85,8 +85,7 @@ class FavoritesScreen extends StatelessWidget {
 
   // Método para construir cada Card de favorito
   Widget _buildFavoriteProductCard(
-      BuildContext context, Product product, ProductController controller) {
-
+    BuildContext context, Product product, ProductController controller) {
     // Obter o tema atual
     final theme = Theme.of(context);
 

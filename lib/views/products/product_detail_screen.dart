@@ -1,3 +1,5 @@
+import 'package:dev_shop/controllers/cart_controller.dart';
+import 'package:dev_shop/views/cart/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -292,7 +294,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
       actions: [
         Obx(
-              () => IconButton(
+          () => IconButton(
             onPressed: _toggleFavorite,
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
@@ -721,7 +723,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         // ALTERAÇÃO: Cor do texto vinda do tema
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -858,6 +860,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       ),
       child: SafeArea(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
               decoration: BoxDecoration(

@@ -1,3 +1,7 @@
+import 'package:dev_shop/views/favorites/favorites_screen.dart';
+import 'package:dev_shop/views/profile/addres_screen.dart';
+import 'package:dev_shop/views/profile/ordes_screen.dart';
+import 'package:dev_shop/views/profile/paymants_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart'; // Ainda usamos para cores de ícones (accent)
@@ -13,7 +17,8 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -265,11 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               label: 'Pedidos',
               color: AppColors.primary, // Mantém cores de destaque
             ),
-            Container(
-              height: 40,
-              width: 1,
-              color: Colors.grey.withAlpha(77),
-            ),
+            Container(height: 40, width: 1, color: Colors.grey.withAlpha(77)),
             _buildStatItem(
               context, // Passa o context
               icon: Icons.favorite,
@@ -277,11 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               label: 'Favoritos',
               color: AppColors.secondary, // Mantém cores de destaque
             ),
-            Container(
-              height: 40,
-              width: 1,
-              color: Colors.grey.withAlpha(76),
-            ),
+            Container(height: 40, width: 1, color: Colors.grey.withAlpha(76)),
             _buildStatItem(
               context, // Passa o context
               icon: Icons.location_on,
@@ -311,11 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             color: color.withAlpha(25), // Mantém o fundo colorido subtil
             borderRadius: BorderRadius.circular(15),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          child: Icon(icon, color: color, size: 24),
         ),
         const SizedBox(height: 8),
         Text(
@@ -349,24 +342,28 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         'subtitle': 'Acompanhe seus pedidos',
         'color': AppColors.primary,
         'badge': '2',
+        'trailing': const OrdesScreen(),
       },
       {
         'icon': Icons.favorite_outline,
         'title': 'Favoritos',
         'subtitle': 'Produtos salvos',
         'color': AppColors.secondary,
+        'trailing': const FavoritesScreen(),
       },
       {
         'icon': Icons.location_on_outlined,
         'title': 'Endereços',
         'subtitle': 'Gerenciar endereços de entrega',
         'color': AppColors.accent,
+        'trailing': const AddresScreen(),
       },
       {
         'icon': Icons.credit_card_outlined,
         'title': 'Pagamento',
         'subtitle': 'Formas de pagamento',
         'color': Colors.purple,
+        'trailing': const PaymantsScreen(),
       },
       {
         'icon': Icons.notifications_outlined,
@@ -414,41 +411,46 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 ),
               ),
             ),
-            ...menuItems.map((item) => _buildMenuItem(
-              context, // Passa o context
-              icon: item['icon'] as IconData,
-              title: item['title'] as String,
-              subtitle: item['subtitle'] as String,
-              color: item['color'] as Color,
-              badge: item['badge'] as String?,
-              isLast: item == menuItems.last,
-            )),
+            ...menuItems.map(
+              (item) => _buildMenuItem(
+                icon: item['icon'] as IconData,
+                title: item['title'] as String,
+                subtitle: item['subtitle'] as String,
+                color: item['color'] as Color,
+                badge: item['badge'] as String?,
+                isLast: item == menuItems.last,
+                trailing: item['trailing'] as Widget?,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMenuItem(
-      BuildContext context, { // Recebe o context
-        required IconData icon,
-        required String title,
-        required String subtitle,
-        required Color color,
-        String? badge,
-        bool isLast = false,
-      }) {
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    String? badge,
+    bool isLast = false,
+    Widget? trailing,
+  }) {
     return InkWell(
       onTap: () {
-        if (title == 'Favoritos') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const FavoritesScreen()),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Ecrã "$title" em breve!')),
-          );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Navegando para $title...')));
+        if (trailing != null) {
+          Future.delayed(const Duration(seconds: 1), () {
+            Navigator.push(
+              // ignore: use_build_context_synchronously
+              context,
+              MaterialPageRoute(builder: (context) => trailing),
+            );
+          });
+          return;
         }
       },
       borderRadius: isLast
@@ -476,11 +478,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 color: color.withAlpha(25), // Mantém o fundo colorido subtil
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
+              child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -509,7 +507,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
             if (badge != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.secondary, // Mantém cor de destaque
                   borderRadius: BorderRadius.circular(12),
@@ -705,9 +706,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           icon: const Icon(Icons.logout),
           label: Text(
             'Sair da Conta',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-            ),
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red.shade600, // Mantém vermelho para "perigo"
@@ -779,10 +778,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: Text(
-              'Sair',
-              style: GoogleFonts.poppins(),
-            ),
+            child: Text('Sair', style: GoogleFonts.poppins()),
           ),
         ],
       ),
