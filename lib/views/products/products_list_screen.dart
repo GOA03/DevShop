@@ -1,10 +1,12 @@
 import 'package:dev_shop/controllers/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/constants/colors.dart';
-import '../../models/product.dart';
-import '../../widgets/product_card.dart';
+import '../../controllers/product_controller.dart';
+import '../../core/constants/colors.dart'; // Ainda necessário para cores de "marca" (ex: filtros)
+import '../../models/product_model.dart';
+import '../../widgets/product_card.dart'; // Este já foi refatorado
 import '../cart/cart_screen.dart';
 import 'product_detail_screen.dart';
 
@@ -19,12 +21,9 @@ class ProductsListScreen extends StatefulWidget {
 
 class _ProductsListScreenState extends State<ProductsListScreen>
     with TickerProviderStateMixin {
-  List<Product> _filteredProducts = [];
-  bool _isLoading = true;
-  String? _errorMessage;
 
-  String _selectedCategory = 'Todos';
-  String _selectedSort = 'Relevância';
+  final ProductController productController = Get.find();
+
   bool _isGridView = true;
   bool _showFilters = false;
   bool _isSearching = false;
@@ -39,28 +38,26 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   late Animation<double> _filterSlideAnimation;
   late Animation<Offset> _slideAnimation;
 
-  final ProductController productController = Get.put(ProductController());
-
-  final List<String> _categories = [
-    'Todos',
-    'Eletrônicos',
-    'Calçados',
-    'Games',
-    'Roupas',
-    'Acessórios',
+  late final List<String> _categories;
+  final List<SortOption> _sortOptions = [
+    SortOption.none,
+    SortOption.priceAsc,
+    SortOption.priceDesc,
   ];
 
-  final List<String> _sortOptions = [
-    'Relevância',
-    'Menor Preço',
-    'Maior Preço',
-    'Mais Vendidos',
-    'Melhor Avaliação',
-  ];
+  final Map<SortOption, String> _sortOptionNames = {
+    SortOption.none: 'Relevância',
+    SortOption.priceAsc: 'Menor Preço',
+    SortOption.priceDesc: 'Maior Preço',
+  };
+
 
   @override
   void initState() {
     super.initState();
+    _categories = ['Todos', ...productController.availableCategories];
+    _searchController.text = productController.searchQuery.value;
+
     _initAnimations();
     _searchFocusNode.addListener(_onSearchFocusChanged);
     _loadProducts(); // 👈 Aqui
@@ -79,6 +76,19 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         _errorMessage = 'Erro ao carregar produtos';
       });
     }
+  }
+
+  // ... (initState, _initAnimations, _onSearchFocusChanged, dispose, _toggleFilters, _toggleViewMode)
+  // (Nenhuma alteração de tema necessária nesses métodos)
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    _animationController.dispose();
+    _searchAnimationController.dispose();
+    _filterAnimationController.dispose();
+    super.dispose();
   }
 
   void _initAnimations() {
@@ -142,57 +152,6 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     }
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _searchFocusNode.dispose();
-    _animationController.dispose();
-    _searchAnimationController.dispose();
-    _filterAnimationController.dispose();
-    super.dispose();
-  }
-
-  void _filterProducts() async {
-    try {
-      // Busca todos os produtos novamente, caso queira sempre filtrar do total
-      final allProducts = await productController.getAll();
-
-      setState(() {
-        _filteredProducts = allProducts.where((product) {
-          final matchesSearch = product.name.toLowerCase().contains(
-            _searchController.text.toLowerCase(),
-          );
-          final matchesCategory =
-              _selectedCategory == 'Todos' ||
-              product.category == _selectedCategory;
-
-          return matchesSearch && matchesCategory;
-        }).toList();
-
-        switch (_selectedSort) {
-          case 'Menor Preço':
-            _filteredProducts.sort((a, b) => a.price.compareTo(b.price));
-            break;
-          case 'Maior Preço':
-            _filteredProducts.sort((a, b) => b.price.compareTo(a.price));
-            break;
-          case 'Melhor Avaliação':
-            _filteredProducts.sort((a, b) => b.rating.compareTo(a.rating));
-            break;
-          case 'Mais Vendidos':
-            _filteredProducts.sort(
-              (a, b) => b.reviewCount.compareTo(a.reviewCount),
-            );
-            break;
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Erro ao aplicar filtros';
-      });
-    }
-  }
-
   void _toggleFilters() {
     setState(() {
       _showFilters = !_showFilters;
@@ -213,52 +172,54 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     HapticFeedback.selectionClick();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        bottom: true,
-        child: CustomScrollView(
-          slivers: [
-            _buildSliverAppBar(),
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  _buildSearchSection(),
-                  _buildCategoryFilter(),
-                  if (_showFilters) _buildAdvancedFilters(),
-                  _buildProductsHeader(),
-                ],
-              ),
+      // ALTERAÇÃO: Cor de fundo vinda do tema
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                _buildSearchSection(),
+                _buildCategoryFilter(),
+                if (_showFilters) _buildAdvancedFilters(),
+                _buildProductsHeader(),
+              ],
             ),
-            _buildProductsSliverList(),
-            // Espaço extra no fina
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: MediaQuery.of(context).padding.bottom + 32,
-              ),
-            ),
-          ],
-        ),
+          ),
+          Obx(() => _buildProductsSliverList()),
+        ],
       ),
     );
   }
 
   Widget _buildSliverAppBar() {
+    // Obter cores do tema
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
+    final iconColor = Theme.of(context).appBarTheme.foregroundColor;
+    final iconBgColor = Theme.of(context).brightness == Brightness.light
+        ? Colors.white.withAlpha(51)
+        : Colors.white.withAlpha(20);
+
     return SliverAppBar(
       expandedHeight: 80,
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: AppColors.primary,
+      // ALTERAÇÃO: Cor da AppBar vinda do tema
+      backgroundColor: appBarColor,
       flexibleSpace: FlexibleSpaceBar(
+        centerTitle: true,
         title: SlideTransition(
           position: _slideAnimation,
           child: Text(
             'Produtos',
             style: GoogleFonts.poppins(
-              color: Colors.white,
+              // A cor já é definida pelo foregroundColor da AppBarTheme
               fontWeight: FontWeight.w700,
               fontSize: 24,
             ),
@@ -266,24 +227,30 @@ class _ProductsListScreenState extends State<ProductsListScreen>
         ),
         background: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            // ALTERAÇÃO: Gradiente apenas no modo claro
+            gradient: Theme.of(context).brightness == Brightness.light
+                ? LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
                 AppColors.primary,
-                AppColors.primary.withValues(alpha: 0.8),
+                AppColors.primary.withOpacity(0.8),
               ],
-            ),
+            )
+                : null,
+            color: appBarColor, // Cor sólida para modo escuro
           ),
         ),
       ),
       actions: [
+        // Botão de Mudar Visualização
         ScaleTransition(
           scale: _fadeAnimation,
           child: Container(
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              // ALTERAÇÃO: Cor de fundo do ícone reage ao tema
+              color: iconBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
@@ -294,7 +261,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                       ? Icons.view_list_rounded
                       : Icons.grid_view_rounded,
                   key: ValueKey(_isGridView),
-                  color: Colors.white,
+                  // ALTERAÇÃO: Cor do ícone vinda do tema
+                  color: iconColor,
                   size: 22,
                 ),
               ),
@@ -302,20 +270,23 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             ),
           ),
         ),
+        // Botão de Filtros
         ScaleTransition(
           scale: _fadeAnimation,
           child: Container(
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
+              // ALTERAÇÃO: Cor reage ao estado E ao tema
               color: _showFilters
-                  ? Colors.white
-                  : Colors.white.withValues(alpha: 0.2),
+                  ? Theme.of(context).colorScheme.surface // Cor de superfície (branco/cinza)
+                  : iconBgColor, // Cor de fundo de ícone normal
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
               icon: Icon(
                 Icons.tune_rounded,
-                color: _showFilters ? AppColors.primary : Colors.white,
+                // ALTERAÇÃO: Cor reage ao estado E ao tema
+                color: _showFilters ? Theme.of(context).colorScheme.primary : iconColor,
                 size: 22,
               ),
               onPressed: _toggleFilters,
@@ -330,14 +301,16 @@ class _ProductsListScreenState extends State<ProductsListScreen>
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        // ALTERAÇÃO: Cor vinda do tema
+        color: Theme.of(context).appBarTheme.backgroundColor,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(25),
           bottomRight: Radius.circular(25),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            // ALTERAÇÃO: Cor da sombra reage ao tema
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -350,11 +323,13 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
-              color: Colors.white,
+              // ALTERAÇÃO: Cor do campo vinda do tema
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  // ALTERAÇÃO: Sombra reage ao tema
+                  color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.1 : 0.2),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -363,41 +338,43 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             child: TextField(
               controller: _searchController,
               focusNode: _searchFocusNode,
-              onChanged: (_) => _filterProducts(),
+              onChanged: (query) => productController.search(query),
+              // ALTERAÇÃO: Cor do texto vinda do tema
               style: GoogleFonts.poppins(
                 fontSize: 15,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: 'Buscar produtos incríveis...',
+                // ALTERAÇÃO: Cor do hint vinda do tema
                 hintStyle: GoogleFonts.poppins(
-                  color: AppColors.textSecondary.withValues(alpha: 0.6),
+                  color: Theme.of(context).inputDecorationTheme.hintStyle?.color,
                   fontSize: 14,
                 ),
                 prefixIcon: ScaleTransition(
                   scale: _searchAnimation,
                   child: Icon(
                     _isSearching ? Icons.search_rounded : Icons.search_outlined,
-                    color: _isSearching
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
+                    // ALTERAÇÃO: Cor do ícone reage ao foco E ao tema
+                    color: _isSearching ? Theme.of(context).colorScheme.primary : Theme.of(context).inputDecorationTheme.prefixIconColor,
                     size: 22,
                   ),
                 ),
-                suffixIcon: _searchController.text.isNotEmpty
+                suffixIcon: Obx(() => productController.searchQuery.value.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(
-                          Icons.clear_rounded,
-                          color: AppColors.textSecondary,
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          _searchController.clear();
-                          _filterProducts();
-                          FocusScope.of(context).unfocus();
-                        },
-                      )
-                    : null,
+                  icon: Icon(
+                    Icons.clear_rounded,
+                    // ALTERAÇÃO: Cor do ícone vinda do tema
+                    color: Theme.of(context).inputDecorationTheme.prefixIconColor,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    productController.search('');
+                    FocusScope.of(context).unfocus();
+                  },
+                )
+                    : const SizedBox.shrink()),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -423,67 +400,65 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           itemCount: _categories.length,
           itemBuilder: (context, index) {
             final category = _categories[index];
-            final isSelected = _selectedCategory == category;
 
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedCategory = category;
-                  _filterProducts();
-                });
-                HapticFeedback.selectionClick();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOutBack,
-                margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? LinearGradient(
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primary.withValues(alpha: 0.8),
-                          ],
-                        )
-                      : null,
-                  color: isSelected ? null : Colors.white,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: isSelected
-                        ? Colors.transparent
-                        : Colors.grey.shade200,
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.25)
-                          : Colors.black.withValues(alpha: 0.04),
-                      blurRadius: isSelected ? 12 : 6,
-                      offset: const Offset(0, 4),
+            return Obx(() {
+              final isSelected = (category == 'Todos' && productController.selectedCategories.isEmpty) ||
+                  productController.selectedCategories.contains(category);
+
+              return GestureDetector(
+                onTap: () {
+                  if (category == 'Todos') {
+                    productController.selectedCategories.clear();
+                  } else {
+                    productController.toggleCategory(category);
+                  }
+                  HapticFeedback.selectionClick();
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOutBack,
+                  margin: const EdgeInsets.only(right: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    // Usa gradiente no selecionado (cor de marca)
+                    gradient: isSelected
+                        ? LinearGradient(
+                      colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                    )
+                        : null,
+                    // ALTERAÇÃO: Cor de fundo não selecionado vinda do tema
+                    color: isSelected ? null : Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(22),
+                    // ALTERAÇÃO: Borda não selecionada vinda do tema
+                    border: Border.all(
+                      color: isSelected ? Colors.transparent : Theme.of(context).dividerColor.withOpacity(0.5),
+                      width: 1.5,
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    category,
-                    style: GoogleFonts.poppins(
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.textSecondary,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      fontSize: 13,
+                    boxShadow: [ // Sombra
+                      BoxShadow(
+                        color: isSelected
+                            ? AppColors.primary.withOpacity(0.25)
+                        // ALTERAÇÃO: Sombra não selecionada reage ao tema
+                            : Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.04 : 0.1),
+                        blurRadius: isSelected ? 12 : 6,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      category,
+                      style: GoogleFonts.poppins(
+                        // ALTERAÇÃO: Cor do texto não selecionado vinda do tema
+                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
+              );
+            });
           },
         ),
       ),
@@ -502,11 +477,13 @@ class _ProductsListScreenState extends State<ProductsListScreen>
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            // ALTERAÇÃO: Cor do container vinda do tema
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
+                // ALTERAÇÃO: Sombra reage ao tema
+                color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.06 : 0.2),
                 blurRadius: 15,
                 offset: const Offset(0, 6),
               ),
@@ -517,14 +494,20 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             children: [
               Row(
                 children: [
-                  Icon(Icons.sort_rounded, color: AppColors.primary, size: 18),
+                  Icon(
+                    Icons.sort_rounded,
+                    // ALTERAÇÃO: Cor do ícone vinda do tema
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'Ordenar por',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      // ALTERAÇÃO: Cor do texto vinda do tema
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -534,53 +517,49 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 spacing: 8,
                 runSpacing: 8,
                 children: _sortOptions.map((option) {
-                  final isSelected = _selectedSort == option;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedSort = option;
-                        _filterProducts();
-                      });
-                      HapticFeedback.selectionClick();
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: isSelected
-                            ? LinearGradient(
-                                colors: [
-                                  AppColors.primary,
-                                  AppColors.primary.withValues(alpha: 0.8),
-                                ],
-                              )
-                            : null,
-                        color: isSelected ? null : AppColors.background,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? Colors.transparent
-                              : Colors.grey.shade200,
-                          width: 1,
+                  final String optionName = _sortOptionNames[option] ?? 'Relevância';
+
+                  return Obx(() {
+                    final isSelected = productController.sortOption.value == option;
+
+                    return GestureDetector(
+                      onTap: () {
+                        productController.setSortOption(option);
+                        HapticFeedback.selectionClick();
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: isSelected
+                              ? LinearGradient( // Gradiente (cor de marca)
+                            colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                          )
+                              : null,
+                          // ALTERAÇÃO: Cor de fundo não selecionado vinda do tema
+                          color: isSelected ? null : Theme.of(context).colorScheme.background,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            // ALTERAÇÃO: Cor da borda vinda do tema
+                            color: isSelected ? Colors.transparent : Theme.of(context).dividerColor.withOpacity(0.5),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          optionName,
+                          style: GoogleFonts.poppins(
+                            // ALTERAÇÃO: Cor do texto não selecionado vinda do tema
+                            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        option,
-                        style: GoogleFonts.poppins(
-                          color: isSelected
-                              ? Colors.white
-                              : AppColors.textSecondary,
-                          fontSize: 12,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  );
+                    );
+                  });
                 }).toList(),
               ),
             ],
@@ -596,26 +575,29 @@ class _ProductsListScreenState extends State<ProductsListScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          AnimatedSwitcher(
+          Obx(() => AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Text(
-              '${_filteredProducts.length} produtos encontrados',
-              key: ValueKey(_filteredProducts.length),
+              '${productController.filteredProducts.length} produtos encontrados',
+              key: ValueKey(productController.filteredProducts.length),
               style: GoogleFonts.poppins(
-                color: AppColors.textSecondary,
+                // ALTERAÇÃO: Cor do texto vinda do tema
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),
-          ),
-          if (_selectedCategory != 'Todos' || _searchController.text.isNotEmpty)
-            TextButton.icon(
+          )),
+          Obx(() {
+            bool hasFilters = productController.selectedCategories.isNotEmpty ||
+                productController.searchQuery.value.isNotEmpty;
+
+            return hasFilters
+                ? TextButton.icon(
               onPressed: () {
-                setState(() {
-                  _selectedCategory = 'Todos';
-                  _searchController.clear();
-                  _filterProducts();
-                });
+                productController.selectedCategories.clear();
+                _searchController.clear();
+                productController.search('');
                 FocusScope.of(context).unfocus();
                 HapticFeedback.lightImpact();
               },
@@ -628,43 +610,23 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 ),
               ),
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                // ALTERAÇÃO: Cor do botão vinda do tema
+                foregroundColor: Theme.of(context).colorScheme.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 minimumSize: Size.zero,
               ),
-            ),
+            )
+                : const SizedBox.shrink();
+          }),
         ],
       ),
     );
   }
 
   Widget _buildProductsSliverList() {
-    if (_isLoading) {
-      return SliverFillRemaining(
-        child: Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    }
+    final products = productController.filteredProducts;
 
-    if (_errorMessage != null) {
-      return SliverFillRemaining(
-        child: Center(
-          child: Text(
-            _errorMessage!,
-            style: GoogleFonts.poppins(
-              color: AppColors.textSecondary,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (_filteredProducts.isEmpty) {
+    if (products.isEmpty) {
       return SliverFillRemaining(
         child: Center(
           child: FadeTransition(
@@ -675,11 +637,12 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    // ALTERAÇÃO: Cor do fundo do ícone vinda do tema
+                    color: Theme.of(context).colorScheme.surface,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -688,7 +651,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                   child: Icon(
                     Icons.search_off_rounded,
                     size: 60,
-                    color: AppColors.textSecondary.withValues(alpha: 0.5),
+                    // ALTERAÇÃO: Cor do ícone vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -697,7 +661,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -705,7 +670,8 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                   'Tente buscar por outro termo ou categoria',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: AppColors.textSecondary.withValues(alpha: 0.7),
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
               ],
@@ -715,60 +681,69 @@ class _ProductsListScreenState extends State<ProductsListScreen>
       );
     }
 
+    // O ProductCard já foi refatorado, então o SliverGrid/SliverList
+    // não precisa de mais alterações de cor.
     return _isGridView
         ? SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.65,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 16,
+      padding: const EdgeInsets.all(16),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 16,
+        ),
+        delegate: SliverChildBuilderDelegate(
+              (context, index) {
+            final product = products[index];
+            return FadeTransition(
+              opacity: _fadeAnimation,
+              child: Hero(
+                tag: 'product_${product.id}',
+                child: ProductCard(
+                  product: product,
+                  onTap: () => _navigateToProductDetail(product),
+                  onFavoriteToggle: () => _toggleFavorite(product),
+                  onAddToCart: () => _addToCart(product),
+                ),
               ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final product = _filteredProducts[index];
-                return FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Hero(
-                    tag: 'product_${product.id}',
-                    child: ProductCard(
-                      product: product,
-                      onTap: () => _navigateToProductDetail(product),
-                      onFavoriteToggle: () => _toggleFavorite(product),
-                      onAddToCart: () => _addToCart(product),
-                    ),
-                  ),
-                );
-              }, childCount: _filteredProducts.length),
-            ),
-          )
+            );
+          },
+          childCount: products.length,
+        ),
+      ),
+    )
         : SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final product = _filteredProducts[index];
-                return Container(
-                  height: 140,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Hero(
-                      tag: 'product_${product.id}',
-                      child: ProductCard(
-                        product: product,
-                        onTap: () => _navigateToProductDetail(product),
-                        onFavoriteToggle: () => _toggleFavorite(product),
-                        onAddToCart: () => _addToCart(product),
-                      ),
-                    ),
+      padding: const EdgeInsets.all(16),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+              (context, index) {
+            final product = products[index];
+            return Container(
+              height: 140,
+              margin: const EdgeInsets.only(bottom: 16),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Hero(
+                  tag: 'product_${product.id}',
+                  child: ProductCard(
+                    product: product,
+                    onTap: () => _navigateToProductDetail(product),
+                    onFavoriteToggle: () => _toggleFavorite(product),
+                    onAddToCart: () => _addToCart(product),
                   ),
-                );
-              }, childCount: _filteredProducts.length),
-            ),
-          );
+                ),
+              ),
+            );
+          },
+          childCount: products.length,
+        ),
+      ),
+    );
   }
 
   void _navigateToProductDetail(Product product) {
+    // ... (Método _navigateToProductDetail permanece igual) ...
     HapticFeedback.lightImpact();
     Navigator.push(
       context,
@@ -796,23 +771,35 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   }
 
   void _toggleFavorite(Product product) {
-    HapticFeedback.lightImpact();
     productController.toggleFavorite(product);
+    HapticFeedback.lightImpact();
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        // ALTERAÇÃO: Cor da SnackBar vinda do tema
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
         content: Row(
           children: [
-            Icon(Icons.favorite_rounded, color: Colors.pink.shade300, size: 20),
+            Icon(
+              product.isFavorite.value ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: product.isFavorite.value ? Colors.pink.shade300 : Theme.of(context).colorScheme.surface, // Cor do ícone
+              size: 20,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '${product.name} adicionado aos favoritos',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                product.isFavorite.value
+                    ? '${product.name} adicionado aos favoritos'
+                    : '${product.name} removido dos favoritos',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  // ALTERAÇÃO: Cor do texto vinda do tema
+                  color: Theme.of(context).colorScheme.surface,
+                ),
               ),
             ),
           ],
         ),
-        backgroundColor: AppColors.textPrimary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(20),
@@ -823,6 +810,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
 
   void _addToCart(Product product) {
     HapticFeedback.mediumImpact();
+    // A SnackBar de "Sucesso" (verde) pode manter a sua cor fixa
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -830,7 +818,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -850,13 +838,14 @@ class _ProductsListScreenState extends State<ProductsListScreen>
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
+                      color: Colors.white, // Texto branco no fundo verde
                     ),
                   ),
                   Text(
                     product.name,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: Colors.white.withOpacity(0.9),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -866,37 +855,33 @@ class _ProductsListScreenState extends State<ProductsListScreen>
             ),
           ],
         ),
-        backgroundColor: AppColors.success,
+        backgroundColor: AppColors.success, // Manter cor de status (verde)
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         margin: const EdgeInsets.all(20),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'Ver carrinho',
-          textColor: Colors.white,
-          backgroundColor: Colors.white.withValues(alpha: 0.2),
+          textColor: Colors.white, // Manter branco no fundo verde
+          backgroundColor: Colors.white.withOpacity(0.2),
           onPressed: () {
             Navigator.push(
               context,
               PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
-                    const CartScreen(),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                      return SlideTransition(
-                        position:
-                            Tween<Offset>(
-                              begin: const Offset(0.0, 1.0),
-                              end: Offset.zero,
-                            ).animate(
-                              CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeOutCubic,
-                              ),
-                            ),
-                        child: child,
-                      );
-                    },
+                const CartScreen(),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 1.0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    )),
+                    child: child,
+                  );
+                },
                 transitionDuration: const Duration(milliseconds: 300),
               ),
             );

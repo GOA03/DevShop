@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/product_controller.dart';
-import '../../core/constants/colors.dart';
+import '../../core/constants/colors.dart'; // Ainda usado para cor de "favorito" (vermelho)
 import '../products/product_detail_screen.dart';
 import '../../models/product.dart';
 
@@ -13,23 +13,28 @@ class FavoritesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ProductController productController = Get.find();
+    // Obter o tema atual
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // ALTERAÇÃO: Cor de fundo vinda do tema
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text(
           'Meus Favoritos',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            // A cor do título já vem da AppBarTheme
           ),
         ),
-        backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        // ALTERAÇÃO: Cores da AppBar vindas do tema
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        foregroundColor: theme.appBarTheme.foregroundColor, // Cor do ícone de voltar e do título
         elevation: 1,
       ),
-      body: Obx(() {
+      body: Obx(() { // Obx reage a mudanças na lista de favoritos
         if (productController.favoriteProducts.isEmpty) {
+          // --- ECRÃ DE ESTADO VAZIO ---
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -37,14 +42,16 @@ class FavoritesScreen extends StatelessWidget {
                 Icon(
                   Icons.favorite_border,
                   size: 80,
-                  color: AppColors.textSecondary.withOpacity(0.5),
+                  // ALTERAÇÃO: Cor do ícone vinda do tema
+                  color: theme.colorScheme.onSurface.withOpacity(0.5),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   'Sua lista de favoritos está vazia!',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
-                    color: AppColors.textSecondary,
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: theme.colorScheme.onSurface.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -53,23 +60,22 @@ class FavoritesScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: AppColors.textSecondary.withOpacity(0.8),
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
               ],
             ),
           );
         } else {
+          // --- LISTA DE FAVORITOS ---
           return ListView.builder(
             padding: const EdgeInsets.all(12),
             itemCount: productController.favoriteProducts.length,
             itemBuilder: (context, index) {
               final product = productController.favoriteProducts[index];
-              return _buildFavoriteProductCard(
-                context,
-                product,
-                productController,
-              );
+              // Chama o método que constrói o card (já refatorado)
+              return _buildFavoriteProductCard(context, product, productController);
             },
           );
         }
@@ -77,11 +83,12 @@ class FavoritesScreen extends StatelessWidget {
     );
   }
 
+  // Método para construir cada Card de favorito
   Widget _buildFavoriteProductCard(
-    BuildContext context,
-    Product product,
-    ProductController controller,
-  ) {
+    BuildContext context, Product product, ProductController controller) {
+    // Obter o tema atual
+    final theme = Theme.of(context);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -91,11 +98,12 @@ class FavoritesScreen extends StatelessWidget {
           ),
         );
       },
+      // O Card usa automaticamente o CardTheme (que já definimos no app_theme.dart)
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 3,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withOpacity(theme.brightness == Brightness.light ? 0.1 : 0.2),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
@@ -108,7 +116,12 @@ class FavoritesScreen extends StatelessWidget {
                   height: 80,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.image_not_supported, size: 60);
+                    // ALTERAÇÃO: Ícone de erro usa cor do tema
+                    return Icon(
+                      Icons.image_not_supported,
+                      size: 60,
+                      color: theme.colorScheme.onSurface.withOpacity(0.4),
+                    );
                   },
                 ),
               ),
@@ -122,6 +135,8 @@ class FavoritesScreen extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
+                        // ALTERAÇÃO: Cor do texto vinda do tema
+                        color: theme.colorScheme.onSurface,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -132,14 +147,20 @@ class FavoritesScreen extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: AppColors.primary,
+                        // ALTERAÇÃO: Cor do preço vinda do tema
+                        color: theme.colorScheme.primary,
                       ),
                     ),
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.favorite, color: Colors.red, size: 28),
+                icon: const Icon(
+                  Icons.favorite,
+                  // Cor de "favorito" (vermelho) é uma cor de status, mantemos fixa
+                  color: Colors.redAccent,
+                  size: 28,
+                ),
                 onPressed: () {
                   controller.toggleFavorite(product);
                 },

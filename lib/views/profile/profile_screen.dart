@@ -4,8 +4,11 @@ import 'package:dev_shop/views/profile/ordes_screen.dart';
 import 'package:dev_shop/views/profile/paymants_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/constants/colors.dart';
+import '../../core/constants/colors.dart'; // Ainda usamos para cores de ícones (accent)
 import '../auth/login_screen.dart';
+import '../favorites/favorites_screen.dart';
+import 'package:get/get.dart';
+import '../../controllers/theme_controller.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -37,20 +40,21 @@ class _ProfileScreenState extends State<ProfileScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+    ));
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
-          ),
-        );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+    ));
 
     _animationController.forward();
   }
@@ -63,19 +67,20 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    // A cor de fundo agora vem do tema
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            _buildAppBar(),
+            _buildAppBar(context), // Passar o context para ler o tema
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  _buildProfileHeader(),
-                  _buildStatsSection(),
-                  _buildMenuSection(),
-                  _buildSettingsSection(),
+                  _buildProfileHeader(context), // Passar o context
+                  _buildStatsSection(context), // Passar o context
+                  _buildMenuSection(context), // Passar o context
+                  _buildSettingsSection(context), // Passar o context
                   _buildLogoutButton(),
                   const SizedBox(height: 20),
                 ],
@@ -87,55 +92,39 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildAppBar() {
+  // A AppBar precisa do BuildContext para aceder ao tema
+  Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 100,
+      expandedHeight: 80,
       pinned: true,
-      backgroundColor: AppColors.primary,
+      // ALTERAÇÃO: Cor da AppBar agora usa o tema escuro
+      // (AppColors.primary no claro, cor de superfície escura no escuro)
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      foregroundColor: Theme.of(context).appBarTheme.foregroundColor, // Cor do texto e ícones
+      centerTitle: true,
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,
         title: Text(
           'Meu Perfil',
           style: GoogleFonts.poppins(
-            color: Colors.white,
+            // A cor do título é definida por 'foregroundColor' ou 'titleTextStyle' no tema
             fontWeight: FontWeight.w600,
           ),
         ),
         background: Container(
+          // Mantém o gradiente para o tema claro, mas usa cor sólida no escuro
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: Theme.of(context).brightness == Brightness.light
+                ? LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColors.primary, AppColors.primaryDark],
-            ),
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -50,
-                top: -50,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withAlpha(25),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -30,
-                bottom: -30,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withAlpha(25),
-                  ),
-                ),
-              ),
-            ],
+              colors: [
+                AppColors.primary,
+                AppColors.primaryDark,
+              ],
+            )
+                : null, // Sem gradiente no modo escuro
+            color: Theme.of(context).appBarTheme.backgroundColor, // Cor de fundo sólida
           ),
         ),
       ),
@@ -144,14 +133,14 @@ class _ProfileScreenState extends State<ProfileScreen>
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(51),
+              // Cor de fundo do ícone também reage ao tema
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.white.withAlpha(51)
+                  : Colors.white.withAlpha(20), // Mais subtil no escuro
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.edit_outlined,
-              color: Colors.white,
-              size: 20,
-            ),
+            child: Icon(Icons.edit_outlined,
+                color: Theme.of(context).appBarTheme.foregroundColor, size: 20),
           ),
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -164,7 +153,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildProfileHeader() {
+  // O Cabeçalho precisa do context para o tema
+  Widget _buildProfileHeader(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
@@ -176,7 +166,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 4),
+                border: Border.all(
+                  // ALTERAÇÃO: Borda usa a cor de superfície (branco ou cinza escuro)
+                  color: Theme.of(context).colorScheme.surface,
+                  width: 4,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withAlpha(51),
@@ -187,14 +181,16 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: ClipOval(
                 child: Container(
-                  color: AppColors.primary,
+                  // Usa a cor primária do tema (azul claro ou escuro)
+                  color: Theme.of(context).colorScheme.primary,
                   child: Center(
                     child: Text(
                       userName.split(' ').map((e) => e[0]).take(2).join(),
                       style: GoogleFonts.poppins(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        // Cor do texto que contrasta com a cor primária
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -207,7 +203,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                // ALTERAÇÃO: Cor do texto vinda do tema
+                color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
             const SizedBox(height: 4),
@@ -215,21 +212,24 @@ class _ProfileScreenState extends State<ProfileScreen>
               userEmail,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                // ALTERAÇÃO: Cor do texto vinda do tema
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(25),
+                // ALTERAÇÃO: Cor de fundo vinda do tema
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 memberSince,
                 style: GoogleFonts.poppins(
                   fontSize: 12,
-                  color: AppColors.primary,
+                  // ALTERAÇÃO: Cor do texto vinda do tema
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -240,18 +240,21 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildStatsSection() {
+  // A Secção de Stats precisa do context para o tema
+  Widget _buildStatsSection(BuildContext context) {
     return SlideTransition(
       position: _slideAnimation,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          // ALTERAÇÃO: Cor do card vinda do tema
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(13),
+              // ALTERAÇÃO: Cor da sombra mais subtil no modo escuro
+              color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.2),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -261,24 +264,27 @@ class _ProfileScreenState extends State<ProfileScreen>
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildStatItem(
+              context, // Passa o context
               icon: Icons.shopping_bag,
               value: ordersCount.toString(),
               label: 'Pedidos',
-              color: AppColors.primary,
+              color: AppColors.primary, // Mantém cores de destaque
             ),
             Container(height: 40, width: 1, color: Colors.grey.withAlpha(77)),
             _buildStatItem(
+              context, // Passa o context
               icon: Icons.favorite,
               value: favoriteCount.toString(),
               label: 'Favoritos',
-              color: AppColors.secondary,
+              color: AppColors.secondary, // Mantém cores de destaque
             ),
             Container(height: 40, width: 1, color: Colors.grey.withAlpha(76)),
             _buildStatItem(
+              context, // Passa o context
               icon: Icons.location_on,
               value: addressCount.toString(),
               label: 'Endereços',
-              color: AppColors.accent,
+              color: AppColors.accent, // Mantém cores de destaque
             ),
           ],
         ),
@@ -286,19 +292,20 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildStatItem({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
+  Widget _buildStatItem(
+      BuildContext context, { // Recebe o context
+        required IconData icon,
+        required String value,
+        required String label,
+        required Color color,
+      }) {
     return Column(
       children: [
         Container(
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: color.withAlpha(25),
+            color: color.withAlpha(25), // Mantém o fundo colorido subtil
             borderRadius: BorderRadius.circular(15),
           ),
           child: Icon(icon, color: color, size: 24),
@@ -309,22 +316,26 @@ class _ProfileScreenState extends State<ProfileScreen>
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            // ALTERAÇÃO: Cor do texto vinda do tema
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Text(
           label,
           style: GoogleFonts.poppins(
             fontSize: 12,
-            color: AppColors.textSecondary,
+            // ALTERAÇÃO: Cor do texto vinda do tema
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildMenuSection() {
+  // A Secção de Menu precisa do context para o tema
+  Widget _buildMenuSection(BuildContext context) {
     final menuItems = [
+      // ... (lista de menuItems permanece igual) ...
       {
         'icon': Icons.shopping_bag_outlined,
         'title': 'Meus Pedidos',
@@ -374,11 +385,12 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          // ALTERAÇÃO: Cor do card vinda do tema
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(13),
+              color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.2),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -394,7 +406,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  // ALTERAÇÃO: Cor do texto vinda do tema
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -449,11 +462,12 @@ class _ProfileScreenState extends State<ProfileScreen>
           border: isLast
               ? null
               : Border(
-                  bottom: BorderSide(
-                    color: Colors.grey.withAlpha(25),
-                    width: 1,
-                  ),
-                ),
+            bottom: BorderSide(
+              // ALTERAÇÃO: Cor da borda vinda do tema
+              color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+              width: 1,
+            ),
+          ),
         ),
         child: Row(
           children: [
@@ -461,7 +475,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withAlpha(25),
+                color: color.withAlpha(25), // Mantém o fundo colorido subtil
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -476,14 +490,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      // ALTERAÇÃO: Cor do texto vinda do tema
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     subtitle,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      // ALTERAÇÃO: Cor do texto vinda do tema
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -496,7 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary,
+                  color: AppColors.secondary, // Mantém cor de destaque
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -512,7 +528,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: AppColors.textSecondary.withAlpha(178),
+                // ALTERAÇÃO: Cor do ícone vinda do tema
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
               ),
           ],
         ),
@@ -520,18 +537,22 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildSettingsSection() {
+  // A Secção de Configurações precisa do context para o tema
+  Widget _buildSettingsSection(BuildContext context) {
+    final ThemeController themeController = Get.find();
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
         margin: const EdgeInsets.all(20),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          // ALTERAÇÃO: Cor do card vinda do tema
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(13),
+              color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.light ? 0.05 : 0.2),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -545,28 +566,49 @@ class _ProfileScreenState extends State<ProfileScreen>
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                // ALTERAÇÃO: Cor do texto vinda do tema
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 16),
             _buildSettingItem(
+              context, // Passa o context
               title: 'Notificações Push',
               icon: Icons.notifications_active_outlined,
               isSwitch: true,
-              value: true,
+              value: true, // Valor mockado
+              onChanged: (newValue) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Notificações ${newValue ? 'ativadas' : 'desativadas'}'),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
             ),
-            /*_buildSettingItem( TODO: implementar modo escuro
+
+            // Switch do Modo Escuro (envolvido em Obx para reatividade)
+            Obx(() => _buildSettingItem(
+              context, // Passa o context
               title: 'Modo Escuro',
-              icon: Icons.dark_mode_outlined,
+              icon: themeController.isDarkMode
+                  ? Icons.dark_mode // Ícone preenchido
+                  : Icons.dark_mode_outlined, // Ícone de borda
               isSwitch: true,
-              value: false,
-            ),*/
+              value: themeController.isDarkMode, // Valor reativo
+              onChanged: (newValue) {
+                themeController.toggleTheme(newValue); // Ação de clique
+              },
+            )),
+
             _buildSettingItem(
+              context, // Passa o context
               title: 'Idioma',
               icon: Icons.language_outlined,
               trailing: 'Português',
             ),
             _buildSettingItem(
+              context, // Passa o context
               title: 'Moeda',
               icon: Icons.attach_money_outlined,
               trailing: 'BRL (R\$)',
@@ -578,51 +620,53 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildSettingItem({
-    required String title,
-    required IconData icon,
-    bool isSwitch = false,
-    bool? value,
-    String? trailing,
-    bool isLast = false,
-  }) {
+  Widget _buildSettingItem(
+      BuildContext context, { // Recebe o context
+        required String title,
+        required IconData icon,
+        bool isSwitch = false,
+        bool? value,
+        String? trailing,
+        bool isLast = false,
+        final Function(bool)? onChanged,
+      }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         border: isLast
             ? null
             : Border(
-                bottom: BorderSide(color: Colors.grey.withAlpha(25), width: 1),
-              ),
+          bottom: BorderSide(
+            // ALTERAÇÃO: Cor da borda vinda do tema
+            color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 22, color: AppColors.textSecondary),
+          Icon(
+            icon,
+            size: 22,
+            // ALTERAÇÃO: Cor do ícone vinda do tema
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               title,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: AppColors.textPrimary,
+                // ALTERAÇÃO: Cor do texto vinda do tema
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
           if (isSwitch)
             Switch(
               value: value!,
-              onChanged: (newValue) {
-                // TODO: Implementar mudança de configuração
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '$title ${newValue ? 'ativado' : 'desativado'}',
-                    ),
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
-              },
-              activeThumbColor: AppColors.primary,
+              onChanged: onChanged,
+              // As cores vêm do SwitchThemeData no app_theme.dart
             ),
           if (trailing != null)
             Row(
@@ -631,14 +675,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                   trailing,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    // ALTERAÇÃO: Cor do texto vinda do tema
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(width: 4),
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 14,
-                  color: AppColors.textSecondary.withAlpha(178),
+                  // ALTERAÇÃO: Cor do ícone vinda do tema
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                 ),
               ],
             ),
@@ -648,6 +694,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildLogoutButton() {
+    // ... (Este widget não precisa de cores do tema, pois usa cores de "erro" fixas) ...
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
@@ -662,7 +709,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red.shade600,
+            backgroundColor: Colors.red.shade600, // Mantém vermelho para "perigo"
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -679,6 +726,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        // ALTERAÇÃO: Cores do diálogo vêm do tema
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Sair da Conta',
@@ -693,7 +741,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancelar',
-              style: GoogleFonts.poppins(color: AppColors.textSecondary),
+              style: GoogleFonts.poppins(
+                // Cor de texto secundário do tema
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
             ),
           ),
           ElevatedButton(
@@ -721,7 +772,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               _navigateToLogin();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade600,
+              backgroundColor: Colors.red.shade600, // Mantém vermelho
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
