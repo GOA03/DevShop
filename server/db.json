@@ -1,107 +1,112 @@
 {
-    "users": [],
-    "products": [
-        {
-            "id": "1",
-            "name": "iPhone 15 Pro Max",
-            "description": "O iPhone mais avançado com chip A17 Pro, câmera de 48MP e design em titânio.",
-            "price": 8999.00,
-            "oldPrice": 10999.00,
-            "imageUrl": "https://carrefourbr.vtexassets.com/arquivos/ids/198489753/image-0.jpg?v=638911758973000000",
-            "category": "Eletrônicos",
-            "rating": 4.8,
-            "reviewCount": 2342,
-            "isOnSale": true,
-            "stock": 15,
-            "isFeatured": true
-        },
-        {
-            "id": "2",
-            "name": "MacBook Pro 14\"",
-            "description": "MacBook Pro com chip M3, tela Liquid Retina XDR e até 22h de bateria.",
-            "price": 12499.00,
-            "oldPrice": 14999.00,
-            "imageUrl": "https://cdsassets.apple.com/live/7WUAS350/images/tech-specs/mbp14-silver2.png",
-            "category": "Eletrônicos",
-            "rating": 4.9,
-            "reviewCount": 1523,
-            "isOnSale": true,
-            "stock": 8
-        },
-        {
-            "id": "3",
-            "name": "AirPods Pro 2",
-            "description": "Cancelamento de ruído ativo, áudio espacial personalizado e case com alto-falante.",
-            "price": 1899.00,
-            "imageUrl": "https://m.media-amazon.com/images/I/41YmidweMtL._AC_SX342_SY445_QL70_ML2_.jpg",
-            "category": "Eletrônicos",
-            "rating": 4.7,
-            "reviewCount": 5421,
-            "stock": 32
-        },
-        {
-            "id": "4",
-            "name": "Nike Air Max 2024",
-            "description": "Tênis esportivo com tecnologia Air Max para máximo conforto e estilo.",
-            "price": 799.90,
-            "oldPrice": 999.90,
-            "imageUrl": "https://espacotenis.vteximg.com.br/arquivos/ids/174739-442-442/WhatsApp-Image-2024-02-06-at-11.24.11.jpg?v=638428267197800000",
-            "category": "Calçados",
-            "rating": 4.6,
-            "reviewCount": 892,
-            "isOnSale": true,
-            "stock": 23
-        },
-        {
-            "id": "5",
-            "name": "Samsung Galaxy S24 Ultra",
-            "description": "Smartphone com S Pen integrada, câmera de 200MP e tela AMOLED 2X.",
-            "price": 6999.00,
-            "oldPrice": 8499.00,
-            "imageUrl": "https://http2.mlstatic.com/D_NQ_NP_673427-MLA87115634147_072025-O.webp",
-            "category": "Eletrônicos",
-            "rating": 4.7,
-            "reviewCount": 1832,
-            "isOnSale": true,
-            "stock": 19
-        },
-        {
-            "id": "6",
-            "name": "iPad Pro 12.9",
-            "description": "iPad mais poderoso com chip M2, tela Liquid Retina XDR e suporte para Apple Pencil.",
-            "price": 9299.00,
-            "imageUrl": "https://m.media-amazon.com/images/I/61sEJ2+OAbL._AC_SX679_.jpg",
-            "category": "Eletrônicos",
-            "rating": 4.8,
-            "reviewCount": 743,
-            "stock": 11
-        },
-        {
-            "id": "7",
-            "name": "Sony PlayStation 5",
-            "description": "Console de última geração com SSD ultra-rápido e gráficos 4K.",
-            "price": 3899.00,
-            "oldPrice": 4499.00,
-            "imageUrl": "https://m.media-amazon.com/images/I/51dfg52K-cL._AC_SL1500_.jpg",
-            "category": "Games",
-            "rating": 4.9,
-            "reviewCount": 3892,
-            "isOnSale": true,
-            "stock": 5
-        },
-        {
-            "id": "8",
-            "name": "Adidas Ultraboost 23",
-            "description": "Tênis de corrida com tecnologia Boost para retorno de energia.",
-            "price": 899.90,
-            "imageUrl": "https://static.clube.netshoes.com.br/produtos/tenis-adidas-ultraboost-23-feminino/26/FB8-4374-026/FB8-4374-026_zoom1.jpg?ts=1704276437&ims=1088x",
-            "category": "Calçados",
-            "rating": 4.5,
-            "reviewCount": 621,
-            "stock": 28
-        }
-        
-    ],
-    "orders": [],
-    "payments": []
+  "users": [
+    {
+      "email": "admin@gmail.com",
+      "password": "$2a$10$5B6ccU4Er.mVHiTuXRi0v.Tg4cQLMttSBD3joJvf2WfqGy.9B0Y4y",
+      "id": 1
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "iPhone 15 Pro Max",
+      "description": "O iPhone mais avançado com chip A17 Pro, câmera de 48MP e design em titânio.",
+      "price": 8999,
+      "oldPrice": 10999,
+      "imageUrl": "https://carrefourbr.vtexassets.com/arquivos/ids/198489753/image-0.jpg?v=638911758973000000",
+      "category": "Eletrônicos",
+      "rating": 4.8,
+      "reviewCount": 2342,
+      "isOnSale": true,
+      "stock": 15,
+      "isFeatured": true
+    },
+    {
+      "id": 2,
+      "name": "MacBook Pro 14\"",
+      "description": "MacBook Pro com chip M3, tela Liquid Retina XDR e até 22h de bateria.",
+      "price": 12499,
+      "oldPrice": 14999,
+      "imageUrl": "https://cdsassets.apple.com/live/7WUAS350/images/tech-specs/mbp14-silver2.png",
+      "category": "Eletrônicos",
+      "rating": 4.9,
+      "reviewCount": 1523,
+      "isOnSale": true,
+      "stock": 8
+    },
+    {
+      "id": 3,
+      "name": "AirPods Pro 2",
+      "description": "Cancelamento de ruído ativo, áudio espacial personalizado e case com alto-falante.",
+      "price": 1899,
+      "imageUrl": "https://m.media-amazon.com/images/I/41YmidweMtL._AC_SX342_SY445_QL70_ML2_.jpg",
+      "category": "Eletrônicos",
+      "rating": 4.7,
+      "reviewCount": 5421,
+      "stock": 32
+    },
+    {
+      "id": 4,
+      "name": "Nike Air Max 2024",
+      "description": "Tênis esportivo com tecnologia Air Max para máximo conforto e estilo.",
+      "price": 799.9,
+      "oldPrice": 999.9,
+      "imageUrl": "https://espacotenis.vteximg.com.br/arquivos/ids/174739-442-442/WhatsApp-Image-2024-02-06-at-11.24.11.jpg?v=638428267197800000",
+      "category": "Calçados",
+      "rating": 4.6,
+      "reviewCount": 892,
+      "isOnSale": true,
+      "stock": 23
+    },
+    {
+      "id": 5,
+      "name": "Samsung Galaxy S24 Ultra",
+      "description": "Smartphone com S Pen integrada, câmera de 200MP e tela AMOLED 2X.",
+      "price": 6999,
+      "oldPrice": 8499,
+      "imageUrl": "https://http2.mlstatic.com/D_NQ_NP_673427-MLA87115634147_072025-O.webp",
+      "category": "Eletrônicos",
+      "rating": 4.7,
+      "reviewCount": 1832,
+      "isOnSale": true,
+      "stock": 19
+    },
+    {
+      "id": 6,
+      "name": "iPad Pro 12.9",
+      "description": "iPad mais poderoso com chip M2, tela Liquid Retina XDR e suporte para Apple Pencil.",
+      "price": 9299,
+      "imageUrl": "https://m.media-amazon.com/images/I/61sEJ2+OAbL._AC_SX679_.jpg",
+      "category": "Eletrônicos",
+      "rating": 4.8,
+      "reviewCount": 743,
+      "stock": 11
+    },
+    {
+      "id": 7,
+      "name": "Sony PlayStation 5",
+      "description": "Console de última geração com SSD ultra-rápido e gráficos 4K.",
+      "price": 3899,
+      "oldPrice": 4499,
+      "imageUrl": "https://m.media-amazon.com/images/I/51dfg52K-cL._AC_SL1500_.jpg",
+      "category": "Games",
+      "rating": 4.9,
+      "reviewCount": 3892,
+      "isOnSale": true,
+      "stock": 5
+    },
+    {
+      "id": 8,
+      "name": "Adidas Ultraboost 23",
+      "description": "Tênis de corrida com tecnologia Boost para retorno de energia.",
+      "price": 899.9,
+      "imageUrl": "https://static.clube.netshoes.com.br/produtos/tenis-adidas-ultraboost-23-feminino/26/FB8-4374-026/FB8-4374-026_zoom1.jpg?ts=1704276437&ims=1088x",
+      "category": "Calçados",
+      "rating": 4.5,
+      "reviewCount": 621,
+      "stock": 28
+    }
+  ],
+  "orders": [],
+  "payments": []
 }

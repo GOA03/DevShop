@@ -1,3 +1,4 @@
+import 'package:dev_shop/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
@@ -24,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  AuthController authController = AuthController();
 
   @override
   void initState() {
@@ -59,54 +62,54 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  void _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+  // void _handleLogin() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     setState(() {
+  //       _isLoading = true;
+  //     });
 
-      // Simula processo de login
-      await Future.delayed(const Duration(seconds: 2));
+  //     // Simula processo de login
+  //     await Future.delayed(const Duration(seconds: 2));
 
-      setState(() {
-        _isLoading = false;
-      });
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
 
-      if (_emailController.text == 'admin@gmail.com' &&
-          _passwordController.text == '123456') {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 10),
-                Text(
-                  'Login realizado com sucesso!',
-                  style: GoogleFonts.poppins(),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.success,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+  //     if (_emailController.text == 'admin@gmail.com' &&
+  //         _passwordController.text == '123456') {
+  //       if (!mounted) return;
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Row(
+  //             children: [
+  //               const Icon(Icons.check_circle, color: Colors.white),
+  //               const SizedBox(width: 10),
+  //               Text(
+  //                 'Login realizado com sucesso!',
+  //                 style: GoogleFonts.poppins(),
+  //               ),
+  //             ],
+  //           ),
+  //           backgroundColor: AppColors.success,
+  //           behavior: SnackBarBehavior.floating,
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(10),
+  //           ),
+  //         ),
+  //       );
 
-        // Navegar para home
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Credenciais inválidas!')));
-      }
-    }
-  }
+  //       // Navegar para home
+  //       Navigator.of(context).pushReplacement(
+  //         MaterialPageRoute(builder: (context) => const HomeScreen()),
+  //       );
+  //     } else {
+  //       if (!mounted) return;
+  //       ScaffoldMessenger.of(
+  //         context,
+  //       ).showSnackBar(const SnackBar(content: Text('Credenciais inválidas!')));
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +238,9 @@ class _LoginScreenState extends State<LoginScreen>
               const SizedBox(height: 24),
               CustomButton(
                 text: 'Entrar',
-                onPressed: _handleLogin,
+                onPressed: () {
+                  login(context);
+                },
                 isLoading: _isLoading,
                 icon: Icons.login,
               ),
@@ -369,5 +374,47 @@ class _LoginScreenState extends State<LoginScreen>
         ],
       ),
     );
+  }
+
+  void login(BuildContext context) async {
+    try {
+      await authController
+          .login(
+            email: _emailController.text,
+            password: _passwordController.text,
+          )
+          .then((value) {
+            if (value) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.white),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Login realizado com sucesso!',
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: AppColors.success,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+
+              // Navegar para home
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            }
+          });
+    } on UserNotFindException {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Credenciais inválidas!')));
+    }
   }
 }

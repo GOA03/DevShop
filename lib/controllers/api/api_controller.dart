@@ -1,8 +1,12 @@
 class ApiController {
-  static const String url = "http://10.100.123.135:3000/";
+  static const String url = "http://192.168.0.4:3000/";
 
   String getUrl(Endpoint endpoint) {
     return "$url${endpoint.name}";
+  }
+
+  String getUrlNoAdd() {
+    return url;
   }
 }
 

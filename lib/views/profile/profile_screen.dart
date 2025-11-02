@@ -4,6 +4,7 @@ import 'package:dev_shop/views/profile/ordes_screen.dart';
 import 'package:dev_shop/views/profile/paymants_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/colors.dart';
 import '../auth/login_screen.dart';
 
@@ -698,6 +699,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           ElevatedButton(
             onPressed: () {
+              logout();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -738,5 +740,11 @@ class _ProfileScreenState extends State<ProfileScreen>
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
+  }
+
+  void logout() {
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.clear();
+    });
   }
 }

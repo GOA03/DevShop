@@ -1,5 +1,6 @@
 import 'package:dev_shop/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/colors.dart';
 import '../../models/product.dart';
 import '../../widgets/custom_button.dart';
@@ -40,6 +41,10 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         );
 
     _animationController.forward();
+
+    SharedPreferences.getInstance().then((prefs) {
+      CartController().loadItems(prefs.getInt('userId')!);
+    });
   }
 
   @override
@@ -63,24 +68,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       }
       return sum;
     });
-  }
-
-  void _updateQuantity(Product product, int newQuantity) {
-    setState(() {
-      cartController.updateQuantity(product, newQuantity);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          newQuantity <= 0
-              ? 'Item removido do carrinho'
-              : 'Quantidade atualizada',
-        ),
-        backgroundColor: newQuantity <= 0 ? AppColors.error : AppColors.success,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   void _showClearCartDialog() {
@@ -392,10 +379,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         children: [
                           _buildQuantityButton(
                             Icons.remove,
-                            () => _updateQuantity(
-                              item.product,
-                              item.quantity - 1,
-                            ),
+                            () => _decreaseQuantity(item.product),
                           ),
                           Container(
                             margin: const EdgeInsets.symmetric(horizontal: 11),
@@ -418,10 +402,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           ),
                           _buildQuantityButton(
                             Icons.add,
-                            () => _updateQuantity(
-                              item.product,
-                              item.quantity + 1,
-                            ),
+                            () => _increaseQuantity(item.product),
                           ),
                         ],
                       ),
@@ -529,6 +510,32 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _increaseQuantity(Product product) async {
+    await cartController.increaseQuantity(product);
+    setState(() {}); // atualiza a UI
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Quantidade aumentada'),
+        backgroundColor: AppColors.success,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _decreaseQuantity(Product product) async {
+    await cartController.decreaseQuantity(product);
+    setState(() {}); // atualiza a UI
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Quantidade reduzida'),
+        backgroundColor: AppColors.success,
+        duration: Duration(seconds: 1),
       ),
     );
   }

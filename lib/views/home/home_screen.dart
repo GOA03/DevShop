@@ -1,6 +1,8 @@
+import 'package:dev_shop/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controllers/product_controller.dart';
 import '../../core/constants/colors.dart';
@@ -41,6 +43,10 @@ class _HomeScreenState extends State<HomeScreen>
     productController.getAll().then((products) {
       productController.filteredProducts.assignAll(products);
       setState(() {}); // força rebuild após carregar
+    });
+
+    SharedPreferences.getInstance().then((prefs) {
+      CartController().loadItems(prefs.getInt('userId')!);
     });
   }
 
