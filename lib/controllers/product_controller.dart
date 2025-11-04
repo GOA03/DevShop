@@ -44,14 +44,16 @@ class ProductController extends GetxController {
   Future<List<Product>> getAll() async {
     final response = await client.get(Uri.parse(url));
     if (response.statusCode != 200) {
-      throw Exception("Erro ao buscar journals");
+      throw Exception("Erro ao buscar products");
     }
-    List<dynamic> lsitDynamic = json.decode(response.body);
-    List<Product> list = [];
-    for (var item in lsitDynamic) {
-      list.add(Product.fromJson(item));
-    }
-    return list;
+    List<dynamic> listDynamic = json.decode(response.body);
+
+    final List<Product> products = listDynamic
+        .where((item) => item['stock'] > 0)
+        .map<Product>((item) => Product.fromJson(item))
+        .toList();
+
+    return products;
   }
 
   //Restante do codigo Original

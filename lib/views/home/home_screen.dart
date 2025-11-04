@@ -42,7 +42,8 @@ class _HomeScreenState extends State<HomeScreen>
     _animationController.forward();
     productController.getAll().then((products) {
       productController.filteredProducts.assignAll(products);
-      setState(() {}); // força rebuild após carregar
+      // força rebuild após carregar
+      setState(() {});
     });
 
     SharedPreferences.getInstance().then((prefs) {
@@ -54,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     _animationController.dispose();
     _pageController.dispose();
+
     super.dispose();
   }
 
@@ -904,5 +906,16 @@ class _HomeScreenState extends State<HomeScreen>
         },
       ),
     );
+  }
+
+  void _reloadHome() async {
+    await productController.getAll().then((products) {
+      productController.filteredProducts.assignAll(products);
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await CartController().loadItems(prefs.getInt('userId')!);
+
+    setState(() {}); // força rebuild
   }
 }

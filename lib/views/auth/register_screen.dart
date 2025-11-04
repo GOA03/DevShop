@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dev_shop/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
@@ -13,20 +16,23 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStateMixin {
+class _RegisterScreenState extends State<RegisterScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
+  final AuthController _authController = AuthController();
+
   bool _isLoading = false;
   bool _acceptTerms = false;
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   // Animação para os campos do formulário
   late AnimationController _formAnimationController;
   late List<Animation<Offset>> _fieldAnimations;
@@ -34,52 +40,48 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   @override
   void initState() {
     super.initState();
-    
+
     // Animação principal
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-    ));
-    
-    Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
-    ));
-    
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+
+    Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 0.8, curve: Curves.easeOut),
+      ),
+    );
+
     // Animação dos campos
     _formAnimationController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
+
     _fieldAnimations = List.generate(
       5,
-      (index) => Tween<Offset>(
-        begin: const Offset(0.5, 0),
-        end: Offset.zero,
-      ).animate(
-        CurvedAnimation(
-          parent: _formAnimationController,
-          curve: Interval(
-            index * 0.1,
-            0.5 + index * 0.1,
-            curve: Curves.easeOutCubic,
+      (index) =>
+          Tween<Offset>(begin: const Offset(0.5, 0), end: Offset.zero).animate(
+            CurvedAnimation(
+              parent: _formAnimationController,
+              curve: Interval(
+                index * 0.1,
+                0.5 + index * 0.1,
+                curve: Curves.easeOutCubic,
+              ),
+            ),
           ),
-        ),
-      ),
     );
-    
+
     _animationController.forward();
     _formAnimationController.forward();
   }
@@ -100,11 +102,11 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     if (value == null || value.isEmpty) {
       return 'Confirme sua senha';
     }
-    
+
     if (value != _passwordController.text) {
       return 'As senhas não coincidem';
     }
-    
+
     return null;
   }
 
@@ -135,41 +137,64 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     }
 
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
-      // Simula processo de cadastro
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        bool success = await _authController.register(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          name: _nameController.text.trim(),
+          phone: _phoneController.text.trim(),
+          // 🔹 se quiser enviar nome e telefone, ajuste o AuthController abaixo
+        );
 
-      setState(() {
-        _isLoading = false;
-      });
+        if (!mounted) return;
 
-      // Mostra mensagem de sucesso
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 10),
-              Text(
-                'Cadastro realizado com sucesso!',
-                style: GoogleFonts.poppins(),
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Cadastro realizado com sucesso!',
+                    style: GoogleFonts.poppins(),
+                  ),
+                ],
               ),
-            ],
-          ),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
 
-      // Navegar para home
-      Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
+      } on HttpException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro ao registrar: ${e.message}',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro inesperado: $e', style: GoogleFonts.poppins()),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -187,10 +212,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(13),
-                  blurRadius: 10,
-                ),
+                BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 10),
               ],
             ),
             child: const Icon(
@@ -246,11 +268,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.person_add,
-              size: 50,
-              color: Colors.white,
-            ),
+            child: const Icon(Icons.person_add, size: 50, color: Colors.white),
           ),
           const SizedBox(height: 24),
           Text(
@@ -295,7 +313,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Email
           SlideTransition(
             position: _fieldAnimations[1],
@@ -312,7 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Telefone
           SlideTransition(
             position: _fieldAnimations[2],
@@ -329,7 +347,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Senha
           SlideTransition(
             position: _fieldAnimations[3],
@@ -346,7 +364,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Confirmar Senha
           SlideTransition(
             position: _fieldAnimations[4],
@@ -363,7 +381,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Termos de uso
           FadeTransition(
             opacity: _fadeAnimation,
@@ -373,7 +391,9 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: _acceptTerms ? AppColors.primary : Colors.grey.shade300,
+                      color: _acceptTerms
+                          ? AppColors.primary
+                          : Colors.grey.shade300,
                       width: 2,
                     ),
                   ),
@@ -429,7 +449,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             ),
           ),
           const SizedBox(height: 30),
-          
+
           // Botão de cadastro
           FadeTransition(
             opacity: _fadeAnimation,
@@ -441,19 +461,15 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
               height: 60,
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Divider
           FadeTransition(
             opacity: _fadeAnimation,
             child: Row(
               children: [
-                Expanded(
-                  child: Divider(
-                    color: Colors.grey.withAlpha(76),
-                  ),
-                ),
+                Expanded(child: Divider(color: Colors.grey.withAlpha(76))),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -464,16 +480,12 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Divider(
-                    color: Colors.grey.withAlpha(76),
-                  ),
-                ),
+                Expanded(child: Divider(color: Colors.grey.withAlpha(76))),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Social buttons
           FadeTransition(
             opacity: _fadeAnimation,
@@ -486,7 +498,9 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                     color: const Color(0xFFDB4437),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Cadastro com Google em breve!')),
+                        const SnackBar(
+                          content: Text('Cadastro com Google em breve!'),
+                        ),
                       );
                     },
                   ),
@@ -499,7 +513,9 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                     color: const Color(0xFF1877F2),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Cadastro com Facebook em breve!')),
+                        const SnackBar(
+                          content: Text('Cadastro com Facebook em breve!'),
+                        ),
                       );
                     },
                   ),
@@ -526,11 +542,8 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: Colors.grey.withAlpha(51),
-            width: 1,
-          ),
-                    boxShadow: [
+          border: Border.all(color: Colors.grey.withAlpha(51), width: 1),
+          boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(13),
               blurRadius: 10,
@@ -541,11 +554,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            Icon(icon, color: color, size: 24),
             const SizedBox(width: 8),
             Text(
               text,

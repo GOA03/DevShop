@@ -3,7 +3,37 @@
     {
       "email": "admin@gmail.com",
       "password": "$2a$10$5B6ccU4Er.mVHiTuXRi0v.Tg4cQLMttSBD3joJvf2WfqGy.9B0Y4y",
+      "name": "ADMIN",
+      "phone": "5542999999999",
       "id": 1
+    },
+    {
+      "email": "admin02@gmail.com",
+      "password": "$2a$10$gIWfdr5BS0Hw/I8k1voMmeU1P8.QVCWUR.260JVZsbgpJOwjLCI2G",
+      "name": "ADMIN",
+      "phone": "5542999999999",
+      "id": 2
+    },
+    {
+      "email": "admin03@gmail.com",
+      "password": "$2a$10$b4Z6Sy5YhWsYKydwD.3TbO//.jQd0EwIJAVs.NYVmihamm9mK0CtS",
+      "name": "ADMIN",
+      "phone": "5542999999999",
+      "id": 3
+    },
+    {
+      "email": "teste@gmail.com",
+      "password": "$2a$10$COAbrmV91Mvj.6FWgHEvKuX3KtG4Fbl.sn/TyKfma5t9p48mLvjhO",
+      "name": "teste",
+      "phone": "42 9999-9999",
+      "id": 4
+    },
+    {
+      "email": "gabriel@gmail.com",
+      "password": "$2a$10$Uwv3Dkg7JZCeSb.j9dZx7.Qr.Zg0ZNzkdkGextKcUvJZTwUX.OyHa",
+      "name": "Gabi",
+      "phone": "42 9999-9999",
+      "id": 5
     }
   ],
   "products": [
@@ -18,7 +48,7 @@
       "rating": 4.8,
       "reviewCount": 2342,
       "isOnSale": true,
-      "stock": 15,
+      "stock": 11,
       "isFeatured": true
     },
     {

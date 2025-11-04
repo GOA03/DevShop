@@ -14,12 +14,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DevShop',
+
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
-        
+
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        
+
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           ),
         ),
-        
+
         cardTheme: CardThemeData(
           elevation: 4,
           shape: RoundedRectangleBorder(
@@ -54,15 +55,19 @@ class MyApp extends StatelessWidget {
           ),
           color: AppColors.surface,
         ),
-        
+
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.textSecondary.withAlpha(76)),
+            borderSide: BorderSide(
+              color: AppColors.textSecondary.withAlpha(76),
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.textSecondary.withAlpha(76)),
+            borderSide: BorderSide(
+              color: AppColors.textSecondary.withAlpha(76),
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -72,10 +77,11 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: AppColors.error),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          labelStyle: GoogleFonts.poppins(
-            color: AppColors.textSecondary,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
           ),
+          labelStyle: GoogleFonts.poppins(color: AppColors.textSecondary),
         ),
       ),
       home: const SplashScreen(),

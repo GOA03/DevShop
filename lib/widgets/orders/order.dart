@@ -1,4 +1,7 @@
+import 'package:dev_shop/core/constants/colors.dart';
+import 'package:dev_shop/views/profile/orders_list_sreen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Order extends StatefulWidget {
   const Order({
@@ -19,31 +22,32 @@ class Order extends StatefulWidget {
   final VoidCallback? onPressed;
 
   @override
-  State<Order> createState() => _MyWidgetState();
+  State<Order> createState() => _OrderState();
 }
 
-class _MyWidgetState extends State<Order> {
+class _OrderState extends State<Order> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      elevation: 3,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagem do produto
+            // 🖼️ Imagem do produto
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
                 widget.imageUrl,
-                height: 70,
-                width: 70,
+                height: 80,
+                width: 80,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  height: 70,
-                  width: 70,
+                  height: 80,
+                  width: 80,
                   color: Colors.grey[300],
                   child: const Icon(
                     Icons.image_not_supported,
@@ -53,61 +57,111 @@ class _MyWidgetState extends State<Order> {
               ),
             ),
 
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
 
-            // Informações do produto
+            // 📦 Informações do produto
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.productName,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    "Entrega prevista: \n ${widget.deliveryEstimate}",
-                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    "Entrega prevista: ${widget.deliveryEstimate}",
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     "Qtd: ${widget.quantity}",
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Preço e botão
+            // 💰 Preço e botão
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   "R\$ ${widget.price.toStringAsFixed(2)}",
-                  style: const TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                    color: AppColors.primary,
                   ),
                 ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: widget.onPressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => OrderDetailsScreen(
+                          orderId: "12345",
+                          status: "A caminho",
+                          deliveryAddress:
+                              "Rua das Flores, 123 - São Paulo, SP",
+                          totalAmount: 899.90,
+                          products: [
+                            {
+                              'name': 'Relógio Inteligente',
+                              'price': 299.99,
+                              'oldPrice': 399.99,
+                              'quantity': 1,
+                              'imageUrl':
+                                  'https://images.unsplash.com/photo-1580906855283-18b2e28b8ab8',
+                            },
+                            {
+                              'name': 'Fone Bluetooth',
+                              'price': 199.90,
+                              'oldPrice': null,
+                              'quantity': 2,
+                              'imageUrl':
+                                  'https://images.unsplash.com/photo-1585386959984-a41552231693',
+                            },
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.receipt_long,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    "Ver mais",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-                  child: const Text("Ver mais"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 2,
+                  ),
                 ),
               ],
             ),

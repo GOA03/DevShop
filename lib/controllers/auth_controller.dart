@@ -35,10 +35,17 @@ class AuthController {
   Future<bool> register({
     required String email,
     required String password,
+    required String name,
+    required String phone,
   }) async {
     http.Response response = await client.post(
       Uri.parse('${url}register'),
-      body: {'email': email, 'password': password},
+      body: {
+        'email': email,
+        'password': password,
+        'name': name,
+        'phone': phone,
+      },
     );
 
     if (response.statusCode != 201) {
@@ -52,11 +59,15 @@ class AuthController {
     Map<String, dynamic> map = json.decode(body);
     String token = map['accessToken'];
     String email = map['user']['email'];
+    String name = map['user']['name'];
+    String phone = map['user']['phone'];
     int id = map['user']['id'];
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString("token", token);
     pref.setString("email", email);
+    pref.setString("name", name);
+    pref.setString("phone", phone);
     pref.setInt("userId", id);
   }
 }

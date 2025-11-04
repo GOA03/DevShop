@@ -1,6 +1,6 @@
 import 'package:dev_shop/views/favorites/favorites_screen.dart';
 import 'package:dev_shop/views/profile/addres_screen.dart';
-import 'package:dev_shop/views/profile/ordes_screen.dart';
+import 'package:dev_shop/views/profile/orders_screen.dart';
 import 'package:dev_shop/views/profile/paymants_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,10 +22,9 @@ class _ProfileScreenState extends State<ProfileScreen>
   late Animation<Offset> _slideAnimation;
 
   // Dados mockados do usuário
-  final String userName = 'João Silva';
-  final String userEmail = 'joao.silva@email.com';
-  final String userPhone = '(11) 98765-4321';
-  final String memberSince = 'Membro desde 2023';
+  String _userName = "unknown";
+  String _userEmail = "unknown";
+  String _userPhone = "unknown";
   final int ordersCount = 12;
   final int favoriteCount = 28;
   final int addressCount = 2;
@@ -54,6 +53,13 @@ class _ProfileScreenState extends State<ProfileScreen>
         );
 
     _animationController.forward();
+
+    SharedPreferences.getInstance().then((prefs) {
+      _userName = prefs.getString("name")!;
+      _userEmail = prefs.getString("email")!;
+      _userPhone = prefs.getString("phone")!;
+      setState(() {});
+    });
   }
 
   @override
@@ -191,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   color: AppColors.primary,
                   child: Center(
                     child: Text(
-                      userName.split(' ').map((e) => e[0]).take(2).join(),
+                      _userName.split(' ').map((e) => e[0]).take(2).join(),
                       style: GoogleFonts.poppins(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
@@ -204,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              userName,
+              _userName,
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -213,26 +219,17 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              userEmail,
+              _userEmail,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(25),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                memberSince,
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+            Text(
+              _userPhone,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: AppColors.textSecondary,
               ),
             ),
           ],

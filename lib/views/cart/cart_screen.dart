@@ -83,7 +83,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           ),
           TextButton(
             onPressed: () {
-              setState(() => cartController.clearCart());
+              cartController.clearCart();
+              setState(() {});
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -128,7 +129,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           ),
           TextButton(
             onPressed: () {
-              setState(() => cartController.clearCart());
+              cartController.clearCart();
+              setState(() {});
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

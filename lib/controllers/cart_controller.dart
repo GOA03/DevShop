@@ -1,6 +1,6 @@
 import 'package:dev_shop/controllers/product_controller.dart';
-import 'package:dev_shop/data/cart_dao.dart';
-import 'package:dev_shop/data/cart_model.dart';
+import 'package:dev_shop/data/cart/cart_dao.dart';
+import 'package:dev_shop/data/cart/cart_model.dart';
 import 'package:dev_shop/models/product.dart';
 
 class CartController {
@@ -36,9 +36,7 @@ class CartController {
       // Produto novo → insere no carrinho e banco
       items.add(CartItem(product: product, quantity: 1));
       final newCart = CartModel(1, _userId!, product.id);
-      print("===\n=========\n===\n=========\n===\n=========\n");
-      print(await _dao.save(newCart));
-      print("===\n=========\n===\n=========\n===\n=========\n");
+      await _dao.save(newCart);
     }
   }
 
@@ -65,9 +63,6 @@ class CartController {
     if (_userId == null) return;
 
     final index = items.indexWhere((item) => item.product.id == product.id);
-    print("===\n=========\n===\n=========\n===\n=========\n");
-    print(index);
-    print("===\n=========\n===\n=========\n===\n=========\n");
     if (index < 0) return;
 
     items[index].quantity++;
@@ -92,6 +87,7 @@ class CartController {
 
   void clearCart() async {
     _dao.deleteAll(_userId!);
+    items = [];
   }
 
   double get totalAmount =>
