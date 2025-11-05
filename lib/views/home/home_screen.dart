@@ -40,14 +40,19 @@ class _HomeScreenState extends State<HomeScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
     _animationController.forward();
-    productController.getAll().then((products) {
-      productController.filteredProducts.assignAll(products);
-      // força rebuild após carregar
-      setState(() {});
-    });
 
-    SharedPreferences.getInstance().then((prefs) {
-      CartController().loadItems(prefs.getInt('userId')!);
+    SharedPreferences.getInstance().then((prefs) async {
+      final userId = prefs.getInt('userId');
+      if (userId != null) {
+        // Recarrega o carrinho do usuário
+        CartController().loadItems(userId);
+
+        // 🔄 Recarrega produtos e sincroniza favoritos do usuário logado
+        await productController.onInit();
+        setState(() {}); // força rebuild após sincronização
+      } else {
+        debugPrint('⚠️ Nenhum usuário logado encontrado.');
+      }
     });
   }
 
@@ -906,16 +911,5 @@ class _HomeScreenState extends State<HomeScreen>
         },
       ),
     );
-  }
-
-  void _reloadHome() async {
-    await productController.getAll().then((products) {
-      productController.filteredProducts.assignAll(products);
-    });
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await CartController().loadItems(prefs.getInt('userId')!);
-
-    setState(() {}); // força rebuild
   }
 }

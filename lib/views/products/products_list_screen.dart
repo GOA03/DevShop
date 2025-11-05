@@ -2,6 +2,7 @@ import 'package:dev_shop/controllers/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/colors.dart';
 import '../../models/product.dart';
 import '../../widgets/product_card.dart';
@@ -39,7 +40,7 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   late Animation<double> _filterSlideAnimation;
   late Animation<Offset> _slideAnimation;
 
-  final ProductController productController = Get.put(ProductController());
+  late final ProductController productController = Get.put(ProductController());
 
   final List<String> _categories = [
     'Todos',
@@ -61,19 +62,37 @@ class _ProductsListScreenState extends State<ProductsListScreen>
   @override
   void initState() {
     super.initState();
+    _loadProducts();
+
     _initAnimations();
     _searchFocusNode.addListener(_onSearchFocusChanged);
-    _loadProducts(); // 👈 Aqui
+    // 👈 Aqui
   }
 
   Future<void> _loadProducts() async {
     try {
+      setState(() => _isLoading = true);
+
+      // Carrega produtos normalmente (da API)
       final products = await productController.getAll();
-      setState(() {
-        _filteredProducts = products;
-        _isLoading = false;
-      });
+      productController.filteredProducts.assignAll(products);
+
+      // Agora sincroniza apenas o atributo de favoritos
+      productController.favoriteDao
+          .findAll((await SharedPreferences.getInstance()).getInt('userId')!)
+          .then((favorites) {
+            final favoriteIds = favorites.map((f) => f.prodId).toSet();
+            for (var product in products) {
+              product.isFavorite.value = favoriteIds.contains(product.id);
+            }
+
+            setState(() {
+              _filteredProducts = products;
+              _isLoading = false;
+            });
+          });
     } catch (e) {
+      debugPrint('Erro ao carregar produtos: $e');
       setState(() {
         _isLoading = false;
         _errorMessage = 'Erro ao carregar produtos';

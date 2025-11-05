@@ -34,6 +34,13 @@
       "name": "Gabi",
       "phone": "42 9999-9999",
       "id": 5
+    },
+    {
+      "email": "teste02@gmail.com",
+      "password": "$2a$10$eH0BvlZooYALqmNqkKPX4OZgog0V.ankGFAxd1XKfsvPH042jfwQC",
+      "name": "teste02",
+      "phone": "1111111111",
+      "id": 6
     }
   ],
   "products": [

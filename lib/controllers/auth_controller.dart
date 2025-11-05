@@ -24,9 +24,11 @@ class AuthController {
       String contet = json.decode(response.body);
       switch (contet) {
         case "Cannot find user":
-          throw UserNotFindException();
+          //throw UserNotFindException();
+          return false;
       }
-      throw HttpException(response.body);
+      //throw HttpException(response.body);
+      return false;
     }
     saveInfor(response.body);
     return true;
