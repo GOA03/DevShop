@@ -47,17 +47,6 @@ class CartController {
     await _dao.delete(_userId!, product.id);
   }
 
-  // void updateQuantity(Product product, int quantity) {
-  //   final index = _items.indexWhere((item) => item.product.id == product.id);
-  //   if (index >= 0) {
-  //     if (quantity <= 0) {
-  //       _items.removeAt(index);
-  //     } else {
-  //       _items[index].quantity = quantity;
-  //     }
-  //   }
-  // }
-
   /// Incrementa a quantidade de um produto
   Future<void> increaseQuantity(Product product) async {
     if (_userId == null) return;

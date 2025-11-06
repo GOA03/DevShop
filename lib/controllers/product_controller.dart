@@ -23,9 +23,7 @@ class ProductController extends GetxController {
 
   // Cliente HTTP
   static final String url = ApiController().getUrl(Endpoint.products);
-  http.Client client = InterceptedClient.build(
-    interceptors: [LoggerInterceptor()],
-  );
+  http.Client client = ApiController().client;
 
   // 🟢 DAO de favoritos
   final FavoriteDao favoriteDao = FavoriteDao();

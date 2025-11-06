@@ -106,7 +106,8 @@
       "rating": 4.7,
       "reviewCount": 1832,
       "isOnSale": true,
-      "stock": 19
+      "stock": 19,
+      "isFeatured": true
     },
     {
       "id": 6,
@@ -117,7 +118,8 @@
       "category": "Eletrônicos",
       "rating": 4.8,
       "reviewCount": 743,
-      "stock": 11
+      "stock": 11,
+      "isFeatured": true
     },
     {
       "id": 7,
@@ -145,5 +147,8 @@
     }
   ],
   "orders": [],
-  "payments": []
+  "payments": [],
+  "addres": [
+    
+  ]
 }

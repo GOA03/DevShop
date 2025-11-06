@@ -1,3 +1,7 @@
 {
-    "users": 600
+    "users": 600,
+    "addres": 600,
+    "paymants": 600,
+    "orders": 600
+
 }

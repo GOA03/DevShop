@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:dev_shop/controllers/auth_controller.dart';
+import 'package:dev_shop/widgets/error_dialog.dart/show_dialog_httperror.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/colors.dart';
@@ -377,44 +380,47 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void login(BuildContext context) async {
-    try {
-      await authController
-          .login(
-            email: _emailController.text,
-            password: _passwordController.text,
-          )
-          .then((value) {
-            if (value) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.white),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Login realizado com sucesso!',
-                        style: GoogleFonts.poppins(),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: AppColors.success,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+    authController
+        .login(email: _emailController.text, password: _passwordController.text)
+        .then((value) {
+          if (value) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Login realizado com sucesso!',
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ],
                 ),
-              );
+                backgroundColor: AppColors.success,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
 
-              // Navegar para home
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-              );
-            }
-          });
-    } on UserNotFindException {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Credenciais inválidas!')));
-    }
+            // Navegar para home
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          }
+        })
+        .catchError((error) {
+          showDialogHttperror(context, contet: "Credenciais Invalidas");
+        }, test: (error) => error is UserNotFindException)
+        .catchError((error) {
+          showDialogHttperror(context, contet: "erro de timeout");
+        }, test: (error) => error is TimeoutException)
+        .catchError((error) {
+          showDialogHttperror(
+            context,
+            contet: "Erro inesperado: ${error.message}",
+          );
+        }, test: (error) => error is Exception);
   }
 }

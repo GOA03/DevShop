@@ -75,17 +75,6 @@ class _AddresState extends State<AddresWiget> {
                         // ação de excluir
                       },
                     ),
-                    _buildActionButton(
-                      label: widget.address.isDefault
-                          ? "Padrão"
-                          : "Definir como padrão",
-                      color: widget.address.isDefault
-                          ? Colors.grey
-                          : Colors.green.shade600,
-                      onPressed: widget.address.isDefault
-                          ? null
-                          : widget.onSetDefault,
-                    ),
                   ],
                 ),
               ],
@@ -113,3 +102,6 @@ class _AddresState extends State<AddresWiget> {
     );
   }
 }
+
+
+/* */
