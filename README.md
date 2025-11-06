@@ -75,12 +75,17 @@ A primeira parte concentra-se no desenvolvimento completo da interface do usuár
    cd devshop
    ```
 
-2. **Instale as dependências**:
+2. **Mude para a branch correta**:
+   ```bash
+   git checkout anti-gabi
+   ```
+
+3. **Instale as dependências**:
    ```bash
    flutter pub get
    ```
 
-3. **Execute o aplicativo**:
+4. **Execute o aplicativo**:
    ```bash
    flutter run
    ```
