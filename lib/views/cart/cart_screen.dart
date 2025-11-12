@@ -1,4 +1,5 @@
 import 'package:dev_shop/controllers/cart_controller.dart';
+import 'package:dev_shop/views/cart/checkout_options_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/colors.dart';
@@ -17,7 +18,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  final CartController cartController = CartController();
+  late final CartController cartController = CartController();
 
   @override
   void initState() {
@@ -103,47 +104,20 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showCheckoutDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Finalizar Compra'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Total: R\$ ${totalAmount.toStringAsFixed(2)}'),
-            if (totalSavings > 0)
-              Text(
-                'Economia: R\$ ${totalSavings.toStringAsFixed(2)}',
-                style: const TextStyle(color: AppColors.success),
-              ),
-            const SizedBox(height: 16),
-            const Text('Confirma a finalização da compra?'),
-          ],
+  void _showCheckoutDialog() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CheckoutOptionsScreen(
+          totalAmount: totalAmount,
+          totalSavings: totalSavings,
+          onConfirmation: cartController.clearCart,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              cartController.clearCart();
-              setState(() {});
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Compra finalizada com sucesso!'),
-                  backgroundColor: AppColors.success,
-                ),
-              );
-            },
-            child: const Text('Confirmar'),
-          ),
-        ],
       ),
     );
+    if (result) {
+      setState(() {});
+    }
   }
 
   @override

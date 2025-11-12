@@ -149,6 +149,15 @@
   "orders": [],
   "payments": [],
   "addres": [
-    
+    {
+      "addresId": 1,
+      "street": "teste",
+      "city": "teste",
+      "state": "teste",
+      "contry": "teste",
+      "number": "teste",
+      "name": "teste",
+      "userId": 1
+    }
   ]
 }

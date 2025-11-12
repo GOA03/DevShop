@@ -5,17 +5,11 @@ import 'package:http_interceptor/http/intercepted_client.dart';
 class ApiController {
   static const String url = "http://172.20.10.2:3000/";
 
-  String getUrl(Endpoint endpoint) {
-    return "$url${endpoint.name}";
-  }
+  String getUrl(Endpoint endpoint) => "$url${endpoint.name}";
 
-  String getUrlNoAdd() {
-    return url;
-  }
+  String getUrlNoAdd() => url;
 
-  String getUrlUser(int id, Endpoint endpoint) {
-    return "${url}users/$id/$endpoint";
-  }
+  String getUrlUser(int id, Endpoint endpoint) => "${url}users/$id/$endpoint";
 
   http.Client client = InterceptedClient.build(
     interceptors: [LoggerInterceptor()],

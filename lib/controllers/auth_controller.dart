@@ -15,7 +15,6 @@ class AuthController {
       Uri.parse('${url}login'),
       body: {'email': email, 'password': password},
     );
-    print(response.body);
 
     if (response.statusCode != 200) {
       String contet = json.decode(response.body);
@@ -45,9 +44,9 @@ class AuthController {
       },
     );
 
-    if (response.statusCode != 201) {
-      throw HttpException("Error register");
-    }
+    // if (response.statusCode != 201) {
+    //   throw HttpException("Error register");
+    // }
     saveInfor(response.body);
     return true;
   }

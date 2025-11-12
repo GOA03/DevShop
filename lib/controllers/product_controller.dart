@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:dev_shop/controllers/api/api_controller.dart';
 import 'package:dev_shop/data/favorite/favorite_dao.dart';
 import 'package:dev_shop/data/favorite/favorite_model.dart';
-import 'package:dev_shop/service/http_interceptor.dart';
 import 'package:get/get.dart';
-import 'package:http_interceptor/http/intercepted_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/product.dart';
 import 'package:http/http.dart' as http;
@@ -113,9 +111,9 @@ class ProductController extends GetxController {
 
   Future<List<Product>> getAll() async {
     final response = await client.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      throw Exception("Erro ao buscar produtos");
-    }
+    // if (response.statusCode != 200) {
+    //   throw Exception("Erro ao buscar produtos");
+    // }
 
     List<dynamic> listDynamic = json.decode(response.body);
     return listDynamic

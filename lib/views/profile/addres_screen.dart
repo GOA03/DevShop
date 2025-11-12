@@ -1,9 +1,12 @@
+import 'package:dev_shop/controllers/addres_controller.dart';
 import 'package:dev_shop/core/constants/colors.dart';
 import 'package:dev_shop/models/addres.dart';
 import 'package:dev_shop/views/forms/addres_form.dart';
 import 'package:dev_shop/widgets/addres/addres_wiget.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddresScreen extends StatefulWidget {
   const AddresScreen({super.key});
@@ -13,43 +16,26 @@ class AddresScreen extends StatefulWidget {
 }
 
 class _AddresScreenState extends State<AddresScreen> {
-  late List<Addres> addresses;
+  List<Addres> _addresses = [];
+  late final AddresController _addresController = Get.put(AddresController());
 
   @override
   void initState() {
     super.initState();
-    addresses = [
-      Addres(
-        street: "rua",
-        city: "cidade",
-        state: "state",
-        contry: "pais",
-        number: "123",
-        name: "nome 1",
-        userId: "nfiowenf",
-        addresId: "0001",
-      ),
-      Addres(
-        street: "aaaa",
-        city: "cidade",
-        state: "state",
-        number: "123",
-        contry: "pais",
-        name: "nome 2",
-        userId: "nfiowenf",
-        addresId: "0001",
-      ),
-      Addres(
-        street: "bbbb",
-        city: "cidade",
-        state: "state",
-        number: "456",
-        contry: "pais",
-        name: "nome 3",
-        userId: "nfiowenf",
-        addresId: "0001",
-      ),
-    ];
+    _loadAddresses();
+  }
+
+  void _loadAddresses() {
+    SharedPreferences.getInstance().then((prefs) {
+      _addresController
+          .getAll(id: prefs.getInt('userId')!, token: prefs.getString('token')!)
+          .then((value) {
+            setState(() {
+              if (value.isEmpty) return;
+              _addresses = value;
+            });
+          });
+    });
   }
 
   @override
@@ -83,7 +69,7 @@ class _AddresScreenState extends State<AddresScreen> {
           ),
         ],
       ),
-      body: addresses.isEmpty
+      body: _addresses.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -115,9 +101,9 @@ class _AddresScreenState extends State<AddresScreen> {
             )
           : ListView.builder(
               padding: const EdgeInsets.only(bottom: 90.0),
-              itemCount: addresses.length,
+              itemCount: _addresses.length,
               itemBuilder: (context, index) {
-                final addr = addresses[index];
+                final addr = _addresses[index];
                 return AddresWiget(address: addr, onSetDefault: () => (addr));
               },
             ),

@@ -18,8 +18,6 @@ class AddresWiget extends StatefulWidget {
 class _AddresState extends State<AddresWiget> {
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width > 600;
-
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),

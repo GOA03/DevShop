@@ -44,4 +44,14 @@ class Addres {
       userId: json['userId'],
     );
   }
+
+  Addres.fromMap(Map<String, dynamic> map)
+    : addresId = map['addresId'],
+      street = map['street'],
+      city = map['city'],
+      state = map['state'],
+      contry = map['contry'],
+      number = map['number'],
+      name = map['name'],
+      userId = map['userId'];
 }
