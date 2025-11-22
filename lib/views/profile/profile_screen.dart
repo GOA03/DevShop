@@ -1,5 +1,6 @@
 import 'package:dev_shop/views/favorites/favorites_screen.dart';
 import 'package:dev_shop/views/profile/addres_screen.dart';
+import 'package:dev_shop/views/profile/edit_user_screen.dart';
 import 'package:dev_shop/views/profile/orders_screen.dart';
 import 'package:dev_shop/views/profile/paymants_screen.dart';
 import 'package:flutter/material.dart';
@@ -54,10 +55,14 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     _animationController.forward();
 
+    _loadUserData();
+  }
+
+  void _loadUserData() {
     SharedPreferences.getInstance().then((prefs) {
-      _userName = prefs.getString("name")!;
-      _userEmail = prefs.getString("email")!;
-      _userPhone = prefs.getString("phone")!;
+      _userName = prefs.getString("name") ?? "unknown";
+      _userEmail = prefs.getString("email") ?? "unknown";
+      _userPhone = prefs.getString("phone") ?? "unknown";
       setState(() {});
     });
   }
@@ -161,9 +166,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Editar perfil em breve!')),
-            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const EditUserScreen()),
+            ).then((_) => _loadUserData());
           },
         ),
         const SizedBox(width: 8),
