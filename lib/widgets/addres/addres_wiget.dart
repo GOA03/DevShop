@@ -286,35 +286,6 @@ class _AddresState extends State<AddresWiget> with SingleTickerProviderStateMixi
                             ),
                           ],
                         ),
-
-                        // Botão definir como padrão (se não for padrão)
-                        if (!widget.isDefault) ...[
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: widget.onSetDefault,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.primary,
-                                side: BorderSide(
-                                  color: AppColors.primary.withOpacity(0.3),
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                              icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                              label: Text(
-                                'Definir como padrão',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
