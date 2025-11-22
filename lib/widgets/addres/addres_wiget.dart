@@ -1,5 +1,6 @@
 import 'package:dev_shop/core/constants/colors.dart';
 import 'package:dev_shop/models/addres.dart';
+import 'package:dev_shop/views/forms/edit_address_form.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -263,7 +264,12 @@ class _AddresState extends State<AddresWiget> with SingleTickerProviderStateMixi
                                 icon: Icons.edit_rounded,
                                 color: AppColors.primary,
                                 onPressed: () {
-                                  // Ação de editar
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditAddressForm(address: widget.address),
+                                    ),
+                                  );
                                 },
                               ),
                             ),
