@@ -41,6 +41,13 @@
       "name": "teste02",
       "phone": "1111111111",
       "id": 6
+    },
+    {
+      "email": "admin06@gmail.com",
+      "password": "$2a$10$nwyPr/S/Bn2VEZME3U4pfe.bF6BQ3.gpeRRtsjuFTzzaADZNEgdk6",
+      "name": "matheus",
+      "phone": "42099999999",
+      "id": 7
     }
   ],
   "products": [
@@ -148,7 +155,5 @@
   ],
   "orders": [],
   "payments": [],
-  "addres": [
-    
-  ]
+  "addres": []
 }
